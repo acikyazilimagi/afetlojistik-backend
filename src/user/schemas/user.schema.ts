@@ -59,6 +59,12 @@ export class User {
     default: [],
   })
   roles?: string[];
+
+  @Prop({
+    type: mSchema.Types.ObjectId,
+    required: true,
+  })
+  organizationId: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
