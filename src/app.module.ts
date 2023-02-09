@@ -9,6 +9,7 @@ import { LocationModule } from './location/location.module';
 import { TransformInterceptor } from './common/interceptors';
 import { OrganizationModule } from './organization/organization.module';
 import { TripModule } from './trip/trip.module';
+import { DriverModule } from './driver/driver.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { TripModule } from './trip/trip.module';
     LocationModule,
     OrganizationModule,
     TripModule,
+    DriverModule,
   ],
   controllers: [],
   providers: [

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
-export class LoginUserDto {
+export class CreateDriverDto {
   @IsString()
   @IsNotEmpty()
   @IsPhoneNumber('TR')
@@ -13,8 +13,16 @@ export class LoginUserDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Password',
-    example: '123456',
+    description: 'Name Surname',
+    example: 'John Doe',
   })
-  password: string;
+  name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Plate Number',
+    example: '34ABC123',
+  })
+  plateNumber: string;
 }

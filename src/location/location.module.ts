@@ -4,7 +4,6 @@ import { LocationController } from './location.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { City, CitySchema } from './schemas/city.schema';
 import { District, DistrictSchema } from './schemas/district.schema';
-import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -18,7 +17,6 @@ import { UserModule } from '../user/user.module';
         schema: DistrictSchema,
       },
     ]),
-    UserModule,
   ],
   controllers: [LocationController],
   providers: [LocationService],
