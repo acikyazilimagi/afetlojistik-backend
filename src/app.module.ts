@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { HealthModule } from './health/health.module';
 import { LoggerModule } from 'nestjs-pino';
 import { MongooseModule } from '@nestjs/mongoose';
+import { LocationModule } from './location/location.module';
 
 @Module({
   imports: [
@@ -16,8 +17,9 @@ import { MongooseModule } from '@nestjs/mongoose';
         },
       },
     }),
-    MongooseModule.forRoot(process.env.MONGO_URL),
+    MongooseModule.forRoot(''),
     HealthModule,
+    LocationModule,
   ],
   controllers: [],
   providers: [],
