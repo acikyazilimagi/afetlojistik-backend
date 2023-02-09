@@ -7,6 +7,7 @@ import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipeConfig } from './common/config/validation-pipe.config';
 import { LocationModule } from './location/location.module';
 import { TransformInterceptor } from './common/interceptors';
+import { OrganizationModule } from './organization/organization.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TransformInterceptor } from './common/interceptors';
     HealthModule,
     UserModule,
     LocationModule,
+    OrganizationModule,
   ],
   controllers: [],
   providers: [
