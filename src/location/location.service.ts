@@ -11,7 +11,7 @@ export class LocationService {
     private readonly cityDocument: Model<CityDocument>,
     @InjectModel(District.name)
     private readonly districtDocument: Model<DisctrictDocument>
-  ) { }
+  ) {}
 
   async getAllCities(): Promise<CityDocument[]> {
     return this.cityDocument
