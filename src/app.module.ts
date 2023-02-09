@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { APP_PIPE } from '@nestjs/core';
 import { ValidationPipeConfig } from './common/config/validation-pipe.config';
 import { LocationModule } from './location/location.module';
+import { OrganizationModule } from './organization/organization.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { LocationModule } from './location/location.module';
     HealthModule,
     UserModule,
     LocationModule,
+    OrganizationModule,
   ],
   controllers: [],
   providers: [
