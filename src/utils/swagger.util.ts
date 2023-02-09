@@ -1,4 +1,4 @@
-import { DocumentBuilder } from "@nestjs/swagger";
+import { DocumentBuilder } from '@nestjs/swagger';
 
 const config = new DocumentBuilder()
   .setTitle('Transportation Management System API')
