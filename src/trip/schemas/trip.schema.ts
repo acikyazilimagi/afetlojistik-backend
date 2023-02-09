@@ -24,7 +24,7 @@ export class Trip {
     type: VehicleSchema,
     required: true,
   })
-  vehicle: Vehicle,
+  vehicle?: Vehicle;
 }
 
 export const TripSchema = SchemaFactory.createForClass(Trip);
