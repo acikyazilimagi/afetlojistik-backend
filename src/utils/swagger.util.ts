@@ -1,4 +1,5 @@
 import { DocumentBuilder } from '@nestjs/swagger';
+import * as process from 'process';
 
 const config = new DocumentBuilder()
   .setTitle('Transportation Management System API')
@@ -6,4 +7,6 @@ const config = new DocumentBuilder()
 
 const customCss = '.swagger-ui .topbar { display: none }';
 
-export { config, customCss };
+const swaggerEnabled = process.env.SWAGGER_ENABLED !== 'false';
+
+export { config, customCss, swaggerEnabled };

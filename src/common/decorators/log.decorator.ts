@@ -1,21 +1,21 @@
 export const LogMe =
   () =>
-  (target: any, methodName: string, descriptor: any): void => {
+  (target: object, methodName: string, descriptor: PropertyDescriptor) => {
     const className = target.constructor.name;
-    const original = descriptor.value;
+    const originalMethod = descriptor.value;
 
-    descriptor.value = new Proxy(original, {
-      async apply(target, thisArg, args) {
-        if (thisArg.logger !== undefined) {
-          thisArg.logger.debug(
-            `[${className}] ${methodName}`,
-            `${JSON.stringify(args)}`,
-          );
-        }
+    descriptor.value = async function (...args) {
+      const logger = this.logger;
 
-        console.log(`[${className}] ${methodName}`, `${JSON.stringify(args)}`);
+      if (logger) {
+        logger.debug(`[${className}] ${methodName}`, `${JSON.stringify(args)}`);
+      } else {
+        console.debug(
+          `[${className}] ${methodName}`,
+          `${JSON.stringify(args)}`
+        );
+      }
 
-        return await target.apply(thisArg, args);
-      },
-    });
+      return await originalMethod.apply(this, args);
+    };
   };
