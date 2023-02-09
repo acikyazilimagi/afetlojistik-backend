@@ -3,9 +3,10 @@ import { HealthModule } from './health/health.module';
 import { LoggerModule } from 'nestjs-pino';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipeConfig } from './common/config/validation-pipe.config';
 import { LocationModule } from './location/location.module';
+import { TransformInterceptor } from './common/interceptors';
 
 @Module({
   imports: [
@@ -27,6 +28,10 @@ import { LocationModule } from './location/location.module';
   ],
   controllers: [],
   providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    },
     {
       provide: APP_PIPE,
       useFactory: () => new ValidationPipe(ValidationPipeConfig),
