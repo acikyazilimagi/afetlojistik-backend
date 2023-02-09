@@ -1,4 +1,11 @@
-import { Controller, Get, Headers, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { LocationService } from './location.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CityDocument } from './schemas/city.schema';
@@ -24,7 +31,17 @@ export class LocationController {
   getAllDiscritcts(
     @Headers() tokenHeader: TokenHeader
   ): Promise<DisctrictDocument[]> {
-    return this.locationService.getAllDiscritcts();
+    return this.locationService.getAllDistricts();
+  }
+
+  @Get('districts/city')
+  @ApiOperation({ summary: 'Get districts of city.' })
+  @UseGuards(UserAuthGuard)
+  getDistrictsOfCity(
+    @Headers() tokenHeader: TokenHeader,
+    @Query('cityId') cityId: string
+  ): Promise<DisctrictDocument[]> {
+    return this.locationService.getDistrictsOfCity(cityId);
   }
 
   @Get('cities/:cityId')
