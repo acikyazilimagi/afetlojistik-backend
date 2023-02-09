@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
+import { config, customCss } from './utils/swagger.util';
 
 const PORT = process.env.PORT || 3000;
 
@@ -12,14 +13,8 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
 
   if (!(process.env.ENV === 'prod')) {
-    const config = new DocumentBuilder()
-      .setTitle('Transportation Management System API')
-      .build();
-
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document, {
-      customCss: '.swagger-ui .topbar { display: none }',
-    });
+    SwaggerModule.setup('api', app, document, { customCss });
   }
 
   await app.listen(PORT);
