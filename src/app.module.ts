@@ -8,6 +8,7 @@ import { ValidationPipeConfig } from './common/config/validation-pipe.config';
 import { LocationModule } from './location/location.module';
 import { TransformInterceptor } from './common/interceptors';
 import { OrganizationModule } from './organization/organization.module';
+import { TripModule } from './trip/trip.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { OrganizationModule } from './organization/organization.module';
     UserModule,
     LocationModule,
     OrganizationModule,
+    TripModule,
   ],
   controllers: [],
   providers: [
