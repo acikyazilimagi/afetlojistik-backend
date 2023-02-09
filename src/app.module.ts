@@ -20,7 +20,7 @@ import { LocationModule } from './location/location.module';
         },
       },
     }),
-    MongooseModule.forRoot(''),
+    MongooseModule.forRoot(process.env.MONGO_URL),
     HealthModule,
     UserModule,
     LocationModule,
