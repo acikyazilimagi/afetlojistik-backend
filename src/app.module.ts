@@ -1,7 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { HealthModule } from './health/health.module';
 import { LoggerModule } from 'nestjs-pino';
 import { MongooseModule } from '@nestjs/mongoose';
+import { UserModule } from './user/user.module';
+import { APP_PIPE } from '@nestjs/core';
+import { ValidationPipeConfig } from './common/config/validation-pipe.config';
 
 @Module({
   imports: [
@@ -18,8 +21,14 @@ import { MongooseModule } from '@nestjs/mongoose';
     }),
     MongooseModule.forRoot(process.env.MONGO_URL),
     HealthModule,
+    UserModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_PIPE,
+      useFactory: () => new ValidationPipe(ValidationPipeConfig),
+    },
+  ],
 })
 export class AppModule {}
