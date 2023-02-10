@@ -24,7 +24,7 @@ import { OrganizationService } from 'src/organization/organization.service';
 import { OrganizationDocument } from 'src/organization/schemas/organization.schema';
 import { FilterTripDto } from './dto/filter-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
-import { AWSSNSService } from 'src/notification/notification';
+import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 
 @Injectable()
 export class TripService {
