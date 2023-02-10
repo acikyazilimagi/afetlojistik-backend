@@ -11,6 +11,7 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
   app.useLogger(app.get(Logger));
+  app.enableCors();
 
   if (swaggerEnabled) {
     const document = SwaggerModule.createDocument(app, config);
