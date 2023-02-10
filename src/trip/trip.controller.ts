@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { TripService } from './trip.service';
 import { CreateTripDto } from './dto/create-trip.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserAuthGuard } from '../user/guards/user.guard';
 import { TokenHeader } from '../common/headers/token.header';
 import { User } from '../user/decorators/user.decorator';
@@ -23,6 +23,7 @@ export class TripController {
   constructor(private readonly tripService: TripService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create trip.' })
   @UseGuards(UserAuthGuard)
   create(
     @Headers() tokenHeader: TokenHeader,
@@ -34,6 +35,7 @@ export class TripController {
   }
 
   @Get('/number/:tripNumber')
+  @ApiOperation({ summary: 'Get trip by trip number.' })
   @UseGuards(UserAuthGuard)
   getTripByNumber(
     @Headers() tokenHeader: TokenHeader,
@@ -45,6 +47,7 @@ export class TripController {
   }
 
   @Get(':tripId')
+  @ApiOperation({ summary: 'Get trip by trip id.' })
   @UseGuards(UserAuthGuard)
   getTripById(
     @Headers() tokenHeader: TokenHeader,
@@ -56,6 +59,7 @@ export class TripController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all trips.' })
   @UseGuards(UserAuthGuard)
   getAllTrips(
     @Headers() tokenHeader: TokenHeader,
@@ -66,6 +70,7 @@ export class TripController {
   }
 
   @Post('filter')
+  @ApiOperation({ summary: 'Filter trips.' })
   @UseGuards(UserAuthGuard)
   filterTrips(
     @Headers() tokenHeader: TokenHeader,

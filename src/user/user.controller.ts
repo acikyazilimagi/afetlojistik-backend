@@ -11,12 +11,13 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('login')
+  @ApiOperation({ summary: 'Login user.' })
   login(@Body() loginUserDto: LoginUserDto): Promise<LoginResponse> {
     return this.userService.login(loginUserDto);
   }
 
   @Post('verify/:verificationCode')
-  @ApiOperation({ summary: 'Validate verification code' })
+  @ApiOperation({ summary: 'Validate verification code.' })
   validateVerificationCode(
     @Param('verificationCode') verificationCode: string
   ): Promise<ValidateVerificationCodeResponse> {
@@ -24,7 +25,7 @@ export class UserController {
   }
 
   @Post('verification/resend')
-  @ApiOperation({ summary: 'Resend verification code' })
+  @ApiOperation({ summary: 'Resend verification code.' })
   resendVerificationCode(
     @Body() resendVerificationCodeDto: ResendVerificationCodeDto
   ): Promise<LoginResponse> {
