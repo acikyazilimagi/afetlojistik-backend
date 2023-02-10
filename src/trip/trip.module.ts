@@ -6,6 +6,8 @@ import { Trip, TripSchema } from './schemas/trip.schema';
 import { LocationModule } from '../location/location.module';
 import * as AutoIncrementFactory from 'mongoose-sequence';
 import { Connection } from 'mongoose';
+import { CategoryModule } from '../category/category.module';
+import TripFormatter from './formatters/trip-populate.formatter';
 
 @Module({
   imports: [
@@ -25,8 +27,9 @@ import { Connection } from 'mongoose';
       },
     ]),
     LocationModule,
+    CategoryModule,
   ],
   controllers: [TripController],
-  providers: [TripService],
+  providers: [TripService, TripFormatter],
 })
 export class TripModule {}

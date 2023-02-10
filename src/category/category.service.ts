@@ -35,4 +35,11 @@ export class CategoryService {
 
     return category;
   }
+
+  @LogMe()
+  async getCategoriesByIds(categoryIds: string[]): Promise<CategoryDocument[]> {
+    return this.categoryModel.find({
+      _id: { $in: categoryIds },
+    });
+  }
 }
