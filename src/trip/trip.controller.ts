@@ -7,6 +7,7 @@ import {
   Get,
   Param,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { TripService } from './trip.service';
 import { CreateTripDto } from './dto/create-trip.dto';
@@ -18,6 +19,7 @@ import { UserDocument } from '../user/schemas/user.schema';
 import { TripDocument } from './schemas/trip.schema';
 import { FilterTripDto } from './dto/filter-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @ApiTags('Trip')
 @Controller('trip')
@@ -65,10 +67,11 @@ export class TripController {
   @UseGuards(UserAuthGuard)
   getAllTrips(
     @Headers() tokenHeader: TokenHeader,
-    @User() user: UserDocument
-  ): Promise<TripDocument[]> {
+    @User() user: UserDocument,
+    @Query() { limit, skip }: PaginationDto
+  ): Promise<{ data: TripDocument[]; total: number }> {
     const { organizationId } = user;
-    return this.tripService.getAllTrips(organizationId);
+    return this.tripService.getAllTrips(organizationId, limit, skip);
   }
 
   @Post('filter')
@@ -77,10 +80,16 @@ export class TripController {
   filterTrips(
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,
-    @Body() filterTripDto: FilterTripDto
-  ): Promise<TripDocument[]> {
+    @Body() filterTripDto: FilterTripDto,
+    @Query() { limit, skip }: PaginationDto
+  ): Promise<{ data: TripDocument[]; total: number }> {
     const { organizationId } = user;
-    return this.tripService.filterTrips(filterTripDto, organizationId);
+    return this.tripService.filterTrips(
+      filterTripDto,
+      organizationId,
+      limit,
+      skip
+    );
   }
 
   @Patch(':tripId/update')

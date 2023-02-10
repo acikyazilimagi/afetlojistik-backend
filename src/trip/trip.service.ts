@@ -37,8 +37,8 @@ export class TripService {
     private readonly organizationService: OrganizationService,
     private readonly tripFormatter: TripFormatter,
     private readonly userService: UserService,
-    private readonly snsService: AWSSNSService,
-  ) { }
+    private readonly snsService: AWSSNSService
+  ) {}
 
   @LogMe()
   async validateTrip(trip) {
@@ -183,14 +183,26 @@ export class TripService {
   }
 
   @LogMe()
-  async getAllTrips(organizationId: string): Promise<TripDocument[]> {
-    const trips: TripDocument[] = await this.tripModel
-      .find({
-        organizationId,
-      })
-      .lean();
+  async getAllTrips(
+    organizationId: string,
+    limit: number,
+    skip: number
+  ): Promise<{ data: TripDocument[]; total: number }> {
+    const query = { organizationId };
+    const result = {
+      data: (await this.tripModel
+        .find(query)
+        .skip(skip || 0)
+        .limit(limit || Number.MAX_SAFE_INTEGER)
+        .lean()
+        .exec()) as unknown as TripDocument[],
+      total: (await this.tripModel.countDocuments(query)) as unknown as number,
+    };
 
-    return this.tripsPopulate(trips);
+    return {
+      data: await this.tripsPopulate(result.data),
+      total: result.total,
+    };
   }
 
   @LogMe()
@@ -237,8 +249,10 @@ export class TripService {
   @LogMe()
   async filterTrips(
     filterTripDto: FilterTripDto,
-    organizationId: string
-  ): Promise<TripDocument[]> {
+    organizationId: string,
+    limit: number,
+    skip: number
+  ): Promise<{ data: TripDocument[]; total: number }> {
     const query: any = {
       organizationId,
     };
@@ -294,8 +308,19 @@ export class TripService {
       query.status = { $in: filterTripDto.statuses };
     }
 
-    const result = (await this.tripModel.find(query).lean()) as TripDocument[];
+    const result = {
+      data: (await this.tripModel
+        .find(query)
+        .skip(skip || 0)
+        .limit(limit || Number.MAX_SAFE_INTEGER)
+        .lean()
+        .exec()) as unknown as TripDocument[],
+      total: (await this.tripModel.countDocuments(query)) as unknown as number,
+    };
 
-    return this.tripsPopulate(result);
+    return {
+      data: await this.tripsPopulate(result.data),
+      total: result.total,
+    };
   }
 }

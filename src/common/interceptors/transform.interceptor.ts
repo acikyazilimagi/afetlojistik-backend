@@ -26,6 +26,10 @@ export class TransformInterceptor<T>
       return next.handle();
     }
 
-    return next.handle().pipe(map((data) => ({ data })));
+    return next.handle().pipe(
+      map((data) => ({
+        ...(data?.total !== undefined ? { ...data } : { data }),
+      }))
+    );
   }
 }
