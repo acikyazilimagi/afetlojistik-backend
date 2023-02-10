@@ -35,14 +35,6 @@ export class User {
     minlength: 5,
     maxlength: 50,
   })
-  password: string;
-
-  @Prop({
-    type: mSchema.Types.String,
-    required: true,
-    minlength: 5,
-    maxlength: 50,
-  })
   phone: string;
 
   @Prop({

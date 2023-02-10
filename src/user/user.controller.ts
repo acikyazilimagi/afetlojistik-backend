@@ -1,8 +1,9 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Param } from '@nestjs/common';
 import { UserService } from './user.service';
 import { LoginUserDto } from './dto/login-user.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { LoginResponse } from './types';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { LoginResponse, ValidateVerificationCodeResponse } from './types';
+import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -12,5 +13,21 @@ export class UserController {
   @Post('login')
   login(@Body() loginUserDto: LoginUserDto): Promise<LoginResponse> {
     return this.userService.login(loginUserDto);
+  }
+
+  @Post('verify/:verificationCode')
+  @ApiOperation({ summary: 'Validate verification code' })
+  validateVerificationCode(
+    @Param('verificationCode') verificationCode: string
+  ): Promise<ValidateVerificationCodeResponse> {
+    return this.userService.validateVerificationCode(verificationCode);
+  }
+
+  @Post('verification/resend')
+  @ApiOperation({ summary: 'Resend verification code' })
+  resendVerificationCode(
+    @Body() resendVerificationCodeDto: ResendVerificationCodeDto
+  ): Promise<LoginResponse> {
+    return this.userService.resendVerificationCode(resendVerificationCodeDto);
   }
 }
