@@ -9,7 +9,7 @@ import { Connection } from 'mongoose';
 import { CategoryModule } from '../category/category.module';
 import TripFormatter from './formatters/trip-populate.formatter';
 import { OrganizationModule } from 'src/organization/organization.module';
-import { AWSSNSService } from 'src/notification/services/aws-sns.service';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -30,9 +30,10 @@ import { AWSSNSService } from 'src/notification/services/aws-sns.service';
     ]),
     LocationModule,
     CategoryModule,
+    NotificationModule,
     OrganizationModule,
   ],
   controllers: [TripController],
-  providers: [TripService, TripFormatter, AWSSNSService],
+  providers: [TripService, TripFormatter],
 })
 export class TripModule {}

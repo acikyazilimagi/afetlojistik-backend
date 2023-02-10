@@ -266,7 +266,9 @@ export class TripService {
     }
 
     if (filterTripDto.trailerPlateNumber) {
-      query['vehicle.plate.trailer'] = { $in: [filterTripDto.trailerPlateNumber] };
+      query['vehicle.plate.trailer'] = {
+        $in: [filterTripDto.trailerPlateNumber],
+      };
     }
 
     if (filterTripDto.driverName) {
