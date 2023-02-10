@@ -28,6 +28,7 @@ export class Trip {
   @Prop({
     type: mSchema.Types.Number,
     enum: TripsStatuses,
+    default: TripsStatuses.CREATED,
   })
   status: string;
 
@@ -70,7 +71,7 @@ export class Trip {
     type: mSchema.Types.String,
     required: false,
   })
-  notes?: String;
+  notes?: string;
 
   @Prop({
     type: [ProductSchema],

@@ -16,6 +16,7 @@ import { User } from '../user/decorators/user.decorator';
 import { UserDocument } from '../user/schemas/user.schema';
 import { TripDocument } from './schemas/trip.schema';
 import { FilterTripDto } from './dto/filter-trip.dto';
+import { UpdateTripDto } from './dto/update-trip.dto';
 
 @ApiTags('Trip')
 @Controller('trip')
@@ -52,7 +53,7 @@ export class TripController {
     @Param('tripId') tripId: string
   ): Promise<TripDocument> {
     const { organizationId } = user;
-    return this.tripService.getTripById(tripId, organizationId);
+    return this.tripService.getPopulatedTripById(tripId, organizationId);
   }
 
   @Get()
@@ -74,5 +75,17 @@ export class TripController {
   ): Promise<TripDocument[]> {
     const { organizationId } = user;
     return this.tripService.filterTrips(filterTripDto, organizationId);
+  }
+
+  @Post(':tripId/update')
+  @UseGuards(UserAuthGuard)
+  updateTrip(
+    @Headers() tokenHeader: TokenHeader,
+    @User() user: UserDocument,
+    @Param('tripId') tripId: string,
+    @Body() updateTripDto: UpdateTripDto
+  ): Promise<TripDocument> {
+    const { organizationId } = user;
+    return this.tripService.updateTrip(tripId, updateTripDto, organizationId);
   }
 }
