@@ -153,4 +153,10 @@ export class UserService {
       .select('-password -organizationId')
       .lean();
   }
+
+  @LogMe()
+  async logout(token: string): Promise<boolean> {
+    await this.tokenModel.deleteOne({ token });
+    return true;
+  }
 }

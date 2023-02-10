@@ -1,10 +1,11 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Headers } from '@nestjs/common';
 import { UserService } from './user.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginResponse, ValidateVerificationCodeResponse } from './types';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { TokenHeader } from '../common/headers/token.header';
 
 @ApiTags('User')
 @Controller('user')
@@ -31,5 +32,11 @@ export class UserController {
     @Body() resendVerificationCodeDto: ResendVerificationCodeDto
   ): Promise<LoginResponse> {
     return this.userService.resendVerificationCode(resendVerificationCodeDto);
+  }
+
+  @Post('logout')
+  @ApiOperation({ summary: 'Logout user.' })
+  logout(@Headers() tokenHeader: TokenHeader) {
+    return this.userService.logout(tokenHeader.token);
   }
 }
