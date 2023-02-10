@@ -7,13 +7,19 @@ import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 import { TripsStatuses } from './types/trip.type';
 import TripNotFoundException from './exceptions/trip-not-found.exception';
+import { LocationService } from '../location/location.service';
+import { CategoryService } from '../category/category.service';
+import TripFormatter from './formatters/trip-populate.formatter';
 
 @Injectable()
 export class TripService {
   constructor(
     private readonly logger: PinoLogger,
     @InjectModel(Trip.name)
-    private readonly tripModel: Model<Trip>
+    private readonly tripModel: Model<Trip>,
+    private readonly locationService: LocationService,
+    private readonly categoryService: CategoryService,
+    private readonly tripFormatter: TripFormatter
   ) {}
   @LogMe()
   async create(
@@ -50,8 +56,22 @@ export class TripService {
 
   @LogMe()
   async getAllTrips(organizationId: string): Promise<TripDocument[]> {
-    return this.tripModel.find({
-      organizationId,
-    });
+    const trips: TripDocument[] = await this.tripModel
+      .find({
+        organizationId,
+      })
+      .lean();
+
+    const result = this.tripFormatter.getPopulateIds(trips);
+
+    const [cities, districts, categories] = await Promise.all([
+      this.locationService.getCitiesByIds(result.cityIds),
+      this.locationService.getDistrictsByIds(result.districtIds),
+      this.categoryService.getCategoriesByIds(result.categoryIds),
+    ]);
+
+    return trips.map((trip) =>
+      this.tripFormatter.populateTrip(trip, cities, districts, categories)
+    );
   }
 }

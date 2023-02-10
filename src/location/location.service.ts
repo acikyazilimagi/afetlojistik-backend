@@ -40,4 +40,14 @@ export class LocationService {
   async getDistrictbyId(districtId: string): Promise<DisctrictDocument> {
     return this.districtModel.findById(districtId);
   }
+
+  @LogMe()
+  async getDistrictsByIds(districtIds: string[]): Promise<DisctrictDocument[]> {
+    return this.districtModel.find({ _id: { $in: districtIds } });
+  }
+
+  @LogMe()
+  async getCitiesByIds(cityIds: string[]): Promise<CityDocument[]> {
+    return this.cityModel.find({ _id: { $in: cityIds } });
+  }
 }
