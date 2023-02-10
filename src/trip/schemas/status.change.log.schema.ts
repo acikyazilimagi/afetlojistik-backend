@@ -7,7 +7,7 @@ export type StatusChangeLogDocument = StatusChangeLog & Document;
 @Schema({
   _id: false,
   versionKey: false,
-  timestamps: { createdAt: true, updatedAt: false },
+  timestamps: { createdAt: false, updatedAt: false },
 })
 export class StatusChangeLog {
   @Prop({
@@ -20,6 +20,12 @@ export class StatusChangeLog {
     enum: TripsStatuses,
   })
   status: TripsStatuses;
+
+  @Prop({
+    type: mSchema.Types.Date,
+    default: new Date(),
+  })
+  createdAt: Date;
 }
 
 export const StatusChangeLogSchema =

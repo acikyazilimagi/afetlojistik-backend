@@ -88,6 +88,7 @@ export class TripService {
       {
         status: TripsStatuses.CREATED,
         createdBy: userId,
+        createdAt: new Date(),
       },
     ];
 
@@ -197,6 +198,7 @@ export class TripService {
       const statusChangeLog: StatusChangeLog = {
         status: updateTripDto.status,
         createdBy: userId,
+        createdAt: new Date(),
       };
 
       tripWithStatusChangeLog.statusChangeLog = [
