@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { LocationService } from './location.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CityDocument } from './schemas/city.schema';
-import { DisctrictDocument } from './schemas/district.schema';
+import { City } from './schemas/city.schema';
+import { District } from './schemas/district.schema';
 import { TokenHeader } from '../common/headers/token.header';
 import { UserAuthGuard } from '../user/guards/user.guard';
 
@@ -21,16 +21,14 @@ export class LocationController {
   @Get('cities')
   @ApiOperation({ summary: 'Get all cities.' })
   @UseGuards(UserAuthGuard)
-  getAllCities(@Headers() tokenHeader: TokenHeader): Promise<CityDocument[]> {
+  getAllCities(@Headers() _tokenHeader: TokenHeader): Promise<City[]> {
     return this.locationService.getAllCities();
   }
 
   @Get('districts')
   @ApiOperation({ summary: 'Get all districts.' })
   @UseGuards(UserAuthGuard)
-  getAllDiscritcts(
-    @Headers() tokenHeader: TokenHeader
-  ): Promise<DisctrictDocument[]> {
+  getAllDiscritcts(@Headers() _tokenHeader: TokenHeader): Promise<District[]> {
     return this.locationService.getAllDistricts();
   }
 
@@ -40,7 +38,7 @@ export class LocationController {
   getDistrictsOfCity(
     @Headers() tokenHeader: TokenHeader,
     @Query('cityId') cityId: string
-  ): Promise<DisctrictDocument[]> {
+  ): Promise<District[]> {
     return this.locationService.getDistrictsOfCity(cityId);
   }
 
@@ -50,7 +48,7 @@ export class LocationController {
   getCityById(
     @Headers() tokenHeader: TokenHeader,
     @Param('cityId') cityId: string
-  ): Promise<CityDocument> {
+  ): Promise<City> {
     return this.locationService.getCityById(cityId);
   }
 
@@ -60,7 +58,7 @@ export class LocationController {
   getDistrictById(
     @Headers() tokenHeader: TokenHeader,
     @Param('districtId') districtId: string
-  ): Promise<DisctrictDocument> {
+  ): Promise<District> {
     return this.locationService.getDistrictbyId(districtId);
   }
 }

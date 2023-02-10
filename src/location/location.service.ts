@@ -4,47 +4,40 @@ import { Model, Types } from 'mongoose';
 import { City, CityDocument } from './schemas/city.schema';
 import { DisctrictDocument, District } from './schemas/district.schema';
 import { LogMe } from '../common/decorators/log.decorator';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class LocationService {
   constructor(
+    private readonly logger: PinoLogger,
     @InjectModel(City.name)
-    private readonly cityDocument: Model<CityDocument>,
+    private readonly cityModel: Model<City>,
     @InjectModel(District.name)
-    private readonly districtDocument: Model<DisctrictDocument>
+    private readonly districtModel: Model<District>
   ) {}
 
   @LogMe()
   async getAllCities(): Promise<CityDocument[]> {
-    return this.cityDocument
-      .find({})
-      .lean()
-      .exec() as unknown as CityDocument[];
+    return this.cityModel.find({});
   }
 
   @LogMe()
   async getAllDistricts(): Promise<DisctrictDocument[]> {
-    return this.districtDocument
-      .find()
-      .lean()
-      .exec() as unknown as DisctrictDocument[];
+    return this.districtModel.find();
   }
 
   @LogMe()
   async getDistrictsOfCity(cityId: string): Promise<DisctrictDocument[]> {
-    return this.districtDocument
-      .find({ cityId: new Types.ObjectId(cityId) })
-      .lean()
-      .exec() as unknown as DisctrictDocument[];
+    return this.districtModel.find({ cityId: new Types.ObjectId(cityId) });
   }
 
   @LogMe()
-  async getCityById(cityId: string): Promise<CityDocument> {
-    return this.cityDocument.findById(cityId);
+  async getCityById(cityId: string): Promise<DisctrictDocument> {
+    return this.cityModel.findById(cityId);
   }
 
   @LogMe()
   async getDistrictbyId(districtId: string): Promise<DisctrictDocument> {
-    return this.districtDocument.findById(districtId);
+    return this.districtModel.findById(districtId);
   }
 }

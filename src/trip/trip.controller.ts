@@ -14,7 +14,7 @@ import { UserAuthGuard } from '../user/guards/user.guard';
 import { TokenHeader } from '../common/headers/token.header';
 import { User } from '../user/decorators/user.decorator';
 import { UserDocument } from '../user/schemas/user.schema';
-import { Trip } from './schemas/trip.schema';
+import { TripDocument } from './schemas/trip.schema';
 
 @ApiTags('Trip')
 @Controller('trip')
@@ -27,7 +27,7 @@ export class TripController {
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,
     @Body() createTripDto: CreateTripDto
-  ): Promise<Trip> {
+  ): Promise<TripDocument> {
     const { _id: userId, organizationId } = user;
     return this.tripService.create(createTripDto, userId, organizationId);
   }
@@ -38,7 +38,7 @@ export class TripController {
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,
     @Param('tripNumber') tripNumber: string
-  ): Promise<Trip> {
+  ): Promise<TripDocument> {
     const { organizationId } = user;
     return this.tripService.getTripByNumber(tripNumber, organizationId);
   }
@@ -48,7 +48,7 @@ export class TripController {
   getAllTrips(
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument
-  ): Promise<Trip[]> {
+  ): Promise<TripDocument[]> {
     const { organizationId } = user;
     return this.tripService.getAllTrips(organizationId);
   }

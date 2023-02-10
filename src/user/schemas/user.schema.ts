@@ -39,19 +39,17 @@ export class User {
 
   @Prop({
     type: mSchema.Types.String,
-    required: false,
-    minlength: 5,
-    maxlength: 50,
-  })
-  email?: string;
-
-  @Prop({
-    type: mSchema.Types.String,
     required: true,
     minlength: 5,
     maxlength: 50,
   })
   phone: string;
+
+  @Prop({
+    type: mSchema.Types.ObjectId,
+    required: true,
+  })
+  organizationId: string;
 
   @Prop({
     type: mSchema.Types.Array,
@@ -61,10 +59,12 @@ export class User {
   roles?: string[];
 
   @Prop({
-    type: mSchema.Types.ObjectId,
-    required: true,
+    type: mSchema.Types.String,
+    required: false,
+    minlength: 5,
+    maxlength: 50,
   })
-  organizationId: string;
+  email?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -13,19 +13,17 @@ export class OrganizationService {
   constructor(
     public readonly logger: PinoLogger,
     @InjectModel(Organization.name)
-    private readonly organizationDocument: Model<OrganizationDocument>
+    private readonly organizationModel: Model<Organization>
   ) {}
 
   @LogMe()
   getAllOrganizations(): OrganizationDocument[] {
-    return this.organizationDocument.find(
-      {}
-    ) as unknown as OrganizationDocument[];
+    return this.organizationModel.find({}) as unknown as OrganizationDocument[];
   }
 
   @LogMe()
   getOrganizationById(organizationId: string): OrganizationDocument {
-    return this.organizationDocument.findById(
+    return this.organizationModel.findById(
       organizationId
     ) as unknown as OrganizationDocument;
   }

@@ -10,12 +10,13 @@ import { WrongCredentialsException } from './exceptions/wrong-credentials.except
 import { Token, TokenDocument } from './schemas/token.schema';
 import { LogMe } from '../common/decorators/log.decorator';
 import InvalidTokenException from './exceptions/invalid-token.exception';
+import { LoginResponse } from './types';
 
-function generateToken(n) {
+function generateToken(len = 64) {
   const chars =
     'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let token = '';
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < len; i++) {
     token += chars[Math.floor(Math.random() * chars.length)];
   }
   return token;
@@ -26,14 +27,14 @@ export class UserService {
   constructor(
     private readonly logger: PinoLogger,
     @InjectModel(User.name)
-    private readonly userDocument: Model<UserDocument>,
+    private readonly userModel: Model<User>,
     @InjectModel(Token.name)
-    private readonly tokenDocument: Model<TokenDocument>
+    private readonly tokenModel: Model<Token>
   ) {}
-  async login(loginUserDto: LoginUserDto) {
+  async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
     const { phone, password } = loginUserDto;
 
-    const user = await this.userDocument.findOne({
+    const user = await this.userModel.findOne({
       phone,
     });
 
@@ -47,13 +48,13 @@ export class UserService {
       throw new WrongCredentialsException();
     }
 
-    const token = generateToken(64);
+    const token = generateToken();
 
-    await this.tokenDocument.deleteOne({
+    await this.tokenModel.deleteOne({
       userId: user._id,
     });
 
-    await this.tokenDocument.create({
+    await this.tokenModel.create({
       userId: user._id,
       token,
     });
@@ -70,8 +71,17 @@ export class UserService {
   }
 
   @LogMe()
-  async validateToken(token: string) {
-    const tokenInfo = await this.tokenDocument.findOne({
+  async getUserById(id: string): Promise<UserDocument> {
+    const user: UserDocument = await this.userModel.findById(id);
+
+    if (!user) throw new UserNotFoundException();
+
+    return user as unknown as UserDocument;
+  }
+
+  @LogMe()
+  async validateToken(token: string): Promise<UserDocument> {
+    const tokenInfo: TokenDocument = await this.tokenModel.findOne({
       token,
     });
 
@@ -79,10 +89,6 @@ export class UserService {
       throw new InvalidTokenException();
     }
 
-    const user = await this.userDocument.findById(tokenInfo.userId);
-
-    if (!user.active) throw new InvalidTokenException();
-
-    return user;
+    return this.getUserById(tokenInfo.userId);
   }
 }
