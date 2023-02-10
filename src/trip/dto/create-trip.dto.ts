@@ -1,78 +1,104 @@
-import { IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsDefined,
+  IsMongoId,
+  IsNotEmpty,
+  IsNotEmptyObject,
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { NestedObjectValidator } from 'src/common/decorators/nested-object-validator.decorator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
-class Vehicle {
-  @IsString()
-  @IsNotEmpty()
-  @IsPhoneNumber('TR')
+export class VehicleDto {
   @ApiProperty({
+    type: String,
     description: 'Plate number of the vehicle',
     example: '34ABC123',
   })
+  @IsNotEmpty()
+  @IsString()
   plateNumber: string;
 
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({
+    type: String,
     description: 'Driver phone number of the vehicle',
     example: '5388343394',
   })
+  @IsNotEmpty()
+  @IsString()
+  @IsPhoneNumber('TR')
   phone: string;
 
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({
     description: 'Driver name of the vehicle',
     example: 'John Doe',
   })
+  @IsNotEmpty()
+  @IsString()
   name: string;
 }
 
-class Location {
-  @IsString()
-  @IsNotEmpty()
+export class LocationDto {
   @ApiProperty({
+    type: String,
     description: 'CityId of the location',
     example: '5e43fc64ad9beb36cdeb4f8b',
   })
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
   cityId: string;
 
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({
+    type: String,
     description: 'DistrictId of the location',
     example: '5e43fc64ad9beb36cdeb4f8b',
   })
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
   districtId: string;
 
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({
+    type: String,
     description: 'Address of the location',
     example: 'Atatürk Mahallesi, 123 Sokak, No: 1',
   })
+  @IsNotEmpty()
+  @IsString()
   address: string;
 }
 
-class Products {
-  @IsString()
-  @IsNotEmpty()
+export class ProductDto {
   @ApiProperty({
     description: 'Category id',
     example: '5e43fc64ad9beb36cdeb4f8b',
   })
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
   categoryId: string;
 
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({
+    type: Number,
     description: 'Product count',
     example: '5',
   })
-  count: string;
+  @IsDefined()
+  @IsNumber()
+  @Min(0)
+  count: number;
 }
 export class CreateTripDto {
   @ApiProperty({
+    type: VehicleDto,
     description: 'Vehicle of the trip',
     example: {
       plateNumber: '34ABC123',
@@ -81,9 +107,13 @@ export class CreateTripDto {
     },
   })
   @IsNotEmpty()
-  vehicle: Vehicle;
+  @IsNotEmptyObject()
+  @ValidateNested({ message: 'Invalid Vehicle'})
+  @Type(() => VehicleDto)
+  vehicle: VehicleDto;
 
   @ApiProperty({
+    type: LocationDto,
     description: 'From location of the trip',
     example: {
       cityId: '5e43fc64ad9beb36cdeb4f8b',
@@ -92,9 +122,13 @@ export class CreateTripDto {
     },
   })
   @IsNotEmpty()
-  fromLocation: Location;
+  @IsNotEmptyObject()
+  @ValidateNested({ message: 'Invalid from Location' })
+  @Type(() => LocationDto)
+  fromLocation: LocationDto;
 
   @ApiProperty({
+    type: LocationDto,
     description: 'To location of the trip',
     example: {
       cityId: '5e43fc64ad9beb36cdeb4f8b',
@@ -103,25 +137,44 @@ export class CreateTripDto {
     },
   })
   @IsNotEmpty()
-  toLocation: Location;
+  @IsNotEmptyObject()
+  @ValidateNested({ message: 'Invalid to Location' })
+  @Type(() => LocationDto)
+  toLocation: LocationDto;
 
   @ApiProperty({
+    type: String,
+    default: new Date().toISOString(),
     description: 'Estimated depart time of the trip',
-    example: '2020-02-20T12:00:00.000Z',
+    example: '2023-02-10T12:00:00.000Z',
   })
   @IsNotEmpty()
-  @IsString()
-  estimatedDepartTime: Date;
+  @IsDateString()
+  estimatedDepartTime: string;
 
   @ApiProperty({
+    type: String,
+    required: false,
+    description: 'Attached note for this trip',
+    example: 'Please contact with ... person on arrival'
+  })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @ApiProperty({
+    type: [ProductDto],
     description: 'Products of the trip',
     example: [
       {
         categoryId: '5e43fc64ad9beb36cdeb4f8b',
-        count: '5',
+        count: 5,
       },
     ],
   })
-  @IsNotEmpty()
-  products: Products[];
+  @IsDefined()
+  @IsArray()
+  @NestedObjectValidator(ProductDto, { each: true })
+  @Type(() => ProductDto)
+  products: ProductDto[];
 }

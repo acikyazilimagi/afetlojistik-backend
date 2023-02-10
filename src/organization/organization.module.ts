@@ -17,5 +17,6 @@ import {
   ],
   controllers: [],
   providers: [OrganizationService],
+  exports: [OrganizationService],
 })
 export class OrganizationModule {}

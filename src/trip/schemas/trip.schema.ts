@@ -67,6 +67,12 @@ export class Trip {
   estimatedDepartTime: Date;
 
   @Prop({
+    type: mSchema.Types.String,
+    required: false,
+  })
+  notes?: String;
+
+  @Prop({
     type: [ProductSchema],
   })
   products: Product[];
