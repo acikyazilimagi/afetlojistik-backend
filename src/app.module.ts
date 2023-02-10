@@ -10,6 +10,7 @@ import { TripModule } from './trip/trip.module';
 import { CategoryModule } from './category/category.module';
 import { LogModule } from './common/logger';
 import { MongoDbModule } from './bootstrap-modules';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MongoDbModule } from './bootstrap-modules';
     OrganizationModule,
     TripModule,
     CategoryModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [
