@@ -10,6 +10,7 @@ import TripNotFoundException from './exceptions/trip-not-found.exception';
 import { LocationService } from '../location/location.service';
 import { CategoryService } from '../category/category.service';
 import TripFormatter from './formatters/trip-populate.formatter';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class TripService {
@@ -19,7 +20,8 @@ export class TripService {
     private readonly tripModel: Model<Trip>,
     private readonly locationService: LocationService,
     private readonly categoryService: CategoryService,
-    private readonly tripFormatter: TripFormatter
+    private readonly tripFormatter: TripFormatter,
+    private readonly userService: UserService
   ) {}
   @LogMe()
   async create(
@@ -64,14 +66,21 @@ export class TripService {
 
     const result = this.tripFormatter.getPopulateIds(trips);
 
-    const [cities, districts, categories] = await Promise.all([
+    const [cities, districts, categories, users] = await Promise.all([
       this.locationService.getCitiesByIds(result.cityIds),
       this.locationService.getDistrictsByIds(result.districtIds),
       this.categoryService.getCategoriesByIds(result.categoryIds),
+      this.userService.getUsersByIds(result.userIds),
     ]);
 
     return trips.map((trip) =>
-      this.tripFormatter.populateTrip(trip, cities, districts, categories)
+      this.tripFormatter.populateTrip(
+        trip,
+        cities,
+        districts,
+        categories,
+        users
+      )
     );
   }
 }
