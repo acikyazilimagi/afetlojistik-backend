@@ -30,7 +30,7 @@ export class Trip {
     enum: TripsStatuses,
     default: TripsStatuses.CREATED,
   })
-  status: string;
+  status: TripsStatuses;
 
   @Prop({
     type: VehicleSchema,

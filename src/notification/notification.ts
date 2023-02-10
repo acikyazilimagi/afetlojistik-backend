@@ -18,12 +18,9 @@ export class AWSSNSService {
       PhoneNumber: phone,
     };
 
-    console.log(JSON.stringify({ params }));
-
     // Create the promise and SES service object
     const sns = new SNS({ apiVersion: '2010-03-31' });
     const publishResult = await sns.publish(params).promise();
-    console.log(publishResult.MessageId);
     if (publishResult.$response.error === null) {
       return true;
     }

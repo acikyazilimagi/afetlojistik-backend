@@ -6,6 +6,7 @@ import {
   Headers,
   Get,
   Param,
+  Patch,
 } from '@nestjs/common';
 import { TripService } from './trip.service';
 import { CreateTripDto } from './dto/create-trip.dto';
@@ -77,7 +78,7 @@ export class TripController {
     return this.tripService.filterTrips(filterTripDto, organizationId);
   }
 
-  @Post(':tripId/update')
+  @Patch(':tripId/update')
   @UseGuards(UserAuthGuard)
   updateTrip(
     @Headers() tokenHeader: TokenHeader,
@@ -85,7 +86,12 @@ export class TripController {
     @Param('tripId') tripId: string,
     @Body() updateTripDto: UpdateTripDto
   ): Promise<TripDocument> {
-    const { organizationId } = user;
-    return this.tripService.updateTrip(tripId, updateTripDto, organizationId);
+    const { organizationId, _id: userId } = user;
+    return this.tripService.updateTrip(
+      tripId,
+      updateTripDto,
+      userId,
+      organizationId
+    );
   }
 }
