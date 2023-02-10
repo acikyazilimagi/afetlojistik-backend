@@ -8,6 +8,7 @@ import * as AutoIncrementFactory from 'mongoose-sequence';
 import { Connection } from 'mongoose';
 import { CategoryModule } from '../category/category.module';
 import TripFormatter from './formatters/trip-populate.formatter';
+import { OrganizationModule } from 'src/organization/organization.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import TripFormatter from './formatters/trip-populate.formatter';
     ]),
     LocationModule,
     CategoryModule,
+    OrganizationModule,
   ],
   controllers: [TripController],
   providers: [TripService, TripFormatter],

@@ -22,7 +22,7 @@ export class OrganizationService {
   }
 
   @LogMe()
-  getOrganizationById(organizationId: string): OrganizationDocument {
+  async getOrganizationById(organizationId: string): Promise<OrganizationDocument> {
     return this.organizationModel.findById(
       organizationId
     ) as unknown as OrganizationDocument;
