@@ -156,7 +156,7 @@ export class CreateTripDto {
     type: String,
     required: false,
     description: 'Attached note for this trip',
-    example: '"Please contact with ... person on arrival"'
+    example: 'Please contact with ... person on arrival'
   })
   @IsOptional()
   @IsString()
