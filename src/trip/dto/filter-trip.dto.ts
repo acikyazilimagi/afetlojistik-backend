@@ -11,13 +11,21 @@ export class FilterTripDto {
   })
   statuses: TripsStatuses[];
 
-  @IsOptional()
-  @IsString()
   @ApiProperty({
     description: 'Plate number of the vehicle',
     example: '34ABC123',
   })
-  plateNumber: string;
+  @IsOptional()
+  @IsString()
+  truckPlateNumber: string;
+
+  @ApiProperty({
+    description: "Plate number of the vehicle's trailer",
+    example: '34ABC123',
+  })
+  @IsOptional()
+  @IsString()
+  trailerPlateNumber: string;
 
   @IsOptional()
   @IsString()

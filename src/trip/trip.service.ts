@@ -233,8 +233,12 @@ export class TripService {
       query.createdBy = filterTripDto.createdBy;
     }
 
-    if (filterTripDto.plateNumber) {
-      query['vehicle.plateNumber'] = filterTripDto.plateNumber;
+    if (filterTripDto.truckPlateNumber) {
+      query['vehicle.plate.truck'] = filterTripDto.truckPlateNumber;
+    }
+
+    if (filterTripDto.trailerPlateNumber) {
+      query['vehicle.plate.trailer'] = { $in: [filterTripDto.trailerPlateNumber] };
     }
 
     if (filterTripDto.driverName) {

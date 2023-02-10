@@ -2,7 +2,7 @@ import {
   ValidationOptions,
   registerDecorator,
   ValidationArguments,
-  validateSync
+  validateSync,
 } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 
@@ -26,8 +26,8 @@ export function NestedObjectValidator(
       options: validationOptions,
       validator: {
         validate(value: any, args: ValidationArguments) {
-          if(!value){
-            return false
+          if (!value) {
+            return false;
           }
           args.value;
           if (Array.isArray(value)) {
@@ -37,32 +37,35 @@ export function NestedObjectValidator(
               }
             }
             return true;
-          }
-          else
-            return !validateSync(plainToClass(schema, value)).length;
+          } else return !validateSync(plainToClass(schema, value)).length;
         },
         defaultMessage(args: ValidationArguments) {
           const message: string[] = [];
 
-          if(!args.value){
+          if (!args.value) {
             return '';
-          }
-          else if (Array.isArray(args.value)) {
+          } else if (Array.isArray(args.value)) {
             for (let i = 0; i < (<Array<any>>args.value).length; i++) {
-              message.push(`${args.property}::index${i} -> ` +
-                validateSync(plainToClass(schema, args.value[i]))
-                  .map((e) => e.constraints!)
-                  .reduce((acc: string[], next) => acc.concat(Object.values(next)), [])!.toString());
+              message.push(
+                `${args.property}::index${i} -> ` +
+                  validateSync(plainToClass(schema, args.value[i]))
+                    .map((e) => e.constraints!)
+                    .reduce(
+                      (acc: string[], next) => acc.concat(Object.values(next)),
+                      []
+                    )!
+                    .toString()
+              );
             }
             return message.join(' , ');
-          }
-          else
-            return (
-                `${args.property}: ` +
-                validateSync(plainToClass(schema, args.value))
-                  .map((e) => e.constraints!)
-                  .reduce((acc: string[], next) => acc.concat(Object.values(next)), [])
-            )!.toString();
+          } else
+            return (`${args.property}: ` +
+              validateSync(plainToClass(schema, args.value))
+                .map((e) => e.constraints!)
+                .reduce(
+                  (acc: string[], next) => acc.concat(Object.values(next)),
+                  []
+                ))!.toString();
         },
       },
     });
