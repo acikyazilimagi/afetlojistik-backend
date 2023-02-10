@@ -6,7 +6,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 import { TripsStatuses } from './types/trip.type';
-import { TripInvalidLocationException, TripInvalidOrganizationExcetion, TripInvalidProductException, TripNotFoundException } from './exceptions/trip.exception';
+import {
+  TripInvalidLocationException,
+  TripInvalidOrganizationExcetion,
+  TripInvalidProductException,
+  TripNotFoundException,
+} from './exceptions/trip.exception';
 import { LocationService } from '../location/location.service';
 import { CategoryService } from '../category/category.service';
 import TripFormatter from './formatters/trip-populate.formatter';
@@ -18,6 +23,7 @@ import { StatusChangeLog } from './schemas/status.change.log.schema';
 import { OrganizationService } from 'src/organization/organization.service';
 import { OrganizationDocument } from 'src/organization/schemas/organization.schema';
 import { FilterTripDto } from './dto/filter-trip.dto';
+import { UpdateTripDto } from './dto/update-trip.dto';
 
 @Injectable()
 export class TripService {
@@ -33,24 +39,15 @@ export class TripService {
   ) {}
 
   @LogMe()
-  async create(
-    createTripDto: CreateTripDto,
-    userId: string,
-    organizationId: string
-  ): Promise<TripDocument> {
-    const organization: OrganizationDocument = await this.organizationService.getOrganizationById(organizationId);
-
-    if(!organization) {
-      throw new TripInvalidOrganizationExcetion({ organizationId });
-    }
-
-    const { fromLocation, toLocation }: CreateTripDto = createTripDto;
-    const [ fromCity, fromDistrict, toCity, toDistrict ]: DisctrictDocument[] = await Promise.all([
-      this.locationService.getCityById(fromLocation.cityId),
-      this.locationService.getDistrictbyId(fromLocation.districtId),
-      this.locationService.getCityById(toLocation.cityId),
-      this.locationService.getDistrictbyId(toLocation.districtId),
-    ]);
+  async validateTrip(trip) {
+    const { fromLocation, toLocation } = trip;
+    const [fromCity, fromDistrict, toCity, toDistrict]: DisctrictDocument[] =
+      await Promise.all([
+        this.locationService.getCityById(fromLocation.cityId),
+        this.locationService.getDistrictbyId(fromLocation.districtId),
+        this.locationService.getCityById(toLocation.cityId),
+        this.locationService.getDistrictbyId(toLocation.districtId),
+      ]);
 
     if (!fromCity || !fromDistrict) {
       throw new TripInvalidLocationException({ fromLocation });
@@ -60,18 +57,39 @@ export class TripService {
       throw new TripInvalidLocationException({ toLocation });
     }
 
-    const { products }: CreateTripDto = createTripDto;
-    const distinctCategories: string[] = TripLogic.getDistinctCategoriesFromProducts(products);
-    const categories: CategoryDocument[] = await this.categoryService.getCategoriesByIds(distinctCategories);
-    const invalidProducts: ProductDto[] = TripLogic.getInvalidProductsByCategories(products, categories);
+    const { products } = trip;
+    const distinctCategories: string[] =
+      TripLogic.getDistinctCategoriesFromProducts(products);
+    const categories: CategoryDocument[] =
+      await this.categoryService.getCategoriesByIds(distinctCategories);
+    const invalidProducts: ProductDto[] =
+      TripLogic.getInvalidProductsByCategories(products, categories);
     if (invalidProducts && invalidProducts.length > 0) {
       throw new TripInvalidProductException({ invalidProducts });
     }
+  }
 
-    const statusChangeLog: StatusChangeLog[] = [{
-      status: TripsStatuses.CREATED,
-      createdBy: userId,
-    }];
+  @LogMe()
+  async create(
+    createTripDto: CreateTripDto,
+    userId: string,
+    organizationId: string
+  ): Promise<TripDocument> {
+    const organization: OrganizationDocument =
+      await this.organizationService.getOrganizationById(organizationId);
+
+    if (!organization) {
+      throw new TripInvalidOrganizationExcetion({ organizationId });
+    }
+
+    await this.validateTrip(createTripDto);
+
+    const statusChangeLog: StatusChangeLog[] = [
+      {
+        status: TripsStatuses.CREATED,
+        createdBy: userId,
+      },
+    ];
 
     return (await new this.tripModel({
       ...createTripDto,
@@ -97,7 +115,10 @@ export class TripService {
   }
 
   @LogMe()
-  async getTripById(tripId: string, organizationId): Promise<TripDocument> {
+  async getPopulatedTripById(
+    tripId: string,
+    organizationId
+  ): Promise<TripDocument> {
     const trip: TripDocument = await this.tripModel
       .findOne({
         _id: tripId,
@@ -110,6 +131,20 @@ export class TripService {
     const [populatedTrip] = await this.tripsPopulate([trip]);
 
     return populatedTrip;
+  }
+
+  @LogMe()
+  async getTripById(tripId: string, organizationId): Promise<TripDocument> {
+    const trip: TripDocument = await this.tripModel
+      .findOne({
+        _id: tripId,
+        organizationId,
+      })
+      .lean();
+
+    if (!trip) throw new TripNotFoundException();
+
+    return trip;
   }
 
   @LogMe()
@@ -143,6 +178,28 @@ export class TripService {
       .lean();
 
     return this.tripsPopulate(trips);
+  }
+
+  @LogMe()
+  async updateTrip(
+    tripId: string,
+    updateTripDto: UpdateTripDto,
+    organizationId: string
+  ): Promise<TripDocument> {
+    await this.getTripById(tripId, organizationId);
+    await this.validateTrip(updateTripDto);
+
+    return (await this.tripModel.findOneAndUpdate(
+      {
+        _id: tripId,
+      },
+      {
+        $set: {
+          ...updateTripDto,
+        },
+      },
+      { new: true }
+    )) as unknown as TripDocument;
   }
 
   @LogMe()
