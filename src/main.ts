@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { config, customCss, swaggerEnabled } from './utils/swagger.util';
+import { ExceptionsFilter } from './common/filters/exception.filter';
 
 const PORT = process.env.PORT || 3000;
 
@@ -11,6 +12,7 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
   app.useLogger(app.get(Logger));
+  app.useGlobalFilters(new ExceptionsFilter(app.get(Logger)));
   app.enableCors();
 
   if (swaggerEnabled) {
