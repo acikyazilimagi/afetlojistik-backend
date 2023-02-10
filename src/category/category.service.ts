@@ -16,15 +16,33 @@ export class CategoryService {
   ) {}
 
   @LogMe()
-  async getAllCategories(organizationId: string): Promise<CategoryDocument[]> {
-    const categories: CategoryDocument[] = await this.categoryModel.find({
-      organizationId,
-    });
+  async getAllCategories(
+    organizationId: string,
+    limit: number,
+    skip: number
+  ): Promise<{ data: CategoryDocument[]; total: number }> {
+    const query = { organizationId };
+
+    const result = {
+      data: (await this.categoryModel
+        .find(query)
+        .skip(skip || 0)
+        .limit(
+          limit || Number.MAX_SAFE_INTEGER
+        )) as unknown as CategoryDocument[],
+
+      total: (await this.categoryModel.countDocuments(
+        query
+      )) as unknown as number,
+    };
 
     const sortedCategories: CategoryDocument[] =
-      CategoryLogic.sortCategoriesAlphabetically(categories);
+      CategoryLogic.sortCategoriesAlphabetically(result.data);
 
-    return sortedCategories;
+    return {
+      data: sortedCategories,
+      total: result.total,
+    };
   }
 
   @LogMe()
