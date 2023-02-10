@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { City, CityDocument } from './schemas/city.schema';
 import { DisctrictDocument, District } from './schemas/district.schema';
 import { LogMe } from '../common/decorators/log.decorator';
@@ -23,9 +23,17 @@ export class LocationService {
   }
 
   @LogMe()
-  async getAllDiscritcts(): Promise<DisctrictDocument[]> {
+  async getAllDistricts(): Promise<DisctrictDocument[]> {
     return this.districtDocument
       .find()
+      .lean()
+      .exec() as unknown as DisctrictDocument[];
+  }
+
+  @LogMe()
+  async getDistrictsOfCity(cityId: string): Promise<DisctrictDocument[]> {
+    return this.districtDocument
+      .find({ cityId: new Types.ObjectId(cityId) })
       .lean()
       .exec() as unknown as DisctrictDocument[];
   }
