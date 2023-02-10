@@ -3,7 +3,7 @@ import { Schema as mSchema } from 'mongoose';
 
 export type ProductDocument = Product & Document;
 
-@Schema({ _id: false, versionKey: false, timestamps: true })
+@Schema({ _id: false, versionKey: false, timestamps: false })
 export class Product {
   @Prop({
     type: mSchema.Types.ObjectId,

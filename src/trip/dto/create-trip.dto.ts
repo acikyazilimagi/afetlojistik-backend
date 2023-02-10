@@ -1,4 +1,4 @@
-import { IsDate, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 class Vehicle {
@@ -14,10 +14,18 @@ class Vehicle {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Driver of the vehicle',
-    example: '5e43fc64ad9beb36cdeb4f8b',
+    description: 'Driver phone number of the vehicle',
+    example: '5388343394',
   })
-  driverId: string;
+  phone: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Driver name of the vehicle',
+    example: 'John Doe',
+  })
+  name: string;
 }
 
 class Location {
@@ -68,7 +76,8 @@ export class CreateTripDto {
     description: 'Vehicle of the trip',
     example: {
       plateNumber: '34ABC123',
-      driverId: '5e43fc64ad9beb36cdeb4f8b',
+      phone: '5388343394',
+      name: 'John Doe',
     },
   })
   @IsNotEmpty()
@@ -80,7 +89,7 @@ export class CreateTripDto {
       cityId: '5e43fc64ad9beb36cdeb4f8b',
       districtId: '5e43fc64ad9beb36cdeb4f8b',
       address: 'Atatürk Mahallesi, 123 Sokak, No: 1',
-    }
+    },
   })
   @IsNotEmpty()
   fromLocation: Location;
@@ -101,7 +110,7 @@ export class CreateTripDto {
     example: '2020-02-20T12:00:00.000Z',
   })
   @IsNotEmpty()
-  @IsDate()
+  @IsString()
   estimatedDepartTime: Date;
 
   @ApiProperty({

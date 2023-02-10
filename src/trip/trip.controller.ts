@@ -1,8 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Headers,
+  Get,
+  Param,
+} from '@nestjs/common';
 import { TripService } from './trip.service';
 import { CreateTripDto } from './dto/create-trip.dto';
-import { UpdateTripDto } from './dto/update-trip.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { UserAuthGuard } from '../user/guards/user.guard';
+import { TokenHeader } from '../common/headers/token.header';
+import { User } from '../user/decorators/user.decorator';
+import { UserDocument } from '../user/schemas/user.schema';
+import { Trip } from './schemas/trip.schema';
 
 @ApiTags('Trip')
 @Controller('trip')
@@ -10,27 +22,34 @@ export class TripController {
   constructor(private readonly tripService: TripService) {}
 
   @Post()
-  create(@Body() createTripDto: CreateTripDto) {
-    return this.tripService.create(createTripDto);
+  @UseGuards(UserAuthGuard)
+  create(
+    @Headers() tokenHeader: TokenHeader,
+    @User() user: UserDocument,
+    @Body() createTripDto: CreateTripDto
+  ): Promise<Trip> {
+    const { _id: userId, organizationId } = user;
+    return this.tripService.create(createTripDto, userId, organizationId);
+  }
+
+  @Get(':tripNumber')
+  @UseGuards(UserAuthGuard)
+  getTripByNumber(
+    @Headers() tokenHeader: TokenHeader,
+    @User() user: UserDocument,
+    @Param('tripNumber') tripNumber: string
+  ): Promise<Trip> {
+    const { organizationId } = user;
+    return this.tripService.getTripByNumber(tripNumber, organizationId);
   }
 
   @Get()
-  findAll() {
-    return this.tripService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tripService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTripDto: UpdateTripDto) {
-    return this.tripService.update(+id, updateTripDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tripService.remove(+id);
+  @UseGuards(UserAuthGuard)
+  getAllTrips(
+    @Headers() tokenHeader: TokenHeader,
+    @User() user: UserDocument
+  ): Promise<Trip[]> {
+    const { organizationId } = user;
+    return this.tripService.getAllTrips(organizationId);
   }
 }
