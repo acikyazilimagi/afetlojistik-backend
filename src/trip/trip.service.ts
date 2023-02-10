@@ -24,6 +24,7 @@ import { OrganizationService } from 'src/organization/organization.service';
 import { OrganizationDocument } from 'src/organization/schemas/organization.schema';
 import { FilterTripDto } from './dto/filter-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
+import { AWSSNSService } from 'src/notification/notification';
 
 @Injectable()
 export class TripService {
@@ -35,8 +36,9 @@ export class TripService {
     private readonly categoryService: CategoryService,
     private readonly organizationService: OrganizationService,
     private readonly tripFormatter: TripFormatter,
-    private readonly userService: UserService
-  ) {}
+    private readonly userService: UserService,
+    private readonly snsService: AWSSNSService,
+  ) { }
 
   @LogMe()
   async validateTrip(trip) {
@@ -92,12 +94,22 @@ export class TripService {
       },
     ];
 
-    return (await new this.tripModel({
+    const createdTrip = (await new this.tripModel({
       ...createTripDto,
       organizationId,
       createdBy: userId,
       statusChangeLog: statusChangeLog,
     }).save()) as unknown as TripDocument;
+
+    const {
+      vehicle: { phone },
+    } = createTripDto;
+
+    const messageBody = 'kvkk metni';
+
+    await this.snsService.sendSMS('+90' + phone, messageBody);
+
+    return createdTrip;
   }
 
   @LogMe()
