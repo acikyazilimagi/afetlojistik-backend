@@ -32,11 +32,6 @@ export class Trip {
   status: string;
 
   @Prop({
-    type: mSchema.Types.ObjectId,
-  })
-  organization: string;
-
-  @Prop({
     type: VehicleSchema,
     required: true,
   })

@@ -10,6 +10,7 @@ export const LogMe =
       if (logger) {
         logger.debug(`[${className}] ${methodName}`, `${JSON.stringify(args)}`);
       } else {
+        // eslint-disable-next-line no-console
         console.debug(
           `[${className}] ${methodName}`,
           `${JSON.stringify(args)}`
