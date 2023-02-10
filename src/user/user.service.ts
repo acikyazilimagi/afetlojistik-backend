@@ -10,8 +10,9 @@ import { LogMe } from '../common/decorators/log.decorator';
 import InvalidTokenException from './exceptions/invalid-token.exception';
 import { LoginResponse, ValidateVerificationCodeResponse } from './types';
 import { AWSSNSService } from 'src/notification/notification';
-import { AuthSMS, AuthSMSDocument } from './schemas/auth.sms.schema';
+import { AuthSMS } from './schemas/auth.sms.schema';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 function generateToken(len = 64) {
   const chars =
@@ -56,24 +57,13 @@ export class UserService {
       await this.authSMSModel.deleteOne({
         phone,
       });
-      (await new this.authSMSModel({
+      await new this.authSMSModel({
         ...loginUserDto,
         phone: phone,
         message: messageBody,
         verificationCode,
-      }).save()) as unknown as AuthSMSDocument;
+      }).save();
     }
-
-    const token = generateToken();
-
-    await this.tokenModel.deleteOne({
-      userId: user._id,
-    });
-
-    await this.tokenModel.create({
-      userId: user._id,
-      token,
-    });
 
     return {
       success: true,
@@ -104,10 +94,11 @@ export class UserService {
 
   @LogMe()
   async validateVerificationCode(
-    verificationCode: string
+    verifyOtpDto: VerifyOtpDto
   ): Promise<ValidateVerificationCodeResponse> {
     const authSMSDocument = await this.authSMSModel.findOne({
-      verificationCode,
+      phone: verifyOtpDto.phone,
+      verificationCode: verifyOtpDto.code,
     });
 
     if (!authSMSDocument) {
@@ -115,6 +106,7 @@ export class UserService {
     }
 
     const user = await this.userModel.findOne({
+      active: true,
       phone: authSMSDocument.phone,
     });
 
@@ -122,6 +114,7 @@ export class UserService {
       throw new UserNotFoundException();
     }
 
+    await authSMSDocument.delete();
     const token = generateToken();
 
     await this.tokenModel.deleteOne({
