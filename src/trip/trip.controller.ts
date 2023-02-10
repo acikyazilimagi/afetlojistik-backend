@@ -92,7 +92,7 @@ export class TripController {
     );
   }
 
-  @Patch(':tripId/update')
+  @Patch(':tripId')
   @ApiOperation({ summary: 'Update trip.' })
   @UseGuards(UserAuthGuard)
   updateTrip(
