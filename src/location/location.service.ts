@@ -5,6 +5,7 @@ import { City, CityDocument } from './schemas/city.schema';
 import { DisctrictDocument, District } from './schemas/district.schema';
 import { LogMe } from '../common/decorators/log.decorator';
 import { PinoLogger } from 'nestjs-pino';
+import { LocationLogic } from './logic/location.logic';
 
 @Injectable()
 export class LocationService {
@@ -18,12 +19,22 @@ export class LocationService {
 
   @LogMe()
   async getAllCities(): Promise<CityDocument[]> {
-    return this.cityModel.find({});
+    const cities: CityDocument[] = await this.cityModel.find({});
+
+    const sortedCities: CityDocument[] =
+      LocationLogic.sortCitiesAlphabetically(cities);
+
+    return sortedCities;
   }
 
   @LogMe()
   async getAllDistricts(): Promise<DisctrictDocument[]> {
-    return this.districtModel.find();
+    const districts: DisctrictDocument[] = await this.districtModel.find({});
+
+    const sortedDistricts: DisctrictDocument[] =
+      LocationLogic.sortDistrictsAlphabetically(districts);
+
+    return sortedDistricts;
   }
 
   @LogMe()
@@ -43,11 +54,25 @@ export class LocationService {
 
   @LogMe()
   async getDistrictsByIds(districtIds: string[]): Promise<DisctrictDocument[]> {
-    return this.districtModel.find({ _id: { $in: districtIds } });
+    const districts: DisctrictDocument[] = await this.districtModel.find({
+      _id: { $in: districtIds },
+    });
+
+    const sortedDistricts: DisctrictDocument[] =
+      LocationLogic.sortDistrictsAlphabetically(districts);
+
+    return sortedDistricts;
   }
 
   @LogMe()
   async getCitiesByIds(cityIds: string[]): Promise<CityDocument[]> {
-    return this.cityModel.find({ _id: { $in: cityIds } });
+    const cities: CityDocument[] = await this.cityModel.find({
+      _id: { $in: cityIds },
+    });
+
+    const sortedCities: CityDocument[] =
+      LocationLogic.sortCitiesAlphabetically(cities);
+
+    return sortedCities;
   }
 }

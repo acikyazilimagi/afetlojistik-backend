@@ -5,6 +5,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { InjectModel } from '@nestjs/mongoose';
 import { LogMe } from '../common/decorators/log.decorator';
 import CategoryNotFoundException from './exceptions/category-not-found.exception';
+import { CategoryLogic } from './logic/category.logic';
 
 @Injectable()
 export class CategoryService {
@@ -16,9 +17,14 @@ export class CategoryService {
 
   @LogMe()
   async getAllCategories(organizationId: string): Promise<CategoryDocument[]> {
-    return this.categoryModel.find({
+    const categories: CategoryDocument[] = await this.categoryModel.find({
       organizationId,
     });
+
+    const sortedCategories: CategoryDocument[] =
+      CategoryLogic.sortCategoriesAlphabetically(categories);
+
+    return sortedCategories;
   }
 
   @LogMe()
