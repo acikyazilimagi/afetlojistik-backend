@@ -9,7 +9,7 @@ import { Connection } from 'mongoose';
 import { CategoryModule } from '../category/category.module';
 import TripFormatter from './formatters/trip-populate.formatter';
 import { OrganizationModule } from 'src/organization/organization.module';
-import { AWSSNSService } from 'src/notification/notification';
+import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 
 @Module({
   imports: [
