@@ -4,8 +4,8 @@ import { UserController } from './user.controller';
 import { User, UserSchema } from './schemas/user.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Token, TokenSchema } from './schemas/token.schema';
-import { AWSSNSService } from 'src/notification/notification';
 import { AuthSMS, AuthSMSSchema } from './schemas/auth.sms.schema';
+import { NotificationModule } from '../notification/notification.module';
 
 @Global()
 @Module({
@@ -15,9 +15,10 @@ import { AuthSMS, AuthSMSSchema } from './schemas/auth.sms.schema';
       { name: Token.name, schema: TokenSchema },
       { name: AuthSMS.name, schema: AuthSMSSchema },
     ]),
+    NotificationModule,
   ],
   controllers: [UserController],
-  providers: [UserService, AWSSNSService],
+  providers: [UserService],
   exports: [UserService],
 })
 export class UserModule {}

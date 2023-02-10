@@ -9,7 +9,7 @@ import { Token, TokenDocument } from './schemas/token.schema';
 import { LogMe } from '../common/decorators/log.decorator';
 import InvalidTokenException from './exceptions/invalid-token.exception';
 import { LoginResponse, ValidateVerificationCodeResponse } from './types';
-import { AWSSNSService } from 'src/notification/notification';
+import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 import { AuthSMS } from './schemas/auth.sms.schema';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
