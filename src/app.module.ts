@@ -1,7 +1,5 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { HealthModule } from './health/health.module';
-import { LoggerModule } from 'nestjs-pino';
-import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipeConfig } from './common/config/validation-pipe.config';
@@ -9,21 +7,14 @@ import { LocationModule } from './location/location.module';
 import { TransformInterceptor } from './common/interceptors';
 import { OrganizationModule } from './organization/organization.module';
 import { TripModule } from './trip/trip.module';
+import { MongoDbModule } from './bootstrap-modules';
+import { LogModule } from './common/logger';
+
 
 @Module({
   imports: [
-    LoggerModule.forRoot({
-      pinoHttp: {
-        level: process.env.LOG_LEVEL || 'debug',
-        autoLogging: false,
-        formatters: {
-          level(label: string) {
-            return { level: label };
-          },
-        },
-      },
-    }),
-    MongooseModule.forRoot(process.env.MONGO_URL),
+    LogModule,
+    MongoDbModule,
     HealthModule,
     UserModule,
     LocationModule,
