@@ -20,5 +20,6 @@ import { District, DistrictSchema } from './schemas/district.schema';
   ],
   controllers: [LocationController],
   providers: [LocationService],
+  exports: [LocationService],
 })
 export class LocationModule {}

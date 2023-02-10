@@ -4,17 +4,16 @@ import { TripsStatuses } from '../types/trip.type';
 
 export type StatusChangeLogDocument = StatusChangeLog & Document;
 
-@Schema({ _id: false, versionKey: false, timestamps: true })
+@Schema({
+  _id: false,
+  versionKey: false,
+  timestamps: { createdAt: true, updatedAt: false },
+})
 export class StatusChangeLog {
   @Prop({
     type: mSchema.Types.ObjectId,
   })
-  user: string;
-
-  @Prop({
-    type: mSchema.Types.Date,
-  })
-  occurredAt: Date;
+  createdBy: string;
 
   @Prop({
     type: mSchema.Types.Number,

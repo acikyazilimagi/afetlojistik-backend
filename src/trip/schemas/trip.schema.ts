@@ -10,10 +10,20 @@ import {
 import { Vehicle, VehicleSchema } from './vehicle.schema';
 
 export type TripDocument = Trip & Document;
-
 @Schema({ versionKey: false, timestamps: true })
 export class Trip {
   _id: string;
+
+  @Prop({
+    type: mSchema.Types.Number,
+  })
+  tripNumber: number;
+
+  @Prop({
+    type: mSchema.Types.ObjectId,
+    required: true,
+  })
+  organizationId: string;
 
   @Prop({
     type: mSchema.Types.Number,
@@ -51,7 +61,7 @@ export class Trip {
   createdBy: string;
 
   @Prop({
-    type: StatusChangeLogSchema,
+    type: [StatusChangeLogSchema],
     required: true,
   })
   statusChangeLog: StatusChangeLog[];
@@ -62,7 +72,7 @@ export class Trip {
   estimatedDepartTime: Date;
 
   @Prop({
-    type: ProductSchema,
+    type: [ProductSchema],
   })
   products: Product[];
 }

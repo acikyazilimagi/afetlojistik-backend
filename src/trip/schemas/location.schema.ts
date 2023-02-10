@@ -3,17 +3,17 @@ import { Schema as mSchema } from 'mongoose';
 
 export type LocationDocument = Location & Document;
 
-@Schema({ versionKey: false, timestamps: true, _id: false })
+@Schema({ versionKey: false, timestamps: false, _id: false })
 export class Location {
   @Prop({
     type: mSchema.Types.ObjectId,
   })
-  city: string;
+  cityId: string;
 
   @Prop({
     type: mSchema.Types.ObjectId,
   })
-  district: string;
+  districtId: string;
 
   @Prop({
     type: mSchema.Types.String,
