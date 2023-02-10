@@ -3,7 +3,7 @@ import { Schema as mSchema } from 'mongoose';
 
 export type AuthSMSDocument = AuthSMS & Document;
 
-@Schema({ versionKey: false, timestamps: true })
+@Schema({ versionKey: false, timestamps: true, expires: 300 })
 export class AuthSMS {
   _id: string;
 
