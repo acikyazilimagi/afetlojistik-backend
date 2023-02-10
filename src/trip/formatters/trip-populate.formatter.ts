@@ -48,27 +48,27 @@ export default class TripFormatter {
       ...trip.toLocation,
       cityName: cities.find(
         (city) => city._id.toString() === trip.toLocation.cityId.toString()
-      ).name,
+      )?.name,
       districtName: districts.find(
         (district) =>
           district._id.toString() === trip.toLocation.districtId.toString()
-      ).name,
+      )?.name,
     },
     fromLocation: {
       ...trip.fromLocation,
       cityName: cities.find(
         (city) => city._id.toString() === trip.fromLocation.cityId.toString()
-      ).name,
+      )?.name,
       districtName: districts.find(
         (district) =>
           district._id.toString() === trip.fromLocation.districtId.toString()
-      ).name,
+      )?.name,
     },
     products: trip.products.map((product) => ({
       ...product,
       categoryName: categories.find(
         (category) => category._id.toString() === product.categoryId.toString()
-      ).name,
+      )?.name,
     })),
     createdBy: users.find(
       (user) => user._id.toString() === trip.createdBy.toString()
