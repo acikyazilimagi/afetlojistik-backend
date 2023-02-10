@@ -11,6 +11,7 @@ import { LocationService } from '../location/location.service';
 import { CategoryService } from '../category/category.service';
 import TripFormatter from './formatters/trip-populate.formatter';
 import { UserService } from '../user/user.service';
+import { FilterTripDto } from './dto/filter-trip.dto';
 
 @Injectable()
 export class TripService {
@@ -57,13 +58,23 @@ export class TripService {
   }
 
   @LogMe()
-  async getAllTrips(organizationId: string): Promise<TripDocument[]> {
-    const trips: TripDocument[] = await this.tripModel
-      .find({
+  async getTripById(tripId: string, organizationId): Promise<TripDocument> {
+    const trip: TripDocument = await this.tripModel
+      .findOne({
+        _id: tripId,
         organizationId,
       })
       .lean();
 
+    if (!trip) throw new TripNotFoundException();
+
+    const [populatedTrip] = await this.tripsPopulate([trip]);
+
+    return populatedTrip;
+  }
+
+  @LogMe()
+  async tripsPopulate(trips: TripDocument[]): Promise<TripDocument[]> {
     const result = this.tripFormatter.getPopulateIds(trips);
 
     const [cities, districts, categories, users] = await Promise.all([
@@ -82,5 +93,81 @@ export class TripService {
         users
       )
     );
+  }
+
+  @LogMe()
+  async getAllTrips(organizationId: string): Promise<TripDocument[]> {
+    const trips: TripDocument[] = await this.tripModel
+      .find({
+        organizationId,
+      })
+      .lean();
+
+    return this.tripsPopulate(trips);
+  }
+
+  @LogMe()
+  async filterTrips(
+    filterTripDto: FilterTripDto,
+    organizationId: string
+  ): Promise<TripDocument[]> {
+    const query: any = {
+      organizationId,
+    };
+
+    if (filterTripDto.createdBy) {
+      query.createdBy = filterTripDto.createdBy;
+    }
+
+    if (filterTripDto.plateNumber) {
+      query['vehicle.plateNumber'] = filterTripDto.plateNumber;
+    }
+
+    if (filterTripDto.driverName) {
+      query['vehicle.name'] = {
+        $regex: filterTripDto.driverName,
+        $options: 'i',
+      };
+    }
+
+    if (filterTripDto.driverPhone) {
+      query['vehicle.phone'] = filterTripDto.driverPhone;
+    }
+
+    if (filterTripDto.fromCityId) {
+      query['fromLocation.cityId'] = filterTripDto.fromCityId;
+    }
+
+    if (filterTripDto.fromDistrictId) {
+      query['fromLocation.districtId'] = filterTripDto.fromDistrictId;
+    }
+
+    if (filterTripDto.toCityId) {
+      query['toLocation.cityId'] = filterTripDto.toCityId;
+    }
+
+    if (filterTripDto.toDistrictId) {
+      query['toLocation.districtId'] = filterTripDto.toDistrictId;
+    }
+
+    if (
+      filterTripDto.productCategoryIds &&
+      Array.isArray(filterTripDto.productCategoryIds) &&
+      filterTripDto.productCategoryIds.length
+    ) {
+      query['products.categoryId'] = { $in: filterTripDto.productCategoryIds };
+    }
+
+    if (
+      filterTripDto.statuses &&
+      Array.isArray(filterTripDto.statuses) &&
+      filterTripDto.statuses.length
+    ) {
+      query.status = { $in: filterTripDto.statuses };
+    }
+
+    const result = (await this.tripModel.find(query).lean()) as TripDocument[];
+
+    return this.tripsPopulate(result);
   }
 }
