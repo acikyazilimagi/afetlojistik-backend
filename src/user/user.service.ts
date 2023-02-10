@@ -91,4 +91,14 @@ export class UserService {
 
     return this.getUserById(tokenInfo.userId);
   }
+
+  @LogMe()
+  async getUsersByIds(userIds: string[]): Promise<UserDocument[]> {
+    return this.userModel
+      .find({
+        _id: { $in: userIds },
+      })
+      .select('-password -organizationId')
+      .lean();
+  }
 }
