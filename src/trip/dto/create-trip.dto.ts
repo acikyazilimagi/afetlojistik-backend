@@ -29,7 +29,7 @@ export class VehicleDto {
   @ApiProperty({
     type: String,
     description: 'Driver phone number of the vehicle',
-    example: '5388343394',
+    example: '5320000000',
   })
   @IsNotEmpty()
   @IsString()
@@ -102,13 +102,13 @@ export class CreateTripDto {
     description: 'Vehicle of the trip',
     example: {
       plateNumber: '34ABC123',
-      phone: '5388343394',
+      phone: '5320000000',
       name: 'John Doe',
     },
   })
   @IsNotEmpty()
   @IsNotEmptyObject()
-  @ValidateNested({ message: 'Invalid Vehicle'})
+  @ValidateNested({ message: 'Invalid Vehicle' })
   @Type(() => VehicleDto)
   vehicle: VehicleDto;
 
@@ -156,7 +156,7 @@ export class CreateTripDto {
     type: String,
     required: false,
     description: 'Attached note for this trip',
-    example: 'Please contact with ... person on arrival'
+    example: 'Please contact with ... person on arrival',
   })
   @IsOptional()
   @IsString()

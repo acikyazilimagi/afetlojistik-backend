@@ -6,7 +6,7 @@ export class LoginUserDto {
   @IsPhoneNumber('TR')
   @ApiProperty({
     description: 'Phone Number',
-    example: '5388343394',
+    example: '5320000000',
   })
   phone: string;
 }
