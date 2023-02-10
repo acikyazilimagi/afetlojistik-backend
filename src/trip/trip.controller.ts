@@ -49,7 +49,7 @@ export class TripController {
   }
 
   @Get(':tripId')
-  @ApiOperation({ summary: 'Get trip by trip id.' })
+  @ApiOperation({ summary: 'Get populated trip by trip id.' })
   @UseGuards(UserAuthGuard)
   getTripById(
     @Headers() tokenHeader: TokenHeader,
