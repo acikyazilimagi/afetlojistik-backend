@@ -16,15 +16,37 @@ import { NestedObjectValidator } from 'src/common/decorators/nested-object-valid
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-export class VehicleDto {
+export class VehiclePlateDto {
   @ApiProperty({
     type: String,
-    description: 'Plate number of the vehicle',
+    description: 'Plate number of the truck',
     example: '34ABC123',
   })
   @IsNotEmpty()
   @IsString()
-  plateNumber: string;
+  truck: string;
+
+  @ApiProperty({
+    type: [String],
+    description: "Plate number of the truck's trailers",
+    example: ['34ABC124', '34ABC125'],
+  })
+  @IsDefined()
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  trailer?: string[];
+}
+
+export class VehicleDto {
+  @ApiProperty({
+    type: VehiclePlateDto,
+    description: 'Plate information of the vehicle',
+  })
+  @IsDefined()
+  @IsNotEmptyObject()
+  @NestedObjectValidator(VehiclePlateDto)
+  plate: VehiclePlateDto;
 
   @ApiProperty({
     type: String,
@@ -101,7 +123,10 @@ export class CreateTripDto {
     type: VehicleDto,
     description: 'Vehicle of the trip',
     example: {
-      plateNumber: '34ABC123',
+      plate: {
+        truck: '34ABC123',
+        trailer: ['34ABC124', '34ABC125'],
+      },
       phone: '5320000000',
       name: 'John Doe',
     },
