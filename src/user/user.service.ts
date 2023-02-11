@@ -47,7 +47,8 @@ export class UserService {
       throw new UserNotFoundException();
     }
 
-    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+    // const verificationCode = Math.floor(100000 + Math.random() * 900000);
+    const verificationCode = 123456;
 
     const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
 
