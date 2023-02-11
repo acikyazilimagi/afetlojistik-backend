@@ -126,13 +126,11 @@ export class TripStatusService {
     };
 
     return (await this.tripModel.findOneAndUpdate(
-      await this.tripModel.findOneAndUpdate(
-        { _id: tripId },
-        {
-          $set: { status },
-          $addToSet: { statusChangeLog },
-        }
-      )
+      { _id: tripId },
+      {
+        $set: { status },
+        $addToSet: { statusChangeLog },
+      }
     )) as unknown as TripDocument;
   }
 }
