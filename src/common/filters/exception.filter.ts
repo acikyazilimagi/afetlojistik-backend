@@ -2,33 +2,87 @@ import {
   ExceptionFilter,
   Catch,
   ArgumentsHost,
-  HttpException,
   HttpStatus,
+  HttpException,
 } from '@nestjs/common';
-import { Logger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
+import { ERROR_MESSAGES } from '../../constants';
+import { TMSException } from '../exceptions/tms.exception';
+import ValidationException from '../exceptions/validation.exception';
+
+const createTmsErrorResponse = (exception: TMSException) => {
+  const error = exception?.constructor?.name;
+  const { code, message, data, errorData } = exception;
+
+  return {
+    code,
+    error,
+    message,
+    data,
+    errorData,
+  };
+};
+
+const createValidationErrorForResponse = (exception: ValidationException) => {
+  const { code, error } = ERROR_MESSAGES.VALIDATION;
+  const { constraints, property }: any = exception.getResponse();
+
+  const rawConstraints = Object.values(constraints)?.filter((obj) => obj);
+
+  const message: string = rawConstraints.join(', ');
+  const details: { messages: any; path: string } = {
+    messages: rawConstraints,
+    path: property,
+  };
+
+  return {
+    code,
+    error,
+    message,
+    details,
+  };
+};
+
+const createUnknownErrorResponse = (exception: HttpException) => {
+  const { code, error, message } = ERROR_MESSAGES.UNKNOWN;
+  const { message: detail, stack } = exception;
+
+  return {
+    code,
+    error,
+    message,
+    detail,
+    stack,
+  };
+};
+
+const getOutputForError = (exception: HttpException) => {
+  if (exception instanceof TMSException) {
+    return createTmsErrorResponse(exception);
+  }
+
+  if (exception instanceof ValidationException) {
+    return createValidationErrorForResponse(exception);
+  }
+
+  return createUnknownErrorResponse(exception);
+};
 
 @Catch()
 export class ExceptionsFilter implements ExceptionFilter {
-  constructor(private readonly logger: Logger) {}
-
-  catch(exception: HttpException | Error, host: ArgumentsHost): void {
+  constructor(private readonly logger: PinoLogger) {}
+  catch(exception: any, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
+    const response = ctx?.getResponse();
 
-    let status: number;
-    if (exception instanceof HttpException) {
-      status = exception.getStatus();
-    } else {
-      status = HttpStatus.INTERNAL_SERVER_ERROR;
-      this.logger.error(exception);
-    }
+    const status: HttpStatus =
+      exception?.getStatus?.() || HttpStatus.INTERNAL_SERVER_ERROR;
 
-    response.status(status).json({
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      message: exception.message,
+    response.status(status);
+    response.json(getOutputForError(exception));
+
+    this.logger.error({
+      ...exception?.response,
     });
   }
 }

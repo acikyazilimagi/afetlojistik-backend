@@ -1,41 +1,59 @@
-import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
+import { TMSException } from 'src/common/exceptions/tms.exception';
 
-export class TripNotFoundException extends NotFoundException {
+export class TripNotFoundException extends TMSException {
   constructor() {
-    super('Yolculuk bulunamadı!');
+    super('Yolculuk bulunamadı!', HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 }
 
-export class TripInvalidLocationException extends NotFoundException {
-  constructor(data?: any) {
-    super({ message: 'Girilen lokasyon bilgisi tanımsız!', data });
-  }
-}
-
-export class TripInvalidProductException extends NotFoundException {
-  constructor(data?: any) {
-    super({ message: 'Girilen ürün bilgisi tanımsız!', data });
-  }
-}
-
-export class TripInvalidOrganizationExcetion extends NotFoundException {
-  constructor(data?: any) {
-    super({ message: 'Organizasyon bulunamadı', data });
-  }
-}
-
-export class TripStatusNotAllowedException extends HttpException {
+export class TripInvalidLocationException extends TMSException {
   constructor(data?: any) {
     super(
-      { message: 'Yolculuk icin Bu işlem yapılamaz.', data },
+      { message: 'Girilen lokasyon bilgisi tanımsız!', data },
+      HttpStatus.BAD_REQUEST,
       HttpStatus.BAD_REQUEST
     );
   }
 }
 
-export class TripDriverNameNotDefinedException extends NotFoundException {
+export class TripInvalidProductException extends TMSException {
   constructor(data?: any) {
-    super({ message: 'Sürücü adı tanımlı değil!', data });
+    super(
+      { message: 'Girilen ürün bilgisi tanımsız!', data },
+      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST
+    );
+  }
+}
+
+export class TripInvalidOrganizationExcetion extends TMSException {
+  constructor(data?: any) {
+    super(
+      { message: 'Organizasyon bulunamadı', data },
+      HttpStatus.NOT_FOUND,
+      HttpStatus.NOT_FOUND
+    );
+  }
+}
+
+export class TripStatusNotAllowedException extends TMSException {
+  constructor(data?: any) {
+    super(
+      { message: 'Yolculuk icin Bu işlem yapılamaz.', data },
+      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST
+    );
+  }
+}
+
+export class TripDriverNameNotDefinedException extends TMSException {
+  constructor(data?: any) {
+    super(
+      { message: 'Sürücü adı tanımlı değil!', data },
+      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST
+    );
   }
 }
 
