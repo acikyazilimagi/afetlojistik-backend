@@ -11,9 +11,9 @@ export class VehiclePlate {
   truck: string;
 
   @Prop({
-    type: mSchema.Types.Array,
+    type: mSchema.Types.String,
   })
-  trailer: string[];
+  trailer?: string;
 }
 
 export const VehiclePlateSchema = SchemaFactory.createForClass(VehiclePlate);
