@@ -31,7 +31,6 @@ export class VehiclePlateDto {
     description: "Plate number of the truck's trailer",
     example: '34ABC124',
   })
-  @IsDefined()
   @IsOptional()
   @IsString()
   trailer?: string;
