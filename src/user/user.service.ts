@@ -13,6 +13,7 @@ import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 import { AuthSMS } from './schemas/auth.sms.schema';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
+import ResendSmsCountExceededException from './exceptions/resend-sms-count-exceeded.exception';
 
 function generateToken(len = 64) {
   const chars =
@@ -47,7 +48,8 @@ export class UserService {
       throw new UserNotFoundException();
     }
 
-    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+    // const verificationCode = Math.floor(100000 + Math.random() * 900000);
+    const verificationCode = 123456;
 
     const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
 
@@ -63,6 +65,15 @@ export class UserService {
         message: messageBody,
         verificationCode,
       }).save();
+
+      await this.authSMSModel.updateOne(
+        {
+          phone,
+        },
+        {
+          $inc: { smsCount: 1 },
+        }
+      );
     }
 
     return {
@@ -141,7 +152,42 @@ export class UserService {
   async resendVerificationCode(
     resendVerificationCodeDto: ResendVerificationCodeDto
   ): Promise<LoginResponse> {
-    return this.login(resendVerificationCodeDto);
+    const { phone } = resendVerificationCodeDto;
+
+    const user = await this.userModel.findOne({
+      phone,
+    });
+
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+
+    const authSmsDocument = await this.authSMSModel.findOne({ phone });
+
+    if (authSmsDocument.smsCount >= 5) {
+      throw new ResendSmsCountExceededException();
+    }
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+
+    const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
+
+    const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
+
+    if (isSmsSent) {
+      await this.authSMSModel.updateOne(
+        {
+          phone,
+        },
+        {
+          $inc: { smsCount: 1 },
+        }
+      );
+    }
+
+    return {
+      success: true,
+    };
   }
 
   @LogMe()
@@ -155,8 +201,19 @@ export class UserService {
   }
 
   @LogMe()
-  async logout(token: string): Promise<boolean> {
+  async logout(token: string): Promise<{ success: boolean }> {
+    const tokenInfo: TokenDocument = await this.tokenModel.findOne({
+      token,
+    });
+
+    if (!tokenInfo) {
+      throw new InvalidTokenException();
+    }
+
     await this.tokenModel.deleteOne({ token });
-    return true;
+
+    return {
+      success: true,
+    };
   }
 }

@@ -1,5 +1,4 @@
 import {
-  ArrayNotEmpty,
   IsArray,
   IsDateString,
   IsDefined,
@@ -24,18 +23,18 @@ export class VehiclePlateDto {
     description: 'Plate number of the truck',
     example: '34ABC123',
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  truck?: string;
+  truck: string;
 
   @ApiProperty({
     type: [String],
     description: "Plate number of the truck's trailer",
     example: '34ABC124',
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  trailer?: string;
+  trailer: string;
 }
 
 export class VehicleDto {
@@ -43,27 +42,28 @@ export class VehicleDto {
     type: VehiclePlateDto,
     description: 'Plate information of the vehicle',
   })
-  @IsOptional()
+  @IsDefined()
+  @IsNotEmptyObject()
   @NestedObjectValidator(VehiclePlateDto)
-  plate?: VehiclePlateDto;
+  plate: VehiclePlateDto;
 
   @ApiProperty({
     type: String,
     description: 'Driver phone number of the vehicle',
     example: '5320000000',
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @IsPhoneNumber('TR')
-  phone?: string;
+  phone: string;
 
   @ApiProperty({
     description: 'Driver name of the vehicle',
     example: 'John Doe',
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  name?: string;
+  name: string;
 }
 
 export class LocationBaseDto {
@@ -134,7 +134,7 @@ export class ProductDto {
   @Min(0)
   count: number;
 }
-export class CreateTripDto {
+export class UpdateStatusOnwayDto {
   @ApiProperty({
     type: VehicleDto,
     description: 'Vehicle of the trip',
@@ -147,10 +147,11 @@ export class CreateTripDto {
       name: 'John Doe',
     },
   })
-  @IsOptional()
+  @IsNotEmpty()
+  @IsNotEmptyObject()
   @ValidateNested({ message: 'Invalid Vehicle' })
   @Type(() => VehicleDto)
-  vehicle?: VehicleDto;
+  vehicle: VehicleDto;
 
   @ApiProperty({
     type: FromLocationDto,
@@ -185,13 +186,12 @@ export class CreateTripDto {
   @ApiProperty({
     type: String,
     default: new Date().toISOString(),
-    description: 'Estimated depart time of the trip',
+    description: 'Depart time of the vehicle',
     example: '2023-02-10T12:00:00.000Z',
   })
   @IsNotEmpty()
   @IsDateString()
-  // TODO: allow up to 30 days later
-  estimatedDepartTime: string;
+  departTime: string;
 
   @ApiProperty({
     type: String,
@@ -201,7 +201,6 @@ export class CreateTripDto {
   })
   @IsOptional()
   @IsString()
-  @MaxLength(200)
   notes?: string;
 
   @ApiProperty({
@@ -216,7 +215,6 @@ export class CreateTripDto {
   })
   @IsDefined()
   @IsArray()
-  @ArrayNotEmpty()
   @NestedObjectValidator(ProductDto, { each: true })
   @Type(() => ProductDto)
   products: ProductDto[];
