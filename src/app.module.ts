@@ -11,6 +11,7 @@ import { CategoryModule } from './category/category.module';
 import { LogModule } from './common/logger';
 import { MongoDbModule } from './bootstrap-modules';
 import { NotificationModule } from './notification/notification.module';
+import { IntegrationModule } from './integration/integration.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { NotificationModule } from './notification/notification.module';
     UserModule,
     LocationModule,
     OrganizationModule,
+    IntegrationModule,
     TripModule,
     CategoryModule,
     NotificationModule,
