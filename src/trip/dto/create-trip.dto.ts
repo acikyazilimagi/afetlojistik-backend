@@ -139,7 +139,7 @@ export class CreateTripDto {
     example: {
       plate: {
         truck: '34ABC123',
-        trailer: ['34ABC124', '34ABC125'],
+        trailer: '34ABC124',
       },
       phone: '5320000000',
       name: 'John Doe',
