@@ -25,6 +25,8 @@ import { OrganizationDocument } from 'src/organization/schemas/organization.sche
 import { FilterTripDto } from './dto/filter-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
+import { DispatchService } from 'src/dispatch/dispatch.service';
+import { IDispatchable } from 'src/dispatch/types/dispatch.types';
 
 @Injectable()
 export class TripService {
@@ -37,7 +39,8 @@ export class TripService {
     private readonly organizationService: OrganizationService,
     private readonly tripFormatter: TripFormatter,
     private readonly userService: UserService,
-    private readonly snsService: AWSSNSService
+    private readonly snsService: AWSSNSService,
+    private readonly dispatchService: DispatchService,
   ) {}
 
   @LogMe()
@@ -142,12 +145,22 @@ export class TripService {
     if (!trip) throw new TripNotFoundException();
 
     const [populatedTrip] = await this.tripsPopulate([trip]);
+    
+    /*
+    const dispatch: IDispatchable = {
+      OrderId: populatedTrip._id.toString(),
+      PlannedDate: populatedTrip.estimatedDepartTime.toISOString(),
+      RequiredVehicleProperties: populatedTrip.vehicle.plate.truck,
+      FromLocationCity: populatedTrip.fromLocation.,
+    }
+    await this.dispatchService.dispatch(populatedTrip);
+    */
 
     return populatedTrip;
   }
 
   @LogMe()
-  async getTripById(tripId: string, organizationId): Promise<TripDocument> {
+  async getTripById(tripId: string, organizationId: string): Promise<TripDocument> {
     const trip: TripDocument = await this.tripModel
       .findOne({
         _id: tripId,
