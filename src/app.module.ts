@@ -11,6 +11,7 @@ import { CategoryModule } from './category/category.module';
 import { LogModule } from './common/logger';
 import { MongoDbModule } from './bootstrap-modules';
 import { NotificationModule } from './notification/notification.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { NotificationModule } from './notification/notification.module';
     TripModule,
     CategoryModule,
     NotificationModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [

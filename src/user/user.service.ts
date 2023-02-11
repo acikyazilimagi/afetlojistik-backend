@@ -3,6 +3,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { PinoLogger } from 'nestjs-pino';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from './schemas/user.schema';
 import UserNotFoundException from './exceptions/user-not-found.exception';
 import { Token, TokenDocument } from './schemas/token.schema';
@@ -34,8 +35,9 @@ export class UserService {
     @InjectModel(Token.name)
     private readonly tokenModel: Model<Token>,
     @InjectModel(AuthSMS.name)
-    private readonly authSMSModel: Model<AuthSMS>
-  ) {}
+    private readonly authSMSModel: Model<AuthSMS>,
+    private jwtService: JwtService
+  ) { }
   async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
     const { phone } = loginUserDto;
 
@@ -52,6 +54,8 @@ export class UserService {
     const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
 
     const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
+
+    console.log(JSON.stringify({ isSmsSent }));
 
     if (isSmsSent) {
       await this.authSMSModel.deleteOne({
@@ -114,6 +118,10 @@ export class UserService {
       throw new UserNotFoundException();
     }
 
+    const payload = { user };
+
+    const access_token = this.jwtService.sign(payload);
+
     await authSMSDocument.delete();
     const token = generateToken();
 
@@ -133,7 +141,7 @@ export class UserService {
 
     return {
       user: userWithOutPassword,
-      token,
+      token: access_token,
     };
   }
 
@@ -158,5 +166,10 @@ export class UserService {
   async logout(token: string): Promise<boolean> {
     await this.tokenModel.deleteOne({ token });
     return true;
+  }
+
+  @LogMe()
+  async getUserByPhone(phone: string): Promise<User> {
+    return this.userModel.findOne({ phone });
   }
 }

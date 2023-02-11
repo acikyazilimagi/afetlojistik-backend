@@ -12,15 +12,16 @@ import { City } from './schemas/city.schema';
 import { District } from './schemas/district.schema';
 import { TokenHeader } from '../common/headers/token.header';
 import { UserAuthGuard } from '../user/guards/user.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('Location')
 @Controller('location')
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('cities')
   @ApiOperation({ summary: 'Get all cities.' })
-  @UseGuards(UserAuthGuard)
   getAllCities(@Headers() _tokenHeader: TokenHeader): Promise<City[]> {
     return this.locationService.getAllCities();
   }

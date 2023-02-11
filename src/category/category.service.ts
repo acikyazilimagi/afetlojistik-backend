@@ -13,7 +13,7 @@ export class CategoryService {
     private readonly logger: PinoLogger,
     @InjectModel(Category.name)
     private readonly categoryModel: Model<Category>
-  ) {}
+  ) { }
 
   @LogMe()
   async getAllCategories(
