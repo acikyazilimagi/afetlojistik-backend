@@ -5,8 +5,9 @@ import {
   Param,
   Patch,
   Body,
+  HttpStatus,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserAuthGuard } from '../../user/guards/user.guard';
 import { TokenHeader } from '../../common/headers/token.header';
 import { User } from '../../user/decorators/user.decorator';
@@ -15,6 +16,7 @@ import { TripDocument } from '../schemas/trip.schema';
 import { TripStatusService } from '../services/trip-status.service';
 import { UpdateStatusOnwayDto } from '../dto/update-status-onway.dto';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
+import { UpdateTripDto } from '../dto/update-trip.dto';
 
 @ApiTags('Trip Statuses')
 @Controller('trip')
@@ -23,6 +25,7 @@ export class TripStatusController {
 
   @Patch(':tripId/status/onway')
   @ApiOperation({ summary: 'Update trip status to onway.' })
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateTripDto })
   @UseGuards(UserAuthGuard)
   updateTripStatusToOnway(
     @Headers() tokenHeader: TokenHeader,
@@ -41,6 +44,7 @@ export class TripStatusController {
 
   @Patch(':tripId/status/arrived')
   @ApiOperation({ summary: 'Update trip status to arrived.' })
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateTripDto })
   @UseGuards(UserAuthGuard)
   updateTripStatusToArrived(
     @Headers() tokenHeader: TokenHeader,
@@ -59,6 +63,7 @@ export class TripStatusController {
 
   @Patch(':tripId/status/cancelled')
   @ApiOperation({ summary: 'Update trip status to cancelled.' })
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateTripDto })
   @UseGuards(UserAuthGuard)
   updateTripStatusToCancelled(
     @Headers() tokenHeader: TokenHeader,

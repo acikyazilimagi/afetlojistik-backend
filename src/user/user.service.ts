@@ -201,7 +201,7 @@ export class UserService {
   }
 
   @LogMe()
-  async logout(token: string): Promise<boolean> {
+  async logout(token: string): Promise<{ success: boolean }> {
     const tokenInfo: TokenDocument = await this.tokenModel.findOne({
       token,
     });
@@ -211,6 +211,9 @@ export class UserService {
     }
 
     await this.tokenModel.deleteOne({ token });
-    return true;
+
+    return {
+      success: true,
+    };
   }
 }
