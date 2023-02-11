@@ -212,24 +212,7 @@ export class TripService {
     userId: string,
     organizationId: string
   ): Promise<TripDocument> {
-    const trip: TripDocument = await this.getTripById(tripId, organizationId);
-
-    const tripWithStatusChangeLog: UpdateTripDto & {
-      statusChangeLog?: StatusChangeLog[];
-    } = updateTripDto;
-
-    if (trip.status !== updateTripDto.status) {
-      const statusChangeLog: StatusChangeLog = {
-        status: updateTripDto.status,
-        createdBy: userId,
-        createdAt: new Date(),
-      };
-
-      tripWithStatusChangeLog.statusChangeLog = [
-        ...trip.statusChangeLog,
-        statusChangeLog,
-      ];
-    }
+    await this.getTripById(tripId, organizationId);
 
     await this.validateTrip(updateTripDto);
 
@@ -239,8 +222,33 @@ export class TripService {
       },
       {
         $set: {
-          ...tripWithStatusChangeLog,
+          ...updateTripDto,
         },
+      },
+      { new: true }
+    )) as unknown as TripDocument;
+  }
+
+  @LogMe()
+  async updateTripStatus(
+    tripId: string,
+    status: TripsStatuses,
+    userId: string,
+    organizationId: string
+  ): Promise<TripDocument> {
+    await this.getTripById(tripId, organizationId);
+
+    const statusChangeLog: StatusChangeLog = {
+      status,
+      createdBy: userId,
+      createdAt: new Date(),
+    };
+
+    return (await this.tripModel.findOneAndUpdate(
+      { _id: tripId },
+      {
+        $set: { status },
+        $addToSet: { statusChangeLog },
       },
       { new: true }
     )) as unknown as TripDocument;

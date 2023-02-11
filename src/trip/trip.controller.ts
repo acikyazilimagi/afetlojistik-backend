@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Query,
+  Put,
 } from '@nestjs/common';
 import { TripService } from './trip.service';
 import { CreateTripDto } from './dto/create-trip.dto';
@@ -20,6 +21,7 @@ import { TripDocument } from './schemas/trip.schema';
 import { FilterTripDto } from './dto/filter-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { UpdateStatusDto } from './dto/update-status.dto';
 
 @ApiTags('Trip')
 @Controller('trip')
@@ -92,7 +94,7 @@ export class TripController {
     );
   }
 
-  @Patch(':tripId')
+  @Put(':tripId')
   @ApiOperation({ summary: 'Update trip.' })
   @UseGuards(UserAuthGuard)
   updateTrip(
@@ -105,6 +107,24 @@ export class TripController {
     return this.tripService.updateTrip(
       tripId,
       updateTripDto,
+      userId,
+      organizationId
+    );
+  }
+
+  @Patch(':tripId/status')
+  @ApiOperation({ summary: 'Update trip status.' })
+  @UseGuards(UserAuthGuard)
+  updateTripStatus(
+    @Headers() tokenHeader: TokenHeader,
+    @User() user: UserDocument,
+    @Param('tripId') tripId: string,
+    @Body() { status }: UpdateStatusDto
+  ): Promise<TripDocument> {
+    const { organizationId, _id: userId } = user;
+    return this.tripService.updateTripStatus(
+      tripId,
+      status,
       userId,
       organizationId
     );
