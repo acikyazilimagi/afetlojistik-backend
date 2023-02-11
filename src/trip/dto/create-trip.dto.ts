@@ -102,13 +102,13 @@ export class FromLocationDto extends LocationBaseDto {
 export class ToLocationDto extends LocationBaseDto {
   @ApiProperty({
     type: String,
-    required: true,
+    required: false,
     description: 'Address of the location',
     example: 'Atatürk Mahallesi, 123 Sokak, No: 1',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  address: string;
+  address?: string;
 }
 
 export class ProductDto {
