@@ -35,7 +35,7 @@ export class UserService {
     private readonly tokenModel: Model<Token>,
     @InjectModel(AuthSMS.name)
     private readonly authSMSModel: Model<AuthSMS>
-  ) {}
+  ) { }
   async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
     const { phone } = loginUserDto;
 
@@ -52,7 +52,7 @@ export class UserService {
 
     const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
 
-    const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
+    const isSmsSent = true; //await this.snsService.sendSMS('+90' + phone, messageBody);
 
     if (isSmsSent) {
       await this.authSMSModel.deleteOne({
@@ -159,5 +159,14 @@ export class UserService {
   async logout(token: string): Promise<boolean> {
     await this.tokenModel.deleteOne({ token });
     return true;
+  }
+
+  @LogMe()
+  async getAll(): Promise<UserDocument[]> {
+    const users: UserDocument[] = await this.userModel.find();
+
+    if (!users) throw new UserNotFoundException();
+
+    return users as unknown as UserDocument[];
   }
 }

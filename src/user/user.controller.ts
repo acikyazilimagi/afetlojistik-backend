@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Headers } from '@nestjs/common';
+import { Controller, Post, Body, Headers, Get } from '@nestjs/common';
 import { UserService } from './user.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -10,7 +10,7 @@ import { TokenHeader } from '../common/headers/token.header';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Post('login')
   @ApiOperation({ summary: 'Login user.' })
@@ -38,5 +38,11 @@ export class UserController {
   @ApiOperation({ summary: 'Logout user.' })
   logout(@Headers() tokenHeader: TokenHeader) {
     return this.userService.logout(tokenHeader.token);
+  }
+
+  @Get('')
+  @ApiOperation({ summary: 'List users' })
+  list() {
+    return this.userService.getAll();
   }
 }
