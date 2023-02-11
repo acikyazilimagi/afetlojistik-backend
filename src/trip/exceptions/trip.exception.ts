@@ -1,4 +1,4 @@
-import { HttpStatus } from '@nestjs/common';
+import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { TMSException } from 'src/common/exceptions/tms.exception';
 
 export class TripNotFoundException extends TMSException {
