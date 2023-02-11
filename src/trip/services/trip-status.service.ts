@@ -13,6 +13,7 @@ import {
 } from '../exceptions/trip.exception';
 import { UpdateStatusOnwayDto } from '../dto/update-status-onway.dto';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
+import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 
 @Injectable()
 export class TripStatusService {
@@ -20,8 +21,8 @@ export class TripStatusService {
     private readonly logger: PinoLogger,
     @InjectModel(Trip.name)
     private readonly tripModel: Model<Trip>,
-
-    private readonly tripService: TripService
+    private readonly tripService: TripService,
+    private readonly snsService: AWSSNSService
   ) {}
 
   @LogMe()
@@ -45,6 +46,20 @@ export class TripStatusService {
       throw new TripDriverNameNotDefinedException();
     }
 
+    const {
+      vehicle: { phone: oldDriverPhoneNumber },
+    } = trip;
+
+    const {
+      vehicle: { phone: newDriverPhoneNumber },
+    } = updateStatusOnwayDto;
+
+    if (newDriverPhoneNumber !== oldDriverPhoneNumber) {
+      const messageBody = 'kvkk metni';
+
+      await this.snsService.sendSMS('+90' + newDriverPhoneNumber, messageBody);
+    }
+
     const statusChangeLog: StatusChangeLog = {
       status,
       createdBy: userId,
@@ -58,7 +73,7 @@ export class TripStatusService {
       {
         $set: {
           status,
-          updateStatusOnwayDto,
+          ...updateStatusOnwayDto,
         },
         $addToSet: { statusChangeLog },
       },
