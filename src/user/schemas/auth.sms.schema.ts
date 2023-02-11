@@ -23,6 +23,12 @@ export class AuthSMS {
     required: true,
   })
   message: string;
+
+  @Prop({
+    type: mSchema.Types.Number,
+    default: 0,
+  })
+  smsCount: number;
 }
 
 export const AuthSMSSchema = SchemaFactory.createForClass(AuthSMS);
