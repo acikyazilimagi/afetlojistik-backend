@@ -298,6 +298,18 @@ export class TripService {
       query.status = { $in: filterTripDto.statuses };
     }
 
+    if (filterTripDto.startDate || filterTripDto.endDate) {
+      query.createdAt = {};
+
+      filterTripDto.startDate
+        ? (query.createdAt.$gte = filterTripDto.startDate)
+        : undefined;
+
+      filterTripDto.endDate
+        ? (query.createdAt.$lte = filterTripDto.endDate)
+        : undefined;
+    }
+
     const result = {
       data: (await this.tripModel
         .find(query)
