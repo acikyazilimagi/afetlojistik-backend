@@ -67,7 +67,7 @@ export class VehicleDto {
   name: string;
 }
 
-export class LocationDto {
+export class LocationBaseDto {
   @ApiProperty({
     type: String,
     description: 'CityId of the location',
@@ -87,9 +87,24 @@ export class LocationDto {
   @IsString()
   @IsMongoId()
   districtId: string;
+}
 
+export class FromLocationDto extends LocationBaseDto {
   @ApiProperty({
     type: String,
+    required: false,
+    description: 'Address of the location',
+    example: 'Atatürk Mahallesi, 123 Sokak, No: 1',
+  })
+  @IsOptional()
+  @IsString()
+  address?: string;
+}
+
+export class ToLocationDto extends LocationBaseDto {
+  @ApiProperty({
+    type: String,
+    required: true,
     description: 'Address of the location',
     example: 'Atatürk Mahallesi, 123 Sokak, No: 1',
   })
@@ -138,7 +153,7 @@ export class CreateTripDto {
   vehicle: VehicleDto;
 
   @ApiProperty({
-    type: LocationDto,
+    type: FromLocationDto,
     description: 'From location of the trip',
     example: {
       cityId: '5e43fc64ad9beb36cdeb4f8b',
@@ -149,11 +164,11 @@ export class CreateTripDto {
   @IsNotEmpty()
   @IsNotEmptyObject()
   @ValidateNested({ message: 'Invalid from Location' })
-  @Type(() => LocationDto)
-  fromLocation: LocationDto;
+  @Type(() => FromLocationDto)
+  fromLocation: FromLocationDto;
 
   @ApiProperty({
-    type: LocationDto,
+    type: ToLocationDto,
     description: 'To location of the trip',
     example: {
       cityId: '5e43fc64ad9beb36cdeb4f8b',
@@ -164,8 +179,8 @@ export class CreateTripDto {
   @IsNotEmpty()
   @IsNotEmptyObject()
   @ValidateNested({ message: 'Invalid to Location' })
-  @Type(() => LocationDto)
-  toLocation: LocationDto;
+  @Type(() => ToLocationDto)
+  toLocation: ToLocationDto;
 
   @ApiProperty({
     type: String,
