@@ -8,3 +8,9 @@ export type ValidateVerificationCodeResponse = {
   user: Partial<User>;
   token: string;
 };
+
+export enum UserStatuses {
+  PENDING = 100,
+  ACTIVE = 200,
+  DISABLED = 300,
+}
