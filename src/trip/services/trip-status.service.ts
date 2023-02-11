@@ -10,8 +10,9 @@ import { TripService } from './trip.service';
 import {
   TripDriverNameNotDefinedException,
   TripStatusNotAllowedException,
+  TripDriverPhoneNotDefinedException,
+  TripVehiclePlateNotDefinedException,
 } from '../exceptions/trip.exception';
-import { UpdateStatusOnwayDto } from '../dto/update-status-onway.dto';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 
@@ -29,8 +30,7 @@ export class TripStatusService {
   async updateTripStatusOnway(
     tripId: string,
     userId: string,
-    organizationId: string,
-    updateStatusOnwayDto: UpdateStatusOnwayDto
+    organizationId: string
   ): Promise<TripDocument> {
     const trip = await this.tripService.getTripById(tripId, organizationId);
 
@@ -46,34 +46,25 @@ export class TripStatusService {
       throw new TripDriverNameNotDefinedException();
     }
 
-    const {
-      vehicle: { phone: oldDriverPhoneNumber },
-    } = trip;
+    if (!trip.vehicle.phone) {
+      throw new TripDriverPhoneNotDefinedException();
+    }
 
-    const {
-      vehicle: { phone: newDriverPhoneNumber },
-    } = updateStatusOnwayDto;
-
-    if (newDriverPhoneNumber !== oldDriverPhoneNumber) {
-      const messageBody = 'kvkk metni';
-
-      await this.snsService.sendSMS('+90' + newDriverPhoneNumber, messageBody);
+    if (!trip.vehicle.plate) {
+      throw new TripVehiclePlateNotDefinedException();
     }
 
     const statusChangeLog: StatusChangeLog = {
       status,
       createdBy: userId,
-      createdAt: new Date(updateStatusOnwayDto.departTime),
+      createdAt: new Date(),
     };
-
-    delete updateStatusOnwayDto.departTime;
 
     return (await this.tripModel.findOneAndUpdate(
       { _id: tripId },
       {
         $set: {
           status,
-          ...updateStatusOnwayDto,
         },
         $addToSet: { statusChangeLog },
       },
