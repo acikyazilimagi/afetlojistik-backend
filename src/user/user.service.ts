@@ -13,6 +13,7 @@ import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 import { AuthSMS } from './schemas/auth.sms.schema';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 function generateToken(len = 64) {
   const chars =
@@ -35,7 +36,7 @@ export class UserService {
     private readonly tokenModel: Model<Token>,
     @InjectModel(AuthSMS.name)
     private readonly authSMSModel: Model<AuthSMS>
-  ) { }
+  ) {}
   async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
     const { phone } = loginUserDto;
 
@@ -168,5 +169,25 @@ export class UserService {
     if (!users) throw new UserNotFoundException();
 
     return users as unknown as UserDocument[];
+  }
+
+  @LogMe()
+  async updateUser(
+    userId: string,
+    updateUserDto: UpdateUserDto
+  ): Promise<UserDocument> {
+    await this.getUserById(userId);
+
+    return (await this.userModel.findOneAndUpdate(
+      {
+        _id: userId,
+      },
+      {
+        $set: {
+          ...updateUserDto,
+        },
+      },
+      { new: true }
+    )) as unknown as UserDocument;
   }
 }

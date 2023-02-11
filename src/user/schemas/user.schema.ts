@@ -57,6 +57,13 @@ export class User {
     maxlength: 50,
   })
   email?: string;
+
+  @Prop({
+    type: mSchema.Types.Boolean,
+    required: true,
+    default: false,
+  })
+  isAdmin?: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
