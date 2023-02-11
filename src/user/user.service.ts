@@ -20,6 +20,7 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Organization } from 'src/organization/schemas/organization.schema';
+import ResendSmsCountExceededException from './exceptions/resend-sms-count-exceeded.exception';
 
 function generateToken(len = 64) {
   const chars =
@@ -74,6 +75,15 @@ export class UserService {
         message: messageBody,
         verificationCode,
       }).save();
+
+      await this.authSMSModel.updateOne(
+        {
+          phone,
+        },
+        {
+          $inc: { smsCount: 1 },
+        }
+      );
     }
 
     return {
@@ -157,7 +167,42 @@ export class UserService {
   async resendVerificationCode(
     resendVerificationCodeDto: ResendVerificationCodeDto
   ): Promise<LoginResponse> {
-    return this.login(resendVerificationCodeDto);
+    const { phone } = resendVerificationCodeDto;
+
+    const user = await this.userModel.findOne({
+      phone,
+    });
+
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+
+    const authSmsDocument = await this.authSMSModel.findOne({ phone });
+
+    if (authSmsDocument.smsCount >= 5) {
+      throw new ResendSmsCountExceededException();
+    }
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+
+    const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
+
+    const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
+
+    if (isSmsSent) {
+      await this.authSMSModel.updateOne(
+        {
+          phone,
+        },
+        {
+          $inc: { smsCount: 1 },
+        }
+      );
+    }
+
+    return {
+      success: true,
+    };
   }
 
   @LogMe()
@@ -171,9 +216,20 @@ export class UserService {
   }
 
   @LogMe()
-  async logout(token: string): Promise<boolean> {
+  async logout(token: string): Promise<{ success: boolean }> {
+    const tokenInfo: TokenDocument = await this.tokenModel.findOne({
+      token,
+    });
+
+    if (!tokenInfo) {
+      throw new InvalidTokenException();
+    }
+
     await this.tokenModel.deleteOne({ token });
-    return true;
+
+    return {
+      success: true,
+    };
   }
 
   @LogMe()

@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 
 export class TripNotFoundException extends NotFoundException {
   constructor() {
@@ -21,5 +21,20 @@ export class TripInvalidProductException extends NotFoundException {
 export class TripInvalidOrganizationExcetion extends NotFoundException {
   constructor(data?: any) {
     super({ message: 'Organizasyon bulunamadı', data });
+  }
+}
+
+export class TripStatusNotAllowedException extends HttpException {
+  constructor(data?: any) {
+    super(
+      { message: 'Yolculuk icin Bu işlem yapılamaz.', data },
+      HttpStatus.BAD_REQUEST
+    );
+  }
+}
+
+export class TripDriverNameNotDefinedException extends NotFoundException {
+  constructor(data?: any) {
+    super({ message: 'Sürücü adı tanımlı değil!', data });
   }
 }

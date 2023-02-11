@@ -1,29 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTripDto, ProductDto } from './dto/create-trip.dto';
-import { Trip, TripDocument } from './schemas/trip.schema';
-import { LogMe } from '../common/decorators/log.decorator';
+import { CreateTripDto, ProductDto } from '../dto/create-trip.dto';
+import { Trip, TripDocument } from '../schemas/trip.schema';
+import { LogMe } from '../../common/decorators/log.decorator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
-import { TripsStatuses } from './types/trip.type';
+import { TripsStatuses } from '../types/trip.type';
 import {
   TripInvalidLocationException,
   TripInvalidOrganizationExcetion,
   TripInvalidProductException,
   TripNotFoundException,
-} from './exceptions/trip.exception';
-import { LocationService } from '../location/location.service';
-import { CategoryService } from '../category/category.service';
-import TripFormatter from './formatters/trip-populate.formatter';
-import { UserService } from '../user/user.service';
+} from '../exceptions/trip.exception';
+import { LocationService } from '../../location/location.service';
+import { CategoryService } from '../../category/category.service';
+import TripFormatter from '../formatters/trip-populate.formatter';
+import { UserService } from '../../user/user.service';
 import { DisctrictDocument } from 'src/location/schemas/district.schema';
-import { TripLogic } from './logic/trip.logic';
+import { TripLogic } from '../logic/trip.logic';
 import { CategoryDocument } from 'src/category/schemas/category.schema';
-import { StatusChangeLog } from './schemas/status.change.log.schema';
+import { StatusChangeLog } from '../schemas/status.change.log.schema';
 import { OrganizationService } from 'src/organization/organization.service';
 import { OrganizationDocument } from 'src/organization/schemas/organization.schema';
-import { FilterTripDto } from './dto/filter-trip.dto';
-import { UpdateTripDto } from './dto/update-trip.dto';
+import { FilterTripDto } from '../dto/filter-trip.dto';
+import { UpdateTripDto } from '../dto/update-trip.dto';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 
 @Injectable()
@@ -107,7 +107,9 @@ export class TripService {
 
     const messageBody = 'kvkk metni';
 
-    await this.snsService.sendSMS('+90' + phone, messageBody);
+    if (phone) {
+      await this.snsService.sendSMS('+90' + phone, messageBody);
+    }
 
     return createdTrip;
   }
@@ -195,6 +197,7 @@ export class TripService {
         .skip(skip || 0)
         .limit(limit || Number.MAX_SAFE_INTEGER)
         .lean()
+        .sort({ createdAt: -1 })
         .exec()) as unknown as TripDocument[],
       total: (await this.tripModel.countDocuments(query)) as unknown as number,
     };
@@ -224,31 +227,6 @@ export class TripService {
         $set: {
           ...updateTripDto,
         },
-      },
-      { new: true }
-    )) as unknown as TripDocument;
-  }
-
-  @LogMe()
-  async updateTripStatus(
-    tripId: string,
-    status: TripsStatuses,
-    userId: string,
-    organizationId: string
-  ): Promise<TripDocument> {
-    await this.getTripById(tripId, organizationId);
-
-    const statusChangeLog: StatusChangeLog = {
-      status,
-      createdBy: userId,
-      createdAt: new Date(),
-    };
-
-    return (await this.tripModel.findOneAndUpdate(
-      { _id: tripId },
-      {
-        $set: { status },
-        $addToSet: { statusChangeLog },
       },
       { new: true }
     )) as unknown as TripDocument;
@@ -326,6 +304,7 @@ export class TripService {
         .skip(skip || 0)
         .limit(limit || Number.MAX_SAFE_INTEGER)
         .lean()
+        .sort({ createdAt: -1 })
         .exec()) as unknown as TripDocument[],
       total: (await this.tripModel.countDocuments(query)) as unknown as number,
     };

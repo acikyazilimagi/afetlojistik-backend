@@ -8,20 +8,21 @@ import {
   Put,
   UseGuards,
   Param,
+  HttpStatus
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { LoginUserDto } from './dto/login-user.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginResponse, ValidateVerificationCodeResponse } from './types';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { TokenHeader } from '../common/headers/token.header';
-import { UserAuthGuard } from './guards/user.guard';
-import { User } from './decorators/user.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDocument } from './schemas/user.schema';
 import { AdminAuthGuard } from './guards/admin.guard';
 import { CreateUserDto } from './dto/create-user.dto';
+import { SuccessResponseDto } from 'src/common/dtos';
+import { VerifyResponseDto } from './dto/response';
 
 @ApiTags('User')
 @Controller('user')
@@ -30,12 +31,14 @@ export class UserController {
 
   @Post('login')
   @ApiOperation({ summary: 'Login user.' })
+  @ApiResponse({ status: HttpStatus.OK, type: SuccessResponseDto })
   login(@Body() loginUserDto: LoginUserDto): Promise<LoginResponse> {
     return this.userService.login(loginUserDto);
   }
 
   @Post('verify')
   @ApiOperation({ summary: 'Validate verification code.' })
+  @ApiResponse({ status: HttpStatus.OK, type: VerifyResponseDto })
   validateVerificationCode(
     @Body() verifyOtpDto: VerifyOtpDto
   ): Promise<ValidateVerificationCodeResponse> {
@@ -44,6 +47,7 @@ export class UserController {
 
   @Post('verification/resend')
   @ApiOperation({ summary: 'Resend verification code.' })
+  @ApiResponse({ status: HttpStatus.OK, type: SuccessResponseDto })
   resendVerificationCode(
     @Body() resendVerificationCodeDto: ResendVerificationCodeDto
   ): Promise<LoginResponse> {
@@ -52,6 +56,7 @@ export class UserController {
 
   @Post('logout')
   @ApiOperation({ summary: 'Logout user.' })
+  @ApiResponse({ status: HttpStatus.OK, type: SuccessResponseDto })
   logout(@Headers() tokenHeader: TokenHeader) {
     return this.userService.logout(tokenHeader.token);
   }
