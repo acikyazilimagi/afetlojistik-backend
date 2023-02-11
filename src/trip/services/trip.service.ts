@@ -215,9 +215,23 @@ export class TripService {
     userId: string,
     organizationId: string
   ): Promise<TripDocument> {
-    await this.getTripById(tripId, organizationId);
+    const trip = await this.getTripById(tripId, organizationId);
 
     await this.validateTrip(updateTripDto);
+
+    const {
+      vehicle: { phone: oldDriverPhoneNumber },
+    } = trip;
+
+    const {
+      vehicle: { phone: newDriverPhoneNumber },
+    } = updateTripDto;
+
+    if (newDriverPhoneNumber !== oldDriverPhoneNumber) {
+      const messageBody = 'kvkk metni';
+
+      await this.snsService.sendSMS('+90' + newDriverPhoneNumber, messageBody);
+    }
 
     return (await this.tripModel.findOneAndUpdate(
       {

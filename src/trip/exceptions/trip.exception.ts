@@ -38,3 +38,15 @@ export class TripDriverNameNotDefinedException extends NotFoundException {
     super({ message: 'Sürücü adı tanımlı değil!', data });
   }
 }
+
+export class TripDriverPhoneNotDefinedException extends NotFoundException {
+  constructor(data?: any) {
+    super({ message: 'Sürücü numarası tanımlı değil!', data });
+  }
+}
+
+export class TripVehiclePlateNotDefinedException extends NotFoundException {
+  constructor(data?: any) {
+    super({ message: 'Araç plakası tanımlı değil!', data });
+  }
+}
