@@ -1,11 +1,19 @@
-import { Controller, UseGuards, Headers, Param, Patch } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  UseGuards,
+  Headers,
+  Param,
+  Patch,
+  HttpStatus,
+} from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserAuthGuard } from '../../user/guards/user.guard';
 import { TokenHeader } from '../../common/headers/token.header';
 import { User } from '../../user/decorators/user.decorator';
 import { UserDocument } from '../../user/schemas/user.schema';
 import { TripDocument } from '../schemas/trip.schema';
 import { TripStatusService } from '../services/trip-status.service';
+import { UpdateTripResponseDto } from '../dto/response';
 
 @ApiTags('Trip Statuses')
 @Controller('trip')
@@ -14,6 +22,7 @@ export class TripStatusController {
 
   @Patch(':tripId/status/onway')
   @ApiOperation({ summary: 'Update trip status to onway.' })
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateTripResponseDto })
   @UseGuards(UserAuthGuard)
   updateTripStatusToOnway(
     @Headers() tokenHeader: TokenHeader,
@@ -30,6 +39,7 @@ export class TripStatusController {
 
   @Patch(':tripId/status/arrived')
   @ApiOperation({ summary: 'Update trip status to arrived.' })
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateTripResponseDto })
   @UseGuards(UserAuthGuard)
   updateTripStatusToArrived(
     @Headers() tokenHeader: TokenHeader,
@@ -46,6 +56,7 @@ export class TripStatusController {
 
   @Patch(':tripId/status/complete')
   @ApiOperation({ summary: 'Update trip status to complete.' })
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateTripResponseDto })
   @UseGuards(UserAuthGuard)
   updateTripStatusToComplete(
     @Headers() tokenHeader: TokenHeader,
@@ -62,6 +73,7 @@ export class TripStatusController {
 
   @Patch(':tripId/status/cancelled')
   @ApiOperation({ summary: 'Update trip status to cancelled.' })
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateTripResponseDto })
   @UseGuards(UserAuthGuard)
   updateTripStatusToCancelled(
     @Headers() tokenHeader: TokenHeader,
