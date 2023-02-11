@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsBoolean,
   IsDateString,
   IsDefined,
   IsMongoId,
@@ -18,7 +19,7 @@ import { Type } from 'class-transformer';
 import { Prop } from '@nestjs/mongoose';
 import { Schema as mSchema } from 'mongoose';
 
-export class UpdateUserDto {
+export class CreateUserDto {
   @ApiProperty({
     type: String,
     description: 'Name of user',
@@ -54,4 +55,12 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   email: string;
+
+  @ApiProperty({
+    type: Boolean,
+    description: 'Data consent',
+    example: false,
+  })
+  @IsBoolean()
+  dataConsent: boolean;
 }

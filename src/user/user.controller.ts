@@ -21,6 +21,7 @@ import { User } from './decorators/user.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDocument } from './schemas/user.schema';
 import { AdminAuthGuard } from './guards/admin.guard';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -79,6 +80,15 @@ export class UserController {
     @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto
   ): Promise<UserDocument> {
-    return this.userService.updateUser(userId, updateUserDto);
+    return this.userService.update(userId, updateUserDto);
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Create user.' })
+  createUser(
+    @Headers() tokenHeader: TokenHeader,
+    @Body() updateUserDto: CreateUserDto
+  ): Promise<UserDocument> {
+    return this.userService.create(updateUserDto);
   }
 }
