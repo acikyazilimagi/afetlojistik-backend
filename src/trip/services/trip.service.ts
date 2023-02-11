@@ -195,6 +195,7 @@ export class TripService {
         .skip(skip || 0)
         .limit(limit || Number.MAX_SAFE_INTEGER)
         .lean()
+        .sort({ createdAt: -1 })
         .exec()) as unknown as TripDocument[],
       total: (await this.tripModel.countDocuments(query)) as unknown as number,
     };
@@ -301,6 +302,7 @@ export class TripService {
         .skip(skip || 0)
         .limit(limit || Number.MAX_SAFE_INTEGER)
         .lean()
+        .sort({ createdAt: -1 })
         .exec()) as unknown as TripDocument[],
       total: (await this.tripModel.countDocuments(query)) as unknown as number,
     };
