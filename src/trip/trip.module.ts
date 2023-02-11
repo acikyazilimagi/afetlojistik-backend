@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TripService } from './trip.service';
-import { TripController } from './trip.controller';
+import { TripService } from './services/trip.service';
+import { TripController } from './controllers/trip.controller';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Trip, TripSchema } from './schemas/trip.schema';
 import { LocationModule } from '../location/location.module';
@@ -10,6 +10,8 @@ import { CategoryModule } from '../category/category.module';
 import TripFormatter from './formatters/trip-populate.formatter';
 import { OrganizationModule } from 'src/organization/organization.module';
 import { NotificationModule } from '../notification/notification.module';
+import { TripStatusController } from './controllers/trip-status.controller';
+import { TripStatusService } from './services/trip-status.service';
 
 @Module({
   imports: [
@@ -33,7 +35,7 @@ import { NotificationModule } from '../notification/notification.module';
     NotificationModule,
     OrganizationModule,
   ],
-  controllers: [TripController],
-  providers: [TripService, TripFormatter],
+  controllers: [TripController, TripStatusController],
+  providers: [TripService, TripStatusService, TripFormatter],
 })
 export class TripModule {}

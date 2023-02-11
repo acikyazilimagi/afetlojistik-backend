@@ -60,9 +60,9 @@ export class VehicleDto {
     description: 'Driver name of the vehicle',
     example: 'John Doe',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 }
 
 export class LocationBaseDto {
