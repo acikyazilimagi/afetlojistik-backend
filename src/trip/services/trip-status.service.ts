@@ -11,6 +11,8 @@ import {
   TripDriverNameNotDefinedException,
   TripStatusNotAllowedException,
 } from '../exceptions/trip.exception';
+import { UpdateStatusOnwayDto } from '../dto/update-status-onway.dto';
+import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
 
 @Injectable()
 export class TripStatusService {
@@ -26,7 +28,8 @@ export class TripStatusService {
   async updateTripStatusOnway(
     tripId: string,
     userId: string,
-    organizationId: string
+    organizationId: string,
+    updateStatusOnwayDto: UpdateStatusOnwayDto
   ): Promise<TripDocument> {
     const trip = await this.tripService.getTripById(tripId, organizationId);
 
@@ -45,13 +48,18 @@ export class TripStatusService {
     const statusChangeLog: StatusChangeLog = {
       status,
       createdBy: userId,
-      createdAt: new Date(),
+      createdAt: new Date(updateStatusOnwayDto.departTime),
     };
+
+    delete updateStatusOnwayDto.departTime;
 
     return (await this.tripModel.findOneAndUpdate(
       { _id: tripId },
       {
-        $set: { status },
+        $set: {
+          status,
+          updateStatusOnwayDto,
+        },
         $addToSet: { statusChangeLog },
       },
       { new: true }
@@ -62,7 +70,8 @@ export class TripStatusService {
   async updateTripStatusArrived(
     tripId: string,
     userId: string,
-    organizationId: string
+    organizationId: string,
+    updateStatusArrivedDto: UpdateStatusArrivedDto
   ): Promise<TripDocument> {
     const trip = await this.tripService.getTripById(tripId, organizationId);
 
@@ -77,7 +86,7 @@ export class TripStatusService {
     const statusChangeLog: StatusChangeLog = {
       status,
       createdBy: userId,
-      createdAt: new Date(),
+      createdAt: new Date(updateStatusArrivedDto.arrivedTime),
     };
 
     return (await this.tripModel.findOneAndUpdate(
@@ -87,37 +96,6 @@ export class TripStatusService {
         $addToSet: { statusChangeLog },
       },
       { new: true }
-    )) as unknown as TripDocument;
-  }
-
-  @LogMe()
-  async updateTripStatusCompleted(
-    tripId: string,
-    userId: string,
-    organizationId: string
-  ): Promise<TripDocument> {
-    const trip = await this.tripService.getTripById(tripId, organizationId);
-
-    const status = TripsStatuses.COMPLETED;
-
-    const allowedStatuses = [TripsStatuses.ARRIVED];
-
-    if (!allowedStatuses.includes(trip.status)) {
-      throw new TripStatusNotAllowedException();
-    }
-
-    const statusChangeLog: StatusChangeLog = {
-      status,
-      createdBy: userId,
-      createdAt: new Date(),
-    };
-
-    return (await this.tripModel.findOneAndUpdate(
-      { _id: tripId },
-      {
-        $set: { status },
-        $addToSet: { statusChangeLog },
-      }
     )) as unknown as TripDocument;
   }
 

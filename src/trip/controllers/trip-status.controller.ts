@@ -1,4 +1,11 @@
-import { Controller, UseGuards, Headers, Param, Patch } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Headers,
+  Param,
+  Patch,
+  Body,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserAuthGuard } from '../../user/guards/user.guard';
 import { TokenHeader } from '../../common/headers/token.header';
@@ -6,6 +13,8 @@ import { User } from '../../user/decorators/user.decorator';
 import { UserDocument } from '../../user/schemas/user.schema';
 import { TripDocument } from '../schemas/trip.schema';
 import { TripStatusService } from '../services/trip-status.service';
+import { UpdateStatusOnwayDto } from '../dto/update-status-onway.dto';
+import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
 
 @ApiTags('Trip Statuses')
 @Controller('trip')
@@ -18,13 +27,15 @@ export class TripStatusController {
   updateTripStatusToOnway(
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,
-    @Param('tripId') tripId: string
+    @Param('tripId') tripId: string,
+    @Body() updateStatusOnwayDto: UpdateStatusOnwayDto
   ): Promise<TripDocument> {
     const { organizationId, _id: userId } = user;
     return this.tripStatusService.updateTripStatusOnway(
       tripId,
       userId,
-      organizationId
+      organizationId,
+      updateStatusOnwayDto
     );
   }
 
@@ -34,29 +45,15 @@ export class TripStatusController {
   updateTripStatusToArrived(
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,
-    @Param('tripId') tripId: string
+    @Param('tripId') tripId: string,
+    @Body() updateStatusArrivedDto: UpdateStatusArrivedDto
   ): Promise<TripDocument> {
     const { organizationId, _id: userId } = user;
     return this.tripStatusService.updateTripStatusArrived(
       tripId,
       userId,
-      organizationId
-    );
-  }
-
-  @Patch(':tripId/status/complete')
-  @ApiOperation({ summary: 'Update trip status to complete.' })
-  @UseGuards(UserAuthGuard)
-  updateTripStatusToComplete(
-    @Headers() tokenHeader: TokenHeader,
-    @User() user: UserDocument,
-    @Param('tripId') tripId: string
-  ): Promise<TripDocument> {
-    const { organizationId, _id: userId } = user;
-    return this.tripStatusService.updateTripStatusCompleted(
-      tripId,
-      userId,
-      organizationId
+      organizationId,
+      updateStatusArrivedDto
     );
   }
 
