@@ -5,6 +5,7 @@ import {
   Headers,
   Param,
   Query,
+  HttpStatus,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { UserAuthGuard } from '../user/guards/user.guard';
@@ -12,8 +13,12 @@ import { User } from '../user/decorators/user.decorator';
 import { CategoryDocument } from './schemas/category.schema';
 import { UserDocument } from '../user/schemas/user.schema';
 import { TokenHeader } from '../common/headers/token.header';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import {
+  GetAllCategoriesResponseDto,
+  GetCategoryByCategoryIdResponseDto,
+} from './dto/response';
 
 @ApiTags('Category')
 @Controller('category')
@@ -22,6 +27,7 @@ export class CategoryController {
 
   @Get()
   @ApiOperation({ summary: 'Get all categories.' })
+  @ApiResponse({ status: HttpStatus.OK, type: GetAllCategoriesResponseDto })
   @UseGuards(UserAuthGuard)
   getAllCategories(
     @Headers() tokenHeader: TokenHeader,
@@ -34,6 +40,10 @@ export class CategoryController {
 
   @Get(':categoryId')
   @ApiOperation({ summary: 'Get category by category id.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: GetCategoryByCategoryIdResponseDto,
+  })
   @UseGuards(UserAuthGuard)
   getCategory(
     @Headers() tokenHeader: TokenHeader,
