@@ -107,7 +107,9 @@ export class TripService {
 
     const messageBody = 'kvkk metni';
 
-    await this.snsService.sendSMS('+90' + phone, messageBody);
+    if (phone) {
+      await this.snsService.sendSMS('+90' + phone, messageBody);
+    }
 
     return createdTrip;
   }
