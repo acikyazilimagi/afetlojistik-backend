@@ -6,22 +6,20 @@ import {
   Headers,
   Get,
   Param,
-  Patch,
   Query,
   Put,
 } from '@nestjs/common';
-import { TripService } from './trip.service';
-import { CreateTripDto } from './dto/create-trip.dto';
+import { TripService } from '../services/trip.service';
+import { CreateTripDto } from '../dto/create-trip.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { UserAuthGuard } from '../user/guards/user.guard';
-import { TokenHeader } from '../common/headers/token.header';
-import { User } from '../user/decorators/user.decorator';
-import { UserDocument } from '../user/schemas/user.schema';
-import { TripDocument } from './schemas/trip.schema';
-import { FilterTripDto } from './dto/filter-trip.dto';
-import { UpdateTripDto } from './dto/update-trip.dto';
+import { UserAuthGuard } from '../../user/guards/user.guard';
+import { TokenHeader } from '../../common/headers/token.header';
+import { User } from '../../user/decorators/user.decorator';
+import { UserDocument } from '../../user/schemas/user.schema';
+import { TripDocument } from '../schemas/trip.schema';
+import { FilterTripDto } from '../dto/filter-trip.dto';
+import { UpdateTripDto } from '../dto/update-trip.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { UpdateStatusDto } from './dto/update-status.dto';
 
 @ApiTags('Trip')
 @Controller('trip')
@@ -107,24 +105,6 @@ export class TripController {
     return this.tripService.updateTrip(
       tripId,
       updateTripDto,
-      userId,
-      organizationId
-    );
-  }
-
-  @Patch(':tripId/status')
-  @ApiOperation({ summary: 'Update trip status.' })
-  @UseGuards(UserAuthGuard)
-  updateTripStatus(
-    @Headers() tokenHeader: TokenHeader,
-    @User() user: UserDocument,
-    @Param('tripId') tripId: string,
-    @Body() { status }: UpdateStatusDto
-  ): Promise<TripDocument> {
-    const { organizationId, _id: userId } = user;
-    return this.tripService.updateTripStatus(
-      tripId,
-      status,
       userId,
       organizationId
     );
