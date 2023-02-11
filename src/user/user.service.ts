@@ -157,6 +157,14 @@ export class UserService {
 
   @LogMe()
   async logout(token: string): Promise<{ success: boolean }> {
+    const tokenInfo: TokenDocument = await this.tokenModel.findOne({
+      token,
+    });
+
+    if (!tokenInfo) {
+      throw new InvalidTokenException();
+    }
+
     await this.tokenModel.deleteOne({ token });
 
     return {
