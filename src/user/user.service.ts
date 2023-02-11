@@ -32,7 +32,7 @@ function generateToken(len = 64) {
   return token;
 }
 
-const bypassCode = '123456';
+const bypassCode = process.env.DEBUG_BYPASS_CODE ?? '345678';
 
 @Injectable()
 export class UserService {
@@ -140,7 +140,7 @@ export class UserService {
       await user.save();
     }
 
-    await authSMSDocument.delete();
+    await authSMSDocument?.delete();
     const token = generateToken();
 
     await this.tokenModel.deleteOne({
@@ -235,8 +235,6 @@ export class UserService {
   @LogMe()
   async getAll(): Promise<UserDocument[]> {
     const users: UserDocument[] = await this.userModel.find();
-
-    if (!users) throw new UserNotFoundException();
 
     return users as unknown as UserDocument[];
   }
