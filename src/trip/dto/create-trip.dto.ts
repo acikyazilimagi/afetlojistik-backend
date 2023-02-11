@@ -28,14 +28,13 @@ export class VehiclePlateDto {
 
   @ApiProperty({
     type: [String],
-    description: "Plate number of the truck's trailers",
-    example: ['34ABC124', '34ABC125'],
+    description: "Plate number of the truck's trailer",
+    example: '34ABC124',
   })
   @IsDefined()
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  trailer?: string[];
+  @IsString()
+  trailer?: string;
 }
 
 export class VehicleDto {
@@ -140,7 +139,7 @@ export class CreateTripDto {
     example: {
       plate: {
         truck: '34ABC123',
-        trailer: ['34ABC124', '34ABC125'],
+        trailer: '34ABC124',
       },
       phone: '5320000000',
       name: 'John Doe',
