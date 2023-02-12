@@ -5,10 +5,9 @@ import {
   Headers,
   Get,
   Patch,
-  Put,
   UseGuards,
   Param,
-  HttpStatus
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -19,10 +18,11 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { TokenHeader } from '../common/headers/token.header';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDocument } from './schemas/user.schema';
-import { AdminAuthGuard } from './guards/admin.guard';
+import { AdminAuthGuard } from '../auth/admin.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SuccessResponseDto } from 'src/common/dtos';
 import { VerifyResponseDto } from './dto/response';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('User')
 @Controller('user')
@@ -58,10 +58,11 @@ export class UserController {
   @ApiOperation({ summary: 'Logout user.' })
   @ApiResponse({ status: HttpStatus.OK, type: SuccessResponseDto })
   logout(@Headers() tokenHeader: TokenHeader) {
-    return this.userService.logout(tokenHeader.token);
+    return this.userService.logout(tokenHeader.token); // TODO: handle this with jwt
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, AdminAuthGuard)
   @ApiOperation({ summary: 'List users' })
   list() {
     return this.userService.getAll();
@@ -69,19 +70,15 @@ export class UserController {
 
   @Get(':userId')
   @ApiOperation({ summary: 'Get user.' })
-  @UseGuards(AdminAuthGuard)
-  getUser(
-    @Headers() tokenHeader: TokenHeader,
-    @Param('userId') userId: string
-  ): Promise<UserDocument> {
+  @UseGuards(JwtAuthGuard, AdminAuthGuard)
+  getUser(@Param('userId') userId: string): Promise<UserDocument> {
     return this.userService.getUserById(userId);
   }
 
   @Patch(':userId')
   @ApiOperation({ summary: 'Update user.' })
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminAuthGuard)
   updateUser(
-    @Headers() tokenHeader: TokenHeader,
     @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto
   ): Promise<UserDocument> {
@@ -90,10 +87,7 @@ export class UserController {
 
   @Post()
   @ApiOperation({ summary: 'Create user.' })
-  createUser(
-    @Headers() tokenHeader: TokenHeader,
-    @Body() updateUserDto: CreateUserDto
-  ): Promise<UserDocument> {
+  createUser(@Body() updateUserDto: CreateUserDto): Promise<UserDocument> {
     return this.userService.create(updateUserDto);
   }
 }

@@ -19,22 +19,16 @@ export class LocationService {
 
   @LogMe()
   async getAllCities(): Promise<CityDocument[]> {
-    const cities: CityDocument[] = await this.cityModel.find({});
+    const cities: CityDocument[] = await this.cityModel.find({}).lean();
 
-    const sortedCities: CityDocument[] =
-      LocationLogic.sortCitiesAlphabetically(cities);
-
-    return sortedCities;
+    return LocationLogic.sortCitiesAlphabetically(cities);
   }
 
   @LogMe()
   async getAllDistricts(): Promise<DisctrictDocument[]> {
     const districts: DisctrictDocument[] = await this.districtModel.find({});
 
-    const sortedDistricts: DisctrictDocument[] =
-      LocationLogic.sortDistrictsAlphabetically(districts);
-
-    return sortedDistricts;
+    return LocationLogic.sortDistrictsAlphabetically(districts);
   }
 
   @LogMe()
@@ -58,10 +52,7 @@ export class LocationService {
       _id: { $in: districtIds },
     });
 
-    const sortedDistricts: DisctrictDocument[] =
-      LocationLogic.sortDistrictsAlphabetically(districts);
-
-    return sortedDistricts;
+    return LocationLogic.sortDistrictsAlphabetically(districts);
   }
 
   @LogMe()
@@ -70,9 +61,6 @@ export class LocationService {
       _id: { $in: cityIds },
     });
 
-    const sortedCities: CityDocument[] =
-      LocationLogic.sortCitiesAlphabetically(cities);
-
-    return sortedCities;
+    return LocationLogic.sortCitiesAlphabetically(cities);
   }
 }

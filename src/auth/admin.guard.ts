@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Inject } from '@nestjs/common';
-import { UserService } from '../user.service';
+import { UserService } from '../user/user.service';
 
-export class UserAuthGuard implements CanActivate {
+export class AdminAuthGuard implements CanActivate {
   constructor(
     @Inject(UserService)
     private readonly userService: UserService
@@ -10,14 +10,10 @@ export class UserAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    const { token } = request.headers;
-
-    if (!token) return false;
-
-    const user = await this.userService.validateToken(token);
+    const user = await this.userService.getUserById(request.user.id);
 
     request.user = user;
 
-    return true;
+    return user.isAdmin;
   }
 }

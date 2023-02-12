@@ -3,6 +3,9 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { PinoLogger } from 'nestjs-pino';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+
 import { User, UserDocument } from './schemas/user.schema';
 import UserNotFoundException from './exceptions/user-not-found.exception';
 import { Token, TokenDocument } from './schemas/token.schema';
@@ -22,23 +25,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { Organization } from 'src/organization/schemas/organization.schema';
 import ResendSmsCountExceededException from './exceptions/resend-sms-count-exceeded.exception';
 
-function generateToken(len = 64) {
-  const chars =
-    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let token = '';
-  for (let i = 0; i < len; i++) {
-    token += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return token;
-}
-
-const bypassCode = process.env.DEBUG_BYPASS_CODE ?? '345678';
-
 @Injectable()
 export class UserService {
   constructor(
     private readonly logger: PinoLogger,
     private readonly snsService: AWSSNSService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
     @InjectModel(Token.name)
@@ -48,6 +41,7 @@ export class UserService {
     @InjectModel(Organization.name)
     private readonly organizationModel: Model<Organization>
   ) {}
+  @LogMe()
   async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
     const { phone } = loginUserDto;
 
@@ -101,19 +95,6 @@ export class UserService {
   }
 
   @LogMe()
-  async validateToken(token: string): Promise<UserDocument> {
-    const tokenInfo: TokenDocument = await this.tokenModel.findOne({
-      token,
-    });
-
-    if (!tokenInfo) {
-      throw new InvalidTokenException();
-    }
-
-    return this.getUserById(tokenInfo.userId);
-  }
-
-  @LogMe()
   async validateVerificationCode(
     verifyOtpDto: VerifyOtpDto
   ): Promise<ValidateVerificationCodeResponse> {
@@ -122,7 +103,10 @@ export class UserService {
       verificationCode: verifyOtpDto.code,
     });
 
-    if (!authSMSDocument && verifyOtpDto.code !== bypassCode) {
+    if (
+      !authSMSDocument &&
+      verifyOtpDto.code !== this.configService.get('debug.bypassCode')
+    ) {
       throw new UserNotFoundException();
     }
 
@@ -135,31 +119,15 @@ export class UserService {
       throw new UserNotFoundException();
     }
 
-    if (user.status == UserStatuses.PENDING) {
-      user.status = UserStatuses.ACTIVE;
-      await user.save();
-    }
+    const payload = { id: user.id, organizationId: user.organizationId };
+
+    const access_token = this.jwtService.sign(payload);
 
     await authSMSDocument?.delete();
-    const token = generateToken();
-
-    await this.tokenModel.deleteOne({
-      userId: user._id,
-    });
-
-    await this.tokenModel.create({
-      userId: user._id,
-      token,
-    });
-
-    const userWithOutPassword = {
-      ...user.toObject(),
-      password: undefined,
-    };
 
     return {
-      user: userWithOutPassword,
-      token,
+      user,
+      token: access_token,
     };
   }
 
@@ -259,14 +227,14 @@ export class UserService {
     )) as unknown as UserDocument;
   }
 
-  validateUser(createUserDto: CreateUserDto) {
+  validateUser() {
     return;
   }
 
   @LogMe()
   async create(createUserDto: CreateUserDto): Promise<UserDocument> {
     // TODO: implement validation rules
-    this.validateUser(createUserDto);
+    // this.validateUser(createUserDto);
 
     const organization = await this.organizationModel.findOne();
 
@@ -286,12 +254,15 @@ export class UserService {
       }).save();
     }
 
-    const createdUser = (await new this.userModel({
+    return (await new this.userModel({
       ...createUserDto,
       status: UserStatuses.PENDING,
       organizationId: organization.id,
     }).save()) as unknown as UserDocument;
+  }
 
-    return createdUser;
+  @LogMe()
+  async getUserByPhone(phone: string): Promise<User> {
+    return this.userModel.findOne({ phone });
   }
 }

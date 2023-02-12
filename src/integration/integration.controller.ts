@@ -1,7 +1,8 @@
 import { Controller, Get, Headers ,Param, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AdminAuthGuard } from 'src/auth/admin.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TokenHeader } from 'src/common/headers/token.header';
-import { UserAuthGuard } from 'src/user/guards/user.guard';
 import { IntegrationService } from './integration.service';
 
 @ApiTags('Integration')
@@ -13,14 +14,14 @@ export class IntegrationController {
 
   @Get('')
   @ApiOperation({ summary: 'Get all integrators' })
-  @UseGuards(UserAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminAuthGuard)
   getIntegrations(@Headers() tokenHeader: TokenHeader): Promise<any> {
     return this.integrationService.getIntegrations();
   }
 
   @Get(':integrationId')
   @ApiOperation({ summary: 'Get integration by integrationId' })
-  @UseGuards(UserAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminAuthGuard)
   getIntegrationById(
     @Headers() tokenHeader: TokenHeader,
     @Param('integrationId') integrationId: string,

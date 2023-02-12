@@ -1,3 +1,5 @@
+import * as util from 'util';
+
 export const LogMe =
   () =>
   (target: object, methodName: string, descriptor: PropertyDescriptor) => {
@@ -7,14 +9,13 @@ export const LogMe =
     descriptor.value = async function (...args) {
       const logger = this.logger;
 
+      const log = `[${className}] ${methodName} ${util.inspect(args)}`;
+
       if (logger) {
-        logger.debug(`[${className}] ${methodName}`, `${JSON.stringify(args)}`);
+        logger.debug(log);
       } else {
         // eslint-disable-next-line no-console
-        console.debug(
-          `[${className}] ${methodName}`,
-          `${JSON.stringify(args)}`
-        );
+        console.debug(log);
       }
 
       return await originalMethod.apply(this, args);

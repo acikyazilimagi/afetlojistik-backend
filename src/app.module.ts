@@ -13,9 +13,16 @@ import { MongoDbModule } from './bootstrap-modules';
 import { NotificationModule } from './notification/notification.module';
 import { IntegrationModule } from './integration/integration.module';
 import { DispatchModule } from './dispatch/dispatch.module';
+import { CoreModule } from './core/core.module';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      load: [configuration],
+      isGlobal: true,
+    }),
     LogModule,
     MongoDbModule,
     HealthModule,
@@ -27,6 +34,7 @@ import { DispatchModule } from './dispatch/dispatch.module';
     TripModule,
     CategoryModule,
     NotificationModule,
+    CoreModule,
   ],
   controllers: [],
   providers: [

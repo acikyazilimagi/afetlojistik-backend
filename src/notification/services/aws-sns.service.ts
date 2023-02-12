@@ -1,20 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import {  ConfigService } from '@nestjs/config';
 
 import { SNS, SharedIniFileCredentials, config } from 'aws-sdk';
 
 @Injectable()
 export class AWSSNSService {
-  constructor() {
+  constructor(private configService: ConfigService) {
     const credentials = new SharedIniFileCredentials({
-      profile: process.env.AWS_PROFILE,
+      profile: this.configService.get('aws.profile'),
     });
     config.credentials = credentials;
     // Set the region
-    config.update({ region: process.env.AWS_REGION });
+    config.update({ region: this.configService.get('aws.region') });
   }
 
   async sendSMS(phone: string, body: string): Promise<boolean> {
-    if (process.env.DEBUG_BYPASS_SMS === 'true') {
+    if (this.configService.get<boolean>('debug.bypassSms')) {
       return true;
     }
     // Create publish parameters

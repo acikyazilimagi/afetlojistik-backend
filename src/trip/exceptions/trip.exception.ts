@@ -10,7 +10,7 @@ export class TripNotFoundException extends TMSException {
 export class TripInvalidLocationException extends TMSException {
   constructor(data?: any) {
     super(
-      { message: 'Girilen lokasyon bilgisi tanımsız!', data },
+      'Girilen lokasyon bilgisi tanımsız!',
       HttpStatus.BAD_REQUEST,
       HttpStatus.BAD_REQUEST,
       data
@@ -21,7 +21,7 @@ export class TripInvalidLocationException extends TMSException {
 export class TripInvalidProductException extends TMSException {
   constructor(data?: any) {
     super(
-      { message: 'Girilen ürün bilgisi tanımsız!', data },
+      'Girilen ürün bilgisi tanımsız!',
       HttpStatus.BAD_REQUEST,
       HttpStatus.BAD_REQUEST,
       data
