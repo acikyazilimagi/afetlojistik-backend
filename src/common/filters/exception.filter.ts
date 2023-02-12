@@ -27,7 +27,9 @@ const createValidationErrorForResponse = (exception: ValidationException) => {
   const { code, error } = ERROR_MESSAGES.VALIDATION;
   const { constraints, property }: any = exception.getResponse();
 
-  const rawConstraints = Object.values(constraints)?.filter((obj) => obj);
+  const rawConstraints = constraints
+    ? Object.values(constraints)?.filter((obj) => obj)
+    : [];
 
   const message: string = rawConstraints.join(', ');
   const details: { messages: any; path: string } = {
