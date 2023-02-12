@@ -15,7 +15,6 @@ import {
 } from 'class-validator';
 import { NestedObjectValidator } from 'src/common/decorators/nested-object-validator.decorator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
 
 export class VehiclePlateDto {
   @ApiProperty({
@@ -53,7 +52,6 @@ export class VehicleDto {
   })
   @IsOptional()
   @IsString()
-  @Transform((value) => value.toString())
   @IsPhoneNumber('TR')
   phone?: string;
 
