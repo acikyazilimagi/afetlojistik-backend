@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {  ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 import { SNS, SharedIniFileCredentials, config } from 'aws-sdk';
 

@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import {  ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Global()
 @Module({

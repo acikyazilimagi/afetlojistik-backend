@@ -1,3 +1,8 @@
+import {
+  LoginResponse,
+  UserStatuses,
+  ValidateVerificationCodeResponse,
+} from './types';
 import { Injectable } from '@nestjs/common';
 import { LoginUserDto } from './dto/login-user.dto';
 import { PinoLogger } from 'nestjs-pino';
@@ -5,17 +10,9 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-
 import { User, UserDocument } from './schemas/user.schema';
 import UserNotFoundException from './exceptions/user-not-found.exception';
-import { Token, TokenDocument } from './schemas/token.schema';
 import { LogMe } from '../common/decorators/log.decorator';
-import InvalidTokenException from './exceptions/invalid-token.exception';
-import {
-  LoginResponse,
-  UserStatuses,
-  ValidateVerificationCodeResponse,
-} from './types';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 import { AuthSMS } from './schemas/auth.sms.schema';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
@@ -34,8 +31,6 @@ export class UserService {
     private configService: ConfigService,
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
-    @InjectModel(Token.name)
-    private readonly tokenModel: Model<Token>,
     @InjectModel(AuthSMS.name)
     private readonly authSMSModel: Model<AuthSMS>,
     @InjectModel(Organization.name)
@@ -182,24 +177,6 @@ export class UserService {
       .select('-password -organizationId')
       .lean();
   }
-
-  @LogMe()
-  async logout(token: string): Promise<{ success: boolean }> {
-    const tokenInfo: TokenDocument = await this.tokenModel.findOne({
-      token,
-    });
-
-    if (!tokenInfo) {
-      throw new InvalidTokenException();
-    }
-
-    await this.tokenModel.deleteOne({ token });
-
-    return {
-      success: true,
-    };
-  }
-
   @LogMe()
   async getAll(): Promise<UserDocument[]> {
     const users: UserDocument[] = await this.userModel.find();

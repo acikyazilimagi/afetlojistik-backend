@@ -27,7 +27,7 @@ export class TripStatusController {
     @Req() req,
     @Param('tripId') tripId: string
   ): Promise<TripDocument> {
-    const { organizationId, _id: userId } = req.user;
+    const { organizationId, id: userId } = req.user;
     return this.tripStatusService.updateTripStatusOnway(
       tripId,
       userId,
@@ -43,7 +43,7 @@ export class TripStatusController {
     @Param('tripId') tripId: string,
     @Body() updateStatusArrivedDto: UpdateStatusArrivedDto
   ): Promise<TripDocument> {
-    const { organizationId, _id: userId } = req.user;
+    const { organizationId, id: userId } = req.user;
     return this.tripStatusService.updateTripStatusArrived(
       tripId,
       userId,
@@ -59,7 +59,7 @@ export class TripStatusController {
     @Req() req,
     @Param('tripId') tripId: string
   ): Promise<TripDocument> {
-    const { organizationId, _id: userId } = req.user;
+    const { organizationId, id: userId } = req.user;
     return this.tripStatusService.updateTripStatusCancelled(
       tripId,
       userId,

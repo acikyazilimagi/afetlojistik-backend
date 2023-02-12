@@ -39,7 +39,7 @@ export class TripController {
     @Req() req,
     @Body() createTripDto: CreateTripDto
   ): Promise<TripDocument> {
-    const { _id: userId, organizationId } = req.user;
+    const { id: userId, organizationId } = req.user;
     return this.tripService.create(createTripDto, userId, organizationId);
   }
 
@@ -104,7 +104,7 @@ export class TripController {
     @Param('tripId') tripId: string,
     @Body() updateTripDto: UpdateTripDto
   ): Promise<TripDocument> {
-    const { organizationId, _id: userId } = req.user;
+    const { organizationId, id: userId } = req.user;
     return this.tripService.updateTrip(
       tripId,
       updateTripDto,
