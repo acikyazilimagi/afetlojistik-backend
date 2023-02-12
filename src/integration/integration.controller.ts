@@ -12,7 +12,7 @@ export class IntegrationController {
     private readonly integrationService: IntegrationService
   ){}
 
-  @Get('')
+  @Get()
   @ApiOperation({ summary: 'Get all integrators' })
   getIntegrations(): Promise<any> {
     return this.integrationService.getIntegrations();
