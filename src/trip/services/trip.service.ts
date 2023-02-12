@@ -26,8 +26,8 @@ import { FilterTripDto } from '../dto/filter-trip.dto';
 import { UpdateTripDto } from '../dto/update-trip.dto';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 import { DispatchService } from 'src/dispatch/dispatch.service';
-import { IDispatchable } from 'src/dispatch/types/dispatch.types';
-import { PopulatedTripResponseDto } from '../dto/response/common/populated-trip.response.dto';
+import { DispatchableOrder, DispatchableVehicle } from 'src/dispatch/types/dispatch.types';
+import { Vehicle } from '../schemas/vehicle.schema';
 
 @Injectable()
 export class TripService {
@@ -106,7 +106,8 @@ export class TripService {
     }).save()) as unknown as TripDocument;
 
     const populatedTrip: any = await this.getPopulatedTripById(createdTrip._id.toString(), createdTrip.organizationId);
-    const dispatchData: IDispatchable = {
+
+    const dispatchTripData: DispatchableOrder = {
       OrderId: populatedTrip._id.toString(),
       OrderType: Trip.name,
       PlannedDate: populatedTrip.estimatedDepartTime.toISOString(),
@@ -120,7 +121,18 @@ export class TripService {
       Note: populatedTrip.notes,
     };
 
-    await this.dispatchService.dispatch(dispatchData);
+    const dispatchVehicleData: DispatchableVehicle = {
+      OrderType: Vehicle.name,
+      driverNameSurname: populatedTrip.vehicle.name,
+      driverPhone: populatedTrip.vehicle.phone || '',
+      vehicleProperties: populatedTrip.vehicle.plate.truck,
+      vehicleId: populatedTrip.vehicle.plate.truck,
+    };
+
+    await Promise.all([
+      this.dispatchService.dispatchVehicle(dispatchVehicleData),
+      this.dispatchService.dispatchTrip(dispatchTripData),
+    ]);
 
     const {
       vehicle: { phone },
@@ -164,7 +176,34 @@ export class TripService {
 
     if (!trip) throw new TripNotFoundException();
 
-    const [populatedTrip] = await this.tripsPopulate([trip]);
+    const [populatedTrip]: any = await this.tripsPopulate([trip]);
+
+    const dispatchTripData: DispatchableOrder = {
+      OrderId: populatedTrip._id.toString(),
+      OrderType: Trip.name,
+      PlannedDate: populatedTrip.estimatedDepartTime.toISOString(),
+      RequiredVehicleProperties: populatedTrip.vehicle.plate.truck,
+      FromLocationCity: populatedTrip.fromLocation.cityName,
+      FromLocationCounty: populatedTrip.fromLocation.districtName,
+      FromLocationAddress: populatedTrip.fromLocation.address!,
+      ToLocationCity: populatedTrip.toLocation.cityName,
+      ToLocationCounty: populatedTrip.toLocation.districtName,
+      ToLocationAddress: populatedTrip.toLocation.address!,
+      Note: populatedTrip.notes,
+    };
+
+    const dispatchVehicleData: DispatchableVehicle = {
+      OrderType: Vehicle.name,
+      driverNameSurname: populatedTrip.vehicle.name,
+      driverPhone: populatedTrip.vehicle.phone || '',
+      vehicleProperties: populatedTrip.vehicle.plate.truck,
+      vehicleId: populatedTrip.vehicle.plate.truck,
+    };
+
+    await Promise.all([
+      this.dispatchService.dispatchVehicle(dispatchVehicleData),
+      this.dispatchService.dispatchTrip(dispatchTripData),
+    ]);
     
     return populatedTrip;
   }

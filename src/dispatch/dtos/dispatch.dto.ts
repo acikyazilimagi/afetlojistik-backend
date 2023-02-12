@@ -1,4 +1,4 @@
-import { OptiyolDispatchOrderResult } from "../types/optiyol.types";
+import { OptiyolDispatchOrderResult, OptiyolDispatchVehicleResult } from "../types/optiyol.types";
 
 export class DispatchOrderDto {
   OrdersPlannedDate: string;
@@ -17,12 +17,20 @@ export class DispatchOrderDto {
   }[];
 }
 
+export class DispatchVehicleDto {
+  vehicleId: string;
+  vehicleProperties: string;
+  driverNameSurname: string;
+  driverPhone: string;
+}
+
 export class DispatchResultDto {
-  result: (OptiyolDispatchOrderResult | unknown);
+  result: (OptiyolDispatchOrderResult |  OptiyolDispatchVehicleResult | unknown);
 }
 export class DispatchDto {
   integrator: string;
-  order: DispatchOrderDto;
+  order?: DispatchOrderDto;
+  vehicle?: DispatchVehicleDto;
   orderType: string;
   result: DispatchResultDto;
 }
