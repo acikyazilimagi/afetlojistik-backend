@@ -255,15 +255,10 @@ export class TripService {
 
     await this.validateTrip(updateTripDto);
 
-    const {
-      vehicle: { phone: oldDriverPhoneNumber },
-    } = trip;
+    const oldDriverPhoneNumber = trip.vehicle?.phone;
+    const newDriverPhoneNumber = updateTripDto.vehicle?.phone;
 
-    const {
-      vehicle: { phone: newDriverPhoneNumber },
-    } = updateTripDto;
-
-    if (newDriverPhoneNumber !== oldDriverPhoneNumber) {
+    if (newDriverPhoneNumber && newDriverPhoneNumber !== oldDriverPhoneNumber) {
       const messageBody = 'kvkk metni';
 
       await this.snsService.sendSMS('+90' + newDriverPhoneNumber, messageBody);

@@ -42,15 +42,15 @@ export class TripStatusService {
       throw new TripStatusNotAllowedException();
     }
 
-    if (!trip.vehicle.name) {
+    if (!trip.vehicle?.name) {
       throw new TripDriverNameNotDefinedException();
     }
 
-    if (!trip.vehicle.phone) {
+    if (!trip.vehicle?.phone) {
       throw new TripDriverPhoneNotDefinedException();
     }
 
-    if (!trip.vehicle.plate) {
+    if (!trip.vehicle?.plate) {
       throw new TripVehiclePlateNotDefinedException();
     }
 

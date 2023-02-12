@@ -1,4 +1,4 @@
-import { HttpStatus, NotFoundException } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { TMSException } from 'src/common/exceptions/tms.exception';
 
 export class TripNotFoundException extends TMSException {
@@ -12,7 +12,8 @@ export class TripInvalidLocationException extends TMSException {
     super(
       { message: 'Girilen lokasyon bilgisi tanımsız!', data },
       HttpStatus.BAD_REQUEST,
-      HttpStatus.BAD_REQUEST
+      HttpStatus.BAD_REQUEST,
+      data
     );
   }
 }
@@ -22,7 +23,8 @@ export class TripInvalidProductException extends TMSException {
     super(
       { message: 'Girilen ürün bilgisi tanımsız!', data },
       HttpStatus.BAD_REQUEST,
-      HttpStatus.BAD_REQUEST
+      HttpStatus.BAD_REQUEST,
+      data
     );
   }
 }
@@ -30,9 +32,10 @@ export class TripInvalidProductException extends TMSException {
 export class TripInvalidOrganizationExcetion extends TMSException {
   constructor(data?: any) {
     super(
-      { message: 'Organizasyon bulunamadı', data },
+      'Organizasyon bulunamadı!',
       HttpStatus.NOT_FOUND,
-      HttpStatus.NOT_FOUND
+      HttpStatus.NOT_FOUND,
+      data
     );
   }
 }
@@ -40,9 +43,10 @@ export class TripInvalidOrganizationExcetion extends TMSException {
 export class TripStatusNotAllowedException extends TMSException {
   constructor(data?: any) {
     super(
-      { message: 'Yolculuk icin Bu işlem yapılamaz.', data },
+      'Yolculuk icin bu işlem yapılamaz!',
       HttpStatus.BAD_REQUEST,
-      HttpStatus.BAD_REQUEST
+      HttpStatus.BAD_REQUEST,
+      data
     );
   }
 }
@@ -50,21 +54,32 @@ export class TripStatusNotAllowedException extends TMSException {
 export class TripDriverNameNotDefinedException extends TMSException {
   constructor(data?: any) {
     super(
-      { message: 'Sürücü adı tanımlı değil!', data },
+      'Sürücü adı tanımlı değil!',
       HttpStatus.BAD_REQUEST,
-      HttpStatus.BAD_REQUEST
+      HttpStatus.BAD_REQUEST,
+      data
     );
   }
 }
 
-export class TripDriverPhoneNotDefinedException extends NotFoundException {
+export class TripDriverPhoneNotDefinedException extends TMSException {
   constructor(data?: any) {
-    super({ message: 'Sürücü numarası tanımlı değil!', data });
+    super(
+      'Sürücü numarası tanımlı değil!',
+      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST,
+      data
+    );
   }
 }
 
-export class TripVehiclePlateNotDefinedException extends NotFoundException {
+export class TripVehiclePlateNotDefinedException extends TMSException {
   constructor(data?: any) {
-    super({ message: 'Araç plakası tanımlı değil!', data });
+    super(
+      'Araç plakası tanımlı değil!',
+      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST,
+      data
+    );
   }
 }

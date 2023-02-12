@@ -1,23 +1,5 @@
-import {
-  IsArray,
-  IsBoolean,
-  IsDateString,
-  IsDefined,
-  IsMongoId,
-  IsNotEmpty,
-  IsNotEmptyObject,
-  IsNumber,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-  Min,
-  ValidateNested,
-} from 'class-validator';
-import { NestedObjectValidator } from 'src/common/decorators/nested-object-validator.decorator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { Prop } from '@nestjs/mongoose';
-import { Schema as mSchema } from 'mongoose';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -61,6 +43,7 @@ export class CreateUserDto {
     description: 'Data consent',
     example: false,
   })
+  @IsOptional()
   @IsBoolean()
   dataConsent: boolean;
 }
