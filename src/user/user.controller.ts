@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Body,
-  Headers,
   Get,
   Patch,
   UseGuards,
@@ -15,7 +14,6 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginResponse, ValidateVerificationCodeResponse } from './types';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
-import { TokenHeader } from '../common/headers/token.header';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDocument } from './schemas/user.schema';
 import { AdminAuthGuard } from '../auth/admin.guard';
@@ -52,13 +50,6 @@ export class UserController {
     @Body() resendVerificationCodeDto: ResendVerificationCodeDto
   ): Promise<LoginResponse> {
     return this.userService.resendVerificationCode(resendVerificationCodeDto);
-  }
-
-  @Post('logout')
-  @ApiOperation({ summary: 'Logout user.' })
-  @ApiResponse({ status: HttpStatus.OK, type: SuccessResponseDto })
-  logout(@Headers() tokenHeader: TokenHeader) {
-    return this.userService.logout(tokenHeader.token); // TODO: handle this with jwt
   }
 
   @Get()
