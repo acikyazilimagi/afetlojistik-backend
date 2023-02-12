@@ -11,9 +11,16 @@ import { CategoryModule } from './category/category.module';
 import { LogModule } from './common/logger';
 import { MongoDbModule } from './bootstrap-modules';
 import { NotificationModule } from './notification/notification.module';
+import { CoreModule } from './core/core.module';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      load: [configuration],
+      isGlobal: true,
+    }),
     LogModule,
     MongoDbModule,
     HealthModule,
@@ -23,6 +30,7 @@ import { NotificationModule } from './notification/notification.module';
     TripModule,
     CategoryModule,
     NotificationModule,
+    CoreModule,
   ],
   controllers: [],
   providers: [

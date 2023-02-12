@@ -4,6 +4,6 @@ import { UserDocument } from '../schemas/user.schema';
 export const User = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): UserDocument => {
     const request = ctx.switchToHttp().getRequest();
-    return request.user;
+    return request.user.user; // TODO: handle user.user
   }
 );

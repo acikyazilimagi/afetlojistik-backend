@@ -1,22 +1,5 @@
-import {
-  IsArray,
-  IsDateString,
-  IsDefined,
-  IsMongoId,
-  IsNotEmpty,
-  IsNotEmptyObject,
-  IsNumber,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-  Min,
-  ValidateNested,
-} from 'class-validator';
-import { NestedObjectValidator } from 'src/common/decorators/nested-object-validator.decorator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { Prop } from '@nestjs/mongoose';
-import { Schema as mSchema } from 'mongoose';
 
 export class UpdateUserDto {
   @ApiProperty({
