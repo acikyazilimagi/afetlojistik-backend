@@ -1,4 +1,4 @@
-import { HttpStatus, NotFoundException } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { TMSException } from 'src/common/exceptions/tms.exception';
 
 export class TripNotFoundException extends TMSException {
@@ -57,14 +57,22 @@ export class TripDriverNameNotDefinedException extends TMSException {
   }
 }
 
-export class TripDriverPhoneNotDefinedException extends NotFoundException {
+export class TripDriverPhoneNotDefinedException extends TMSException {
   constructor(data?: any) {
-    super({ message: 'Sürücü numarası tanımlı değil!', data });
+    super(
+      { message: 'Sürücü numarası tanımlı değil!', data },
+      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST
+    );
   }
 }
 
-export class TripVehiclePlateNotDefinedException extends NotFoundException {
+export class TripVehiclePlateNotDefinedException extends TMSException {
   constructor(data?: any) {
-    super({ message: 'Araç plakası tanımlı değil!', data });
+    super(
+      { message: 'Araç plakası tanımlı değil!', data },
+      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST
+    );
   }
 }
