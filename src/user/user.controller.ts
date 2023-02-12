@@ -79,7 +79,6 @@ export class UserController {
 
   @Post()
   @ApiOperation({ summary: 'Create user.' })
-  @UseGuards(JwtAuthGuard, AdminAuthGuard, ActiveUserAuthGuard)
   createUser(@Body() updateUserDto: CreateUserDto): Promise<UserDocument> {
     return this.userService.create(updateUserDto);
   }
