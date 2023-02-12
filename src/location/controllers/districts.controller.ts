@@ -1,17 +1,9 @@
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Param,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import {
   GetAllDistrictsResponseDto,
   GetDistrictByIdResponseDto,
-  GetDistrictsOfCityResponseDto,
 } from '../dto/response';
 import { District } from '../schemas/district.schema';
 import { DistrictService } from '../services/district.service';
@@ -27,13 +19,6 @@ export class DistrictController {
   @ApiResponse({ status: HttpStatus.OK, type: GetAllDistrictsResponseDto })
   getAllDiscritcts(): Promise<District[]> {
     return this.districtService.getAllDistricts();
-  }
-
-  @Get('city')
-  @ApiOperation({ summary: 'Get districts of city.' })
-  @ApiResponse({ status: HttpStatus.OK, type: GetDistrictsOfCityResponseDto })
-  getDistrictsOfCity(@Query('cityId') cityId: string): Promise<District[]> {
-    return this.districtService.getDistrictsOfCity(cityId);
   }
 
   @Get(':districtId')

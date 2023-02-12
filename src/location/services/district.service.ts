@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 import { DisctrictDocument, District } from '../schemas/district.schema';
 import { LocationLogic } from '../logic/location.logic';
@@ -23,7 +23,7 @@ export class DistrictService {
 
   @LogMe()
   async getDistrictsOfCity(cityId: string): Promise<DisctrictDocument[]> {
-    return this.districtModel.find({ cityId: new Types.ObjectId(cityId) });
+    return this.districtModel.find({ cityId });
   }
 
   @LogMe()

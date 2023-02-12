@@ -28,6 +28,7 @@ import { DispatchService } from 'src/dispatch/dispatch.service';
 import { IDispatchable } from 'src/dispatch/types/dispatch.types';
 import { CityService } from '../../location/services/city.service';
 import { DistrictService } from '../../location/services/district.service';
+import { CityDocument } from '../../location/schemas/city.schema';
 
 @Injectable()
 export class TripService {
@@ -48,13 +49,17 @@ export class TripService {
   @LogMe()
   async validateTrip(trip) {
     const { fromLocation, toLocation } = trip;
-    const [fromCity, fromDistrict, toCity, toDistrict]: DisctrictDocument[] =
-      await Promise.all([
-        this.cityService.getCityById(fromLocation.cityId),
-        this.districtService.getDistrictbyId(fromLocation.districtId),
-        this.cityService.getCityById(toLocation.cityId),
-        this.districtService.getDistrictbyId(toLocation.districtId),
-      ]);
+    const [fromCity, fromDistrict, toCity, toDistrict]: [
+      CityDocument,
+      DisctrictDocument,
+      CityDocument,
+      DisctrictDocument
+    ] = await Promise.all([
+      this.cityService.getCityById(fromLocation.cityId),
+      this.districtService.getDistrictbyId(fromLocation.districtId),
+      this.cityService.getCityById(toLocation.cityId),
+      this.districtService.getDistrictbyId(toLocation.districtId),
+    ]);
 
     if (!fromCity || !fromDistrict) {
       throw new TripInvalidLocationException({ fromLocation });

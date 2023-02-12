@@ -6,13 +6,15 @@ import { City, CityDocument } from '../schemas/city.schema';
 import { LocationLogic } from '../logic/location.logic';
 import { DisctrictDocument } from '../schemas/district.schema';
 import { LogMe } from '../../common/decorators/log.decorator';
+import { DistrictService } from './district.service';
 
 @Injectable()
 export class CityService {
   constructor(
     private readonly logger: PinoLogger,
     @InjectModel(City.name)
-    private readonly cityModel: Model<City>
+    private readonly cityModel: Model<City>,
+    private readonly districtService: DistrictService
   ) {}
 
   @LogMe()
@@ -23,7 +25,7 @@ export class CityService {
   }
 
   @LogMe()
-  async getCityById(cityId: string): Promise<DisctrictDocument> {
+  async getCityById(cityId: string): Promise<CityDocument> {
     return this.cityModel.findById(cityId);
   }
 
@@ -34,5 +36,10 @@ export class CityService {
     });
 
     return LocationLogic.sortCitiesAlphabetically(cities);
+  }
+
+  @LogMe()
+  async getDistrictsOfCity(cityId: string): Promise<DisctrictDocument[]> {
+    return this.districtService.getDistrictsOfCity(cityId);
   }
 }
