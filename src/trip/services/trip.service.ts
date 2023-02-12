@@ -24,11 +24,6 @@ import { OrganizationDocument } from 'src/organization/schemas/organization.sche
 import { FilterTripDto } from '../dto/filter-trip.dto';
 import { UpdateTripDto } from '../dto/update-trip.dto';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
-import { DispatchService } from 'src/dispatch/dispatch.service';
-import { IDispatchable } from 'src/dispatch/types/dispatch.types';
-import { CityService } from '../../location/services/city.service';
-import { DistrictService } from '../../location/services/district.service';
-import { CityDocument } from '../../location/schemas/city.schema';
 
 @Injectable()
 export class TripService {
@@ -43,7 +38,6 @@ export class TripService {
     private readonly tripFormatter: TripFormatter,
     private readonly userService: UserService,
     private readonly snsService: AWSSNSService,
-    private readonly dispatchService: DispatchService
   ) {}
 
   @LogMe()
@@ -110,26 +104,6 @@ export class TripService {
       createdBy: userId,
       statusChangeLog: statusChangeLog,
     }).save()) as unknown as TripDocument;
-
-    const populatedTrip: any = await this.getPopulatedTripById(
-      createdTrip._id.toString(),
-      createdTrip.organizationId
-    );
-    const dispatchData: IDispatchable = {
-      OrderId: populatedTrip._id.toString(),
-      OrderType: Trip.name,
-      PlannedDate: populatedTrip.estimatedDepartTime.toISOString(),
-      RequiredVehicleProperties: populatedTrip.vehicle.plate.truck,
-      FromLocationCity: populatedTrip.fromLocation.cityName,
-      FromLocationCounty: populatedTrip.fromLocation.districtName,
-      FromLocationAddress: populatedTrip.fromLocation.address!,
-      ToLocationCity: populatedTrip.toLocation.cityName,
-      ToLocationCounty: populatedTrip.toLocation.districtName,
-      ToLocationAddress: populatedTrip.toLocation.address!,
-      Note: populatedTrip.notes,
-    };
-
-    await this.dispatchService.dispatch(dispatchData);
 
     const {
       vehicle: { phone },

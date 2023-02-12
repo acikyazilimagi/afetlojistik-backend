@@ -1,4 +1,4 @@
-export interface OptiyolDispach {
+export interface OptiyolOrderDispatch {
   OrderId: string;
   FromLocationName?: string;
   FromLocationAddress?: (string | undefined);
@@ -12,8 +12,7 @@ export interface OptiyolDispach {
   RequiredVehicleProperties: string;
   PlannedDate: string;
 }
-
-export class IDispatchable implements OptiyolDispach {
+export class DispatchableOrder implements OptiyolOrderDispatch {
   OrderId: string;
   OrderType: string;
   FromLocationName?: string;
@@ -27,4 +26,20 @@ export class IDispatchable implements OptiyolDispach {
   Note: string;
   RequiredVehicleProperties: string;
   PlannedDate: string;
+}
+
+export interface OptiyolVehicleDispatch {
+  OrderType: string;
+  vehicleId: string;
+  vehicleProperties: string;
+  driverNameSurname: string;
+  driverPhone: string;
+}
+
+export class DispatchableVehicle implements OptiyolVehicleDispatch {
+  OrderType: string
+  vehicleId: string;
+  vehicleProperties: string;
+  driverNameSurname: string;
+  driverPhone: string;
 }
