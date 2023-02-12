@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as mSchema } from 'mongoose';
+import { UserStatuses } from '../types';
 
 export type UserDocument = User & Document;
 
@@ -57,6 +58,19 @@ export class User {
     maxlength: 50,
   })
   email?: string;
+
+  @Prop({
+    type: mSchema.Types.Boolean,
+    required: true,
+    default: false,
+  })
+  isAdmin?: boolean;
+
+  @Prop({
+    type: mSchema.Types.Number,
+    default: 100,
+  })
+  status?: UserStatuses;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -6,29 +6,40 @@ import {
   Headers,
   Get,
   Param,
-  Patch,
   Query,
+  Put,
+  HttpStatus,
+  Req,
 } from '@nestjs/common';
-import { TripService } from './trip.service';
-import { CreateTripDto } from './dto/create-trip.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { UserAuthGuard } from '../user/guards/user.guard';
-import { TokenHeader } from '../common/headers/token.header';
-import { User } from '../user/decorators/user.decorator';
-import { UserDocument } from '../user/schemas/user.schema';
-import { TripDocument } from './schemas/trip.schema';
-import { FilterTripDto } from './dto/filter-trip.dto';
-import { UpdateTripDto } from './dto/update-trip.dto';
+import { TripService } from '../services/trip.service';
+import { CreateTripDto } from '../dto/create-trip.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserAuthGuard } from '../../user/guards/user.guard';
+import { TokenHeader } from '../../common/headers/token.header';
+import { User } from '../../user/decorators/user.decorator';
+import { UserDocument } from '../../user/schemas/user.schema';
+import { TripDocument } from '../schemas/trip.schema';
+import { FilterTripDto } from '../dto/filter-trip.dto';
+import { UpdateTripDto } from '../dto/update-trip.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import {
+  CreateTripResponseDto,
+  FilterTripsResponseDto,
+  GetAllTripsResponseDto,
+  GetPopulatedTripByTripIdResponseDto,
+  GetTripByTripNumberResponseDto,
+} from '../dto/response';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('Trip')
 @Controller('trip')
+@UseGuards(JwtAuthGuard)
 export class TripController {
   constructor(private readonly tripService: TripService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create trip.' })
-  @UseGuards(UserAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: CreateTripResponseDto })
   create(
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,
@@ -40,7 +51,7 @@ export class TripController {
 
   @Get('/number/:tripNumber')
   @ApiOperation({ summary: 'Get trip by trip number.' })
-  @UseGuards(UserAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: GetTripByTripNumberResponseDto })
   getTripByNumber(
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,
@@ -52,7 +63,10 @@ export class TripController {
 
   @Get(':tripId')
   @ApiOperation({ summary: 'Get populated trip by trip id.' })
-  @UseGuards(UserAuthGuard)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: GetPopulatedTripByTripIdResponseDto,
+  })
   getTripById(
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,
@@ -64,19 +78,19 @@ export class TripController {
 
   @Get()
   @ApiOperation({ summary: 'Get all trips.' })
-  @UseGuards(UserAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: GetAllTripsResponseDto })
   getAllTrips(
     @Headers() tokenHeader: TokenHeader,
-    @User() user: UserDocument,
+    @Req() req,
     @Query() { limit, skip }: PaginationDto
   ): Promise<{ data: TripDocument[]; total: number }> {
-    const { organizationId } = user;
+    const { organizationId } = req.user;
     return this.tripService.getAllTrips(organizationId, limit, skip);
   }
 
   @Post('filter')
   @ApiOperation({ summary: 'Filter trips.' })
-  @UseGuards(UserAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: FilterTripsResponseDto })
   filterTrips(
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,
@@ -92,9 +106,9 @@ export class TripController {
     );
   }
 
-  @Patch(':tripId')
+  @Put(':tripId')
   @ApiOperation({ summary: 'Update trip.' })
-  @UseGuards(UserAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateTripDto })
   updateTrip(
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,

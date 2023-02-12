@@ -2,40 +2,49 @@ import {
   Controller,
   Get,
   Headers,
+  HttpStatus,
   Param,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { LocationService } from './location.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { City } from './schemas/city.schema';
 import { District } from './schemas/district.schema';
 import { TokenHeader } from '../common/headers/token.header';
 import { UserAuthGuard } from '../user/guards/user.guard';
+import {
+  GetAllCitiesResponseDto,
+  GetAllDistrictsResponseDto,
+  GetCityByIdResponseDto,
+  GetDistrictByIdResponseDto,
+  GetDistrictsOfCityResponseDto,
+} from './dto/response';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('Location')
 @Controller('location')
+@UseGuards(JwtAuthGuard)
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get('cities')
   @ApiOperation({ summary: 'Get all cities.' })
+  @ApiResponse({ status: HttpStatus.OK, type: GetAllCitiesResponseDto })
   getAllCities(@Headers() _tokenHeader: TokenHeader): Promise<City[]> {
     return this.locationService.getAllCities();
   }
 
   @Get('districts')
   @ApiOperation({ summary: 'Get all districts.' })
-  @UseGuards(UserAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: GetAllDistrictsResponseDto })
   getAllDiscritcts(@Headers() _tokenHeader: TokenHeader): Promise<District[]> {
     return this.locationService.getAllDistricts();
   }
 
   @Get('districts/city')
   @ApiOperation({ summary: 'Get districts of city.' })
-  @UseGuards(UserAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: GetDistrictsOfCityResponseDto })
   getDistrictsOfCity(
     @Headers() tokenHeader: TokenHeader,
     @Query('cityId') cityId: string
@@ -45,7 +54,7 @@ export class LocationController {
 
   @Get('cities/:cityId')
   @ApiOperation({ summary: 'Get city by id.' })
-  @UseGuards(UserAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: GetCityByIdResponseDto })
   getCityById(
     @Headers() tokenHeader: TokenHeader,
     @Param('cityId') cityId: string
@@ -55,7 +64,7 @@ export class LocationController {
 
   @Get('districts/:districtId')
   @ApiOperation({ summary: 'Get district by id.' })
-  @UseGuards(UserAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, type: GetDistrictByIdResponseDto })
   getDistrictById(
     @Headers() tokenHeader: TokenHeader,
     @Param('districtId') districtId: string

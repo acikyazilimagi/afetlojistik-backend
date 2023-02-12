@@ -1,3 +1,4 @@
 export const jwtConstants = {
-  secret: 'secret',
+  secret: process.env.JWT_SECRET,
 };
+export * from './error-messages';

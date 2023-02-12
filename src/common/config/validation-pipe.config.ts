@@ -1,15 +1,5 @@
-import {
-  HttpException,
-  HttpStatus,
-  ValidationError,
-  ValidationPipeOptions,
-} from '@nestjs/common';
-
-class ValidationException extends HttpException {
-  constructor(e: ValidationError) {
-    super(e, HttpStatus.BAD_REQUEST);
-  }
-}
+import { ValidationError, ValidationPipeOptions } from '@nestjs/common';
+import ValidationException from '../exceptions/validation.exception';
 
 export const ValidationPipeConfig: ValidationPipeOptions = {
   transform: true,

@@ -1,4 +1,5 @@
 import {
+  ArrayNotEmpty,
   IsArray,
   IsDateString,
   IsDefined,
@@ -9,6 +10,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -22,20 +24,18 @@ export class VehiclePlateDto {
     description: 'Plate number of the truck',
     example: '34ABC123',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  truck: string;
+  truck?: string;
 
   @ApiProperty({
     type: [String],
-    description: "Plate number of the truck's trailers",
-    example: ['34ABC124', '34ABC125'],
+    description: "Plate number of the truck's trailer",
+    example: '34ABC124',
   })
-  @IsDefined()
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  trailer?: string[];
+  @IsString()
+  trailer?: string;
 }
 
 export class VehicleDto {
@@ -43,28 +43,27 @@ export class VehicleDto {
     type: VehiclePlateDto,
     description: 'Plate information of the vehicle',
   })
-  @IsDefined()
-  @IsNotEmptyObject()
+  @IsOptional()
   @NestedObjectValidator(VehiclePlateDto)
-  plate: VehiclePlateDto;
+  plate?: VehiclePlateDto;
 
   @ApiProperty({
     type: String,
     description: 'Driver phone number of the vehicle',
     example: '5320000000',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @IsPhoneNumber('TR')
-  phone: string;
+  phone?: string;
 
   @ApiProperty({
     description: 'Driver name of the vehicle',
     example: 'John Doe',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 }
 
 export class LocationBaseDto {
@@ -98,19 +97,21 @@ export class FromLocationDto extends LocationBaseDto {
   })
   @IsOptional()
   @IsString()
+  @MaxLength(200)
   address?: string;
 }
 
 export class ToLocationDto extends LocationBaseDto {
   @ApiProperty({
     type: String,
-    required: true,
+    required: false,
     description: 'Address of the location',
     example: 'Atatürk Mahallesi, 123 Sokak, No: 1',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  address: string;
+  @MaxLength(200)
+  address?: string;
 }
 
 export class ProductDto {
@@ -140,17 +141,16 @@ export class CreateTripDto {
     example: {
       plate: {
         truck: '34ABC123',
-        trailer: ['34ABC124', '34ABC125'],
+        trailer: '34ABC124',
       },
       phone: '5320000000',
       name: 'John Doe',
     },
   })
-  @IsNotEmpty()
-  @IsNotEmptyObject()
+  @IsOptional()
   @ValidateNested({ message: 'Invalid Vehicle' })
   @Type(() => VehicleDto)
-  vehicle: VehicleDto;
+  vehicle?: VehicleDto;
 
   @ApiProperty({
     type: FromLocationDto,
@@ -190,6 +190,7 @@ export class CreateTripDto {
   })
   @IsNotEmpty()
   @IsDateString()
+  // TODO: allow up to 30 days later
   estimatedDepartTime: string;
 
   @ApiProperty({
@@ -200,6 +201,7 @@ export class CreateTripDto {
   })
   @IsOptional()
   @IsString()
+  @MaxLength(200)
   notes?: string;
 
   @ApiProperty({
@@ -214,6 +216,7 @@ export class CreateTripDto {
   })
   @IsDefined()
   @IsArray()
+  @ArrayNotEmpty()
   @NestedObjectValidator(ProductDto, { each: true })
   @Type(() => ProductDto)
   products: ProductDto[];

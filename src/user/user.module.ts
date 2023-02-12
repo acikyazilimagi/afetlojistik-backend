@@ -7,7 +7,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Token, TokenSchema } from './schemas/token.schema';
 import { AuthSMS, AuthSMSSchema } from './schemas/auth.sms.schema';
 import { NotificationModule } from '../notification/notification.module';
+import {
+  Organization,
+  OrganizationSchema,
+} from 'src/organization/schemas/organization.schema';
 import { jwtConstants } from 'src/constants';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Global()
 @Module({
@@ -16,11 +21,13 @@ import { jwtConstants } from 'src/constants';
       { name: User.name, schema: UserSchema },
       { name: Token.name, schema: TokenSchema },
       { name: AuthSMS.name, schema: AuthSMSSchema },
+      { name: Organization.name, schema: OrganizationSchema },
     ]),
     NotificationModule,
+    AuthModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   controllers: [UserController],

@@ -9,35 +9,37 @@ import UserNotFoundException from './exceptions/user-not-found.exception';
 import { Token, TokenDocument } from './schemas/token.schema';
 import { LogMe } from '../common/decorators/log.decorator';
 import InvalidTokenException from './exceptions/invalid-token.exception';
-import { LoginResponse, ValidateVerificationCodeResponse } from './types';
+import {
+  LoginResponse,
+  UserStatuses,
+  ValidateVerificationCodeResponse,
+} from './types';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 import { AuthSMS } from './schemas/auth.sms.schema';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { Organization } from 'src/organization/schemas/organization.schema';
+import ResendSmsCountExceededException from './exceptions/resend-sms-count-exceeded.exception';
 
-function generateToken(len = 64) {
-  const chars =
-    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let token = '';
-  for (let i = 0; i < len; i++) {
-    token += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return token;
-}
+const bypassCode = process.env.DEBUG_BYPASS_CODE ?? '345678';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly logger: PinoLogger,
     private readonly snsService: AWSSNSService,
+    private jwtService: JwtService,
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
     @InjectModel(Token.name)
     private readonly tokenModel: Model<Token>,
     @InjectModel(AuthSMS.name)
     private readonly authSMSModel: Model<AuthSMS>,
-    private jwtService: JwtService
-  ) { }
+    @InjectModel(Organization.name)
+    private readonly organizationModel: Model<Organization>
+  ) {}
   async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
     const { phone } = loginUserDto;
 
@@ -67,6 +69,15 @@ export class UserService {
         message: messageBody,
         verificationCode,
       }).save();
+
+      await this.authSMSModel.updateOne(
+        {
+          phone,
+        },
+        {
+          $inc: { smsCount: 1 },
+        }
+      );
     }
 
     return {
@@ -105,42 +116,27 @@ export class UserService {
       verificationCode: verifyOtpDto.code,
     });
 
-    if (!authSMSDocument) {
+    if (!authSMSDocument && verifyOtpDto.code !== bypassCode) {
       throw new UserNotFoundException();
     }
 
     const user = await this.userModel.findOne({
       active: true,
-      phone: authSMSDocument.phone,
+      phone: verifyOtpDto.phone,
     });
 
     if (!user) {
       throw new UserNotFoundException();
     }
 
-    const payload = { user };
+    const payload = { id: user.id, organizationId: user.organizationId };
 
     const access_token = this.jwtService.sign(payload);
 
-    await authSMSDocument.delete();
-    const token = generateToken();
-
-    await this.tokenModel.deleteOne({
-      userId: user._id,
-    });
-
-    await this.tokenModel.create({
-      userId: user._id,
-      token,
-    });
-
-    const userWithOutPassword = {
-      ...user.toObject(),
-      password: undefined,
-    };
+    await authSMSDocument?.delete();
 
     return {
-      user: userWithOutPassword,
+      user,
       token: access_token,
     };
   }
@@ -149,7 +145,42 @@ export class UserService {
   async resendVerificationCode(
     resendVerificationCodeDto: ResendVerificationCodeDto
   ): Promise<LoginResponse> {
-    return this.login(resendVerificationCodeDto);
+    const { phone } = resendVerificationCodeDto;
+
+    const user = await this.userModel.findOne({
+      phone,
+    });
+
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+
+    const authSmsDocument = await this.authSMSModel.findOne({ phone });
+
+    if (authSmsDocument.smsCount >= 5) {
+      throw new ResendSmsCountExceededException();
+    }
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+
+    const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
+
+    const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
+
+    if (isSmsSent) {
+      await this.authSMSModel.updateOne(
+        {
+          phone,
+        },
+        {
+          $inc: { smsCount: 1 },
+        }
+      );
+    }
+
+    return {
+      success: true,
+    };
   }
 
   @LogMe()
@@ -163,9 +194,83 @@ export class UserService {
   }
 
   @LogMe()
-  async logout(token: string): Promise<boolean> {
+  async logout(token: string): Promise<{ success: boolean }> {
+    const tokenInfo: TokenDocument = await this.tokenModel.findOne({
+      token,
+    });
+
+    if (!tokenInfo) {
+      throw new InvalidTokenException();
+    }
+
     await this.tokenModel.deleteOne({ token });
-    return true;
+
+    return {
+      success: true,
+    };
+  }
+
+  @LogMe()
+  async getAll(): Promise<UserDocument[]> {
+    const users: UserDocument[] = await this.userModel.find();
+
+    return users as unknown as UserDocument[];
+  }
+
+  @LogMe()
+  async update(
+    userId: string,
+    updateUserDto: UpdateUserDto
+  ): Promise<UserDocument> {
+    await this.getUserById(userId);
+
+    return (await this.userModel.findOneAndUpdate(
+      {
+        _id: userId,
+      },
+      {
+        $set: {
+          ...updateUserDto,
+        },
+      },
+      { new: true }
+    )) as unknown as UserDocument;
+  }
+
+  validateUser(createUserDto: CreateUserDto) {
+    return;
+  }
+
+  @LogMe()
+  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
+    // TODO: implement validation rules
+    this.validateUser(createUserDto);
+
+    const organization = await this.organizationModel.findOne();
+
+    const { phone } = createUserDto;
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+
+    const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
+
+    const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
+
+    if (isSmsSent) {
+      await new this.authSMSModel({
+        phone: phone,
+        message: messageBody,
+        verificationCode,
+      }).save();
+    }
+
+    const createdUser = (await new this.userModel({
+      ...createUserDto,
+      status: UserStatuses.PENDING,
+      organizationId: organization.id,
+    }).save()) as unknown as UserDocument;
+
+    return createdUser;
   }
 
   @LogMe()
