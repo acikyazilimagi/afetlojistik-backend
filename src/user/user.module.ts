@@ -21,6 +21,10 @@ import {
       { name: Organization.name, schema: OrganizationSchema },
     ]),
     NotificationModule,
+    // JwtModule.register({
+    //   secret: jwtConstants.secret,
+    //   signOptions: { expiresIn: '1d' },
+    // }),
   ],
   controllers: [UserController],
   providers: [UserService],

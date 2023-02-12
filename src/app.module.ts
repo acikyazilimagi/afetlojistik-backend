@@ -11,6 +11,8 @@ import { CategoryModule } from './category/category.module';
 import { LogModule } from './common/logger';
 import { MongoDbModule } from './bootstrap-modules';
 import { NotificationModule } from './notification/notification.module';
+import { CoreModule } from './core/core.module';
+import { JwtStrategy } from './auth/strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { NotificationModule } from './notification/notification.module';
     TripModule,
     CategoryModule,
     NotificationModule,
+    CoreModule,
   ],
   controllers: [],
   providers: [
@@ -33,7 +36,8 @@ import { NotificationModule } from './notification/notification.module';
     {
       provide: APP_PIPE,
       useFactory: () => new ValidationPipe(ValidationPipeConfig),
-    },
+    }    
+
   ],
 })
 export class AppModule {}
