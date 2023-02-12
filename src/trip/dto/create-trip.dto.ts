@@ -148,7 +148,7 @@ export class CreateTripDto {
     },
   })
   @IsOptional()
-  @ValidateNested({ message: 'Invalid Vehicle' })
+  @NestedObjectValidator(VehicleDto)
   @Type(() => VehicleDto)
   vehicle?: VehicleDto;
 
@@ -163,7 +163,7 @@ export class CreateTripDto {
   })
   @IsNotEmpty()
   @IsNotEmptyObject()
-  @ValidateNested({ message: 'Invalid from Location' })
+  @NestedObjectValidator(FromLocationDto)
   @Type(() => FromLocationDto)
   fromLocation: FromLocationDto;
 
@@ -178,7 +178,7 @@ export class CreateTripDto {
   })
   @IsNotEmpty()
   @IsNotEmptyObject()
-  @ValidateNested({ message: 'Invalid to Location' })
+  @NestedObjectValidator(ToLocationDto)
   @Type(() => ToLocationDto)
   toLocation: ToLocationDto;
 
