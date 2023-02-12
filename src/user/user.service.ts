@@ -4,6 +4,8 @@ import { PinoLogger } from 'nestjs-pino';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+
 import { User, UserDocument } from './schemas/user.schema';
 import UserNotFoundException from './exceptions/user-not-found.exception';
 import { Token, TokenDocument } from './schemas/token.schema';
@@ -23,14 +25,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { Organization } from 'src/organization/schemas/organization.schema';
 import ResendSmsCountExceededException from './exceptions/resend-sms-count-exceeded.exception';
 
-const bypassCode = process.env.DEBUG_BYPASS_CODE ?? '345678';
-
 @Injectable()
 export class UserService {
   constructor(
     private readonly logger: PinoLogger,
     private readonly snsService: AWSSNSService,
     private jwtService: JwtService,
+    private configService: ConfigService,
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
     @InjectModel(Token.name)
@@ -102,7 +103,10 @@ export class UserService {
       verificationCode: verifyOtpDto.code,
     });
 
-    if (!authSMSDocument && verifyOtpDto.code !== bypassCode) {
+    if (
+      !authSMSDocument &&
+      verifyOtpDto.code !== this.configService.get('debug.bypassCode')
+    ) {
       throw new UserNotFoundException();
     }
 

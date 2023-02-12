@@ -12,10 +12,15 @@ import { LogModule } from './common/logger';
 import { MongoDbModule } from './bootstrap-modules';
 import { NotificationModule } from './notification/notification.module';
 import { CoreModule } from './core/core.module';
-import { JwtStrategy } from './auth/strategies/jwt.strategy';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      load: [configuration],
+      isGlobal: true,
+    }),
     LogModule,
     MongoDbModule,
     HealthModule,
@@ -36,8 +41,7 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
     {
       provide: APP_PIPE,
       useFactory: () => new ValidationPipe(ValidationPipeConfig),
-    }    
-
+    },
   ],
 })
 export class AppModule {}

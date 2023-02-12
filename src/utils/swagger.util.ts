@@ -12,6 +12,4 @@ const config = new DocumentBuilder()
 
 const customCss = '.swagger-ui .topbar { display: none }';
 
-const swaggerEnabled = process.env.SWAGGER_ENABLED !== 'false';
-
-export { config, customCss, swaggerEnabled };
+export { config, customCss };
