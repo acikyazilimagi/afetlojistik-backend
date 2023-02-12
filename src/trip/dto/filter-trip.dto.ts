@@ -1,7 +1,6 @@
-import { IsArray, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { TripsStatuses } from '../types/trip.type';
-import { Transform } from 'class-transformer';
 
 export class FilterTripDto {
   @IsOptional()
@@ -38,8 +37,7 @@ export class FilterTripDto {
 
   @IsOptional()
   @IsString()
-  @Transform((value) => value.toString())
-  @IsPhoneNumber('TR')
+  @Matches('^5[0-9]{9}$')
   @ApiProperty({
     description: 'Driver phone number of the vehicle',
   })

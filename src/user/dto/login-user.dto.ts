@@ -1,11 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, Matches } from 'class-validator';
 export class LoginUserDto {
   @IsString()
   @IsNotEmpty()
-  @Transform((value) => value.toString())
-  @IsPhoneNumber('TR')
+  @Matches('^5[0-9]{9}$')
   @ApiProperty({
     description: 'Phone Number',
     example: '5320000000',
