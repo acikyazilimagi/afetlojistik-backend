@@ -10,7 +10,7 @@ export class User {
 
   @Prop({
     type: mSchema.Types.Boolean,
-    default: true,
+    default: false,
   })
   active?: boolean;
 
@@ -35,6 +35,7 @@ export class User {
     required: true,
     minlength: 5,
     maxlength: 50,
+    unique: true,
   })
   phone: string;
 
@@ -68,7 +69,7 @@ export class User {
 
   @Prop({
     type: mSchema.Types.Number,
-    default: 100,
+    default: UserStatuses.PENDING,
   })
   status?: UserStatuses;
 }

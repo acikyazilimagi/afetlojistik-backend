@@ -8,8 +8,8 @@ import {
   IsNotEmptyObject,
   IsNumber,
   IsOptional,
-  IsPhoneNumber,
   IsString,
+  Matches,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -53,7 +53,7 @@ export class VehicleDto {
   })
   @IsOptional()
   @IsString()
-  @IsPhoneNumber('TR')
+  @Matches('^5[0-9]{9}$')
   phone?: string;
 
   @ApiProperty({

@@ -13,10 +13,11 @@ import { TripStatusService } from '../services/trip-status.service';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
 import { UpdateTripDto } from '../dto/update-trip.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
 
 @ApiTags('Trip Statuses')
 @Controller('trip')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ActiveUserAuthGuard)
 export class TripStatusController {
   constructor(private readonly tripStatusService: TripStatusService) {}
 

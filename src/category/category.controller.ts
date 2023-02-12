@@ -16,10 +16,11 @@ import {
   GetCategoryByCategoryIdResponseDto,
 } from './dto/response';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
 
 @ApiTags('Category')
 @Controller('category')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ActiveUserAuthGuard)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 

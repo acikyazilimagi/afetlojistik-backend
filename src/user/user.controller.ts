@@ -21,6 +21,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { SuccessResponseDto } from 'src/common/dtos';
 import { VerifyResponseDto } from './dto/response';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
 
 @ApiTags('User')
 @Controller('user')
@@ -53,7 +54,7 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, AdminAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminAuthGuard, ActiveUserAuthGuard)
   @ApiOperation({ summary: 'List users' })
   list() {
     return this.userService.getAll();
@@ -61,14 +62,14 @@ export class UserController {
 
   @Get(':userId')
   @ApiOperation({ summary: 'Get user.' })
-  @UseGuards(JwtAuthGuard, AdminAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminAuthGuard, ActiveUserAuthGuard)
   getUser(@Param('userId') userId: string): Promise<UserDocument> {
     return this.userService.getUserById(userId);
   }
 
   @Patch(':userId')
   @ApiOperation({ summary: 'Update user.' })
-  @UseGuards(JwtAuthGuard, AdminAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminAuthGuard, ActiveUserAuthGuard)
   updateUser(
     @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto
