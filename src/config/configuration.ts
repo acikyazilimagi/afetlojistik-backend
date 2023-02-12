@@ -21,7 +21,7 @@ export default () => ({
     bypassCode: process.env.DEBUG_BYPASS_CODE,
   },
   http: {
-    timeout: process.env.SERVICE_TIMEOUT,
+    timeout: process.env.SERVICE_TIMEOUT || "10000",
   },
   optiyol: {
     baseUrl: process.env.INTEGRATION_OPTIYOL_URL || '',
