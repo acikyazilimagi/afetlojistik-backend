@@ -8,8 +8,10 @@ import { IntegrationDocument } from 'src/integration/schemas/integration.schema'
 import { Integrators } from 'src/integration/types/integration.types';
 import { DispatchDto, DispatchOrderDto, DispatchResultDto } from './dtos/dispatch.dto';
 import { DispatchFormatter } from './formatters/dispatch.formatter';
+import { OptiyolServiceClient } from './optiyol.service-client';
 import { Dispatch } from './schema/dispatch.schema';
 import { IDispatchable } from './types/dispatch.types';
+import { OptiyolDispatchOrderResult } from './types/optiyol.types';
 
 /*
   {
@@ -50,6 +52,7 @@ export class DispatchService {
     @InjectModel(Dispatch.name)
     private readonly dispatchModel: Model<Dispatch>,
     private readonly integrationService: IntegrationService,
+    private readonly optiyolServiceClient: OptiyolServiceClient,
   ){}
 
   @LogMe()
@@ -60,14 +63,20 @@ export class DispatchService {
     if (!dispatchOrder) {
       // throw new InvalidDispatchException({ data });
     }
-
-    const dispatch: DispatchDto = {
-      integrator: integration.integrator,
-      order: dispatchOrder,
-      orderType: data.OrderType,
-      result: { result: true },
-    };
-
-    await this.dispatchModel.create(dispatch);
+    let optiyolResult: (OptiyolDispatchOrderResult | Error );
+    try {
+      optiyolResult = await this.optiyolServiceClient.sendDispatchOrder(dispatchOrder);
+    } catch(error: unknown) {
+      optiyolResult = (error) as Error
+    } finally {
+      const dispatch: DispatchDto = {
+        integrator: integration.integrator,
+        order: dispatchOrder,
+        orderType: data.OrderType,
+        result: { result: optiyolResult },
+      };
+  
+      await this.dispatchModel.create(dispatch);
+    }
   }
 }

@@ -1,3 +1,5 @@
+import { OptiyolDispatchOrderResult } from "../types/optiyol.types";
+
 export class DispatchOrderDto {
   OrdersPlannedDate: string;
   OrdersPlannedTime: string;
@@ -16,7 +18,7 @@ export class DispatchOrderDto {
 }
 
 export class DispatchResultDto {
-  result: boolean;
+  result: (OptiyolDispatchOrderResult | Error);
 }
 export class DispatchDto {
   integrator: string;

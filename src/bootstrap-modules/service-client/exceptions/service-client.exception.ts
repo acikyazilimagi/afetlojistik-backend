@@ -4,7 +4,8 @@ export class ServiceClientException extends Error {
     public readonly message: string,
     public readonly code: number,
     public readonly data: any,
-    public readonly isMicroservice: boolean = true,
+    public readonly isMicroservice: boolean = false,
+    public readonly payload: unknown,
   ) {
     super(message);
   }

@@ -26,7 +26,7 @@ export class Dispatch {
   @Prop({
     type: mSchema.Types.Mixed,
   })
-  result: any;
+  result: unknown;
 }
 
 export const DispatchSchema = SchemaFactory.createForClass(Dispatch);

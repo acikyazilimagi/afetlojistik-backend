@@ -5,6 +5,7 @@ import Axios, {
 import { v4 as uuidv4 } from 'uuid';
 import { PinoLogger } from 'nestjs-pino';
 import { ServiceClientException } from './exceptions/service-client.exception';
+import { ERROR_MESSAGES } from 'src/constants';
 
 export abstract class AbstractServiceClient {
   private readonly axiosClient: AxiosInstance;
@@ -16,17 +17,18 @@ export abstract class AbstractServiceClient {
   ) {
     this.axiosClient = Axios.create({
       baseURL: this.baseUrl,
-      timeout: 5000,
+      timeout: parseInt(process.env.SERVICE_TIMEOUT, 10) || 5000,
     });
   }
 
-  throwError(message: string, code: number, data?: unknown, isMicroservice?: boolean): ServiceClientException {
+  throwError(message: string, code: number, data?: unknown, isMicroservice?: boolean, payload?: unknown): ServiceClientException {
     const error = new ServiceClientException(
       this.microservice,
       message,
       code,
       data,
       isMicroservice,
+      payload,
     );
     throw error;
   }
@@ -87,7 +89,7 @@ export abstract class AbstractServiceClient {
       }
 
       const { message, code } = ERROR_MESSAGES.MICROSERVICE;
-      return this.throwError(message, code);
+      return this.throwError(message, code, data = { ...response.data, status: response.status, statusText: response.statusText });
     }
     catch (requestError: any) {
       const elapsed: number = this.getElapsed(start);
@@ -106,6 +108,8 @@ export abstract class AbstractServiceClient {
         requestError.message,
         requestError.isMicroservice ? requestError.code : ERROR_MESSAGES.MICROSERVICE.code,
         requestError.data,
+        false,
+        { method, url, path, data },
       );
     }
   }
