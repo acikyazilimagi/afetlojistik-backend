@@ -12,7 +12,6 @@ import {
   IsString,
   MaxLength,
   Min,
-  ValidateNested,
 } from 'class-validator';
 import { NestedObjectValidator } from 'src/common/decorators/nested-object-validator.decorator';
 import { ApiProperty } from '@nestjs/swagger';
