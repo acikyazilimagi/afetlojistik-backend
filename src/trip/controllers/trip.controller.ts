@@ -3,7 +3,6 @@ import {
   Post,
   Body,
   UseGuards,
-  Headers,
   Get,
   Param,
   Query,
@@ -14,9 +13,6 @@ import {
 import { TripService } from '../services/trip.service';
 import { CreateTripDto } from '../dto/create-trip.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { TokenHeader } from '../../common/headers/token.header';
-import { User } from '../../user/decorators/user.decorator';
-import { UserDocument } from '../../user/schemas/user.schema';
 import { TripDocument } from '../schemas/trip.schema';
 import { FilterTripDto } from '../dto/filter-trip.dto';
 import { UpdateTripDto } from '../dto/update-trip.dto';
@@ -40,11 +36,10 @@ export class TripController {
   @ApiOperation({ summary: 'Create trip.' })
   @ApiResponse({ status: HttpStatus.OK, type: CreateTripResponseDto })
   create(
-    @Headers() tokenHeader: TokenHeader,
-    @User() user: UserDocument,
+    @Req() req,
     @Body() createTripDto: CreateTripDto
   ): Promise<TripDocument> {
-    const { _id: userId, organizationId } = user;
+    const { _id: userId, organizationId } = req.user;
     return this.tripService.create(createTripDto, userId, organizationId);
   }
 
@@ -52,11 +47,10 @@ export class TripController {
   @ApiOperation({ summary: 'Get trip by trip number.' })
   @ApiResponse({ status: HttpStatus.OK, type: GetTripByTripNumberResponseDto })
   getTripByNumber(
-    @Headers() tokenHeader: TokenHeader,
-    @User() user: UserDocument,
+    @Req() req,
     @Param('tripNumber') tripNumber: string
   ): Promise<TripDocument> {
-    const { organizationId } = user;
+    const { organizationId } = req.user;
     return this.tripService.getTripByNumber(tripNumber, organizationId);
   }
 
@@ -67,11 +61,10 @@ export class TripController {
     type: GetPopulatedTripByTripIdResponseDto,
   })
   getTripById(
-    @Headers() tokenHeader: TokenHeader,
-    @User() user: UserDocument,
+    @Req() req,
     @Param('tripId') tripId: string
   ): Promise<TripDocument> {
-    const { organizationId } = user;
+    const { organizationId } = req.user;
     return this.tripService.getPopulatedTripById(tripId, organizationId);
   }
 
@@ -79,7 +72,6 @@ export class TripController {
   @ApiOperation({ summary: 'Get all trips.' })
   @ApiResponse({ status: HttpStatus.OK, type: GetAllTripsResponseDto })
   getAllTrips(
-    @Headers() tokenHeader: TokenHeader,
     @Req() req,
     @Query() { limit, skip }: PaginationDto
   ): Promise<{ data: TripDocument[]; total: number }> {
@@ -91,12 +83,11 @@ export class TripController {
   @ApiOperation({ summary: 'Filter trips.' })
   @ApiResponse({ status: HttpStatus.OK, type: FilterTripsResponseDto })
   filterTrips(
-    @Headers() tokenHeader: TokenHeader,
-    @User() user: UserDocument,
+    @Req() req,
     @Body() filterTripDto: FilterTripDto,
     @Query() { limit, skip }: PaginationDto
   ): Promise<{ data: TripDocument[]; total: number }> {
-    const { organizationId } = user;
+    const { organizationId } = req.user;
     return this.tripService.filterTrips(
       filterTripDto,
       organizationId,
@@ -109,12 +100,11 @@ export class TripController {
   @ApiOperation({ summary: 'Update trip.' })
   @ApiResponse({ status: HttpStatus.OK, type: UpdateTripDto })
   updateTrip(
-    @Headers() tokenHeader: TokenHeader,
-    @User() user: UserDocument,
+    @Req() req,
     @Param('tripId') tripId: string,
     @Body() updateTripDto: UpdateTripDto
   ): Promise<TripDocument> {
-    const { organizationId, _id: userId } = user;
+    const { organizationId, _id: userId } = req.user;
     return this.tripService.updateTrip(
       tripId,
       updateTripDto,

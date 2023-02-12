@@ -5,7 +5,6 @@ import {
   Headers,
   Get,
   Patch,
-  Put,
   UseGuards,
   Param,
   HttpStatus,
@@ -59,7 +58,7 @@ export class UserController {
   @ApiOperation({ summary: 'Logout user.' })
   @ApiResponse({ status: HttpStatus.OK, type: SuccessResponseDto })
   logout(@Headers() tokenHeader: TokenHeader) {
-    return this.userService.logout(tokenHeader.token);
+    return this.userService.logout(tokenHeader.token); // TODO: handle this with jwt
   }
 
   @Get()
@@ -72,10 +71,7 @@ export class UserController {
   @Get(':userId')
   @ApiOperation({ summary: 'Get user.' })
   @UseGuards(JwtAuthGuard, AdminAuthGuard)
-  getUser(
-    @Headers() tokenHeader: TokenHeader,
-    @Param('userId') userId: string
-  ): Promise<UserDocument> {
+  getUser(@Param('userId') userId: string): Promise<UserDocument> {
     return this.userService.getUserById(userId);
   }
 
@@ -83,7 +79,6 @@ export class UserController {
   @ApiOperation({ summary: 'Update user.' })
   @UseGuards(JwtAuthGuard, AdminAuthGuard)
   updateUser(
-    @Headers() tokenHeader: TokenHeader,
     @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto
   ): Promise<UserDocument> {
@@ -92,10 +87,7 @@ export class UserController {
 
   @Post()
   @ApiOperation({ summary: 'Create user.' })
-  createUser(
-    @Headers() tokenHeader: TokenHeader,
-    @Body() updateUserDto: CreateUserDto
-  ): Promise<UserDocument> {
+  createUser(@Body() updateUserDto: CreateUserDto): Promise<UserDocument> {
     return this.userService.create(updateUserDto);
   }
 }

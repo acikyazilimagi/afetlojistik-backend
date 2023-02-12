@@ -57,8 +57,6 @@ export class UserService {
 
     const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
 
-    console.log(JSON.stringify({ isSmsSent }));
-
     if (isSmsSent) {
       await this.authSMSModel.deleteOne({
         phone,
