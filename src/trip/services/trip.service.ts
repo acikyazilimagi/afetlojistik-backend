@@ -12,7 +12,6 @@ import {
   TripInvalidProductException,
   TripNotFoundException,
 } from '../exceptions/trip.exception';
-import { LocationService } from '../../location/location.service';
 import { CategoryService } from '../../category/category.service';
 import TripFormatter from '../formatters/trip-populate.formatter';
 import { UserService } from '../../user/user.service';
@@ -27,7 +26,8 @@ import { UpdateTripDto } from '../dto/update-trip.dto';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 import { DispatchService } from 'src/dispatch/dispatch.service';
 import { IDispatchable } from 'src/dispatch/types/dispatch.types';
-import { PopulatedTripResponseDto } from '../dto/response/common/populated-trip.response.dto';
+import { CityService } from '../../location/services/city.service';
+import { DistrictService } from '../../location/services/district.service';
 
 @Injectable()
 export class TripService {
@@ -35,13 +35,14 @@ export class TripService {
     private readonly logger: PinoLogger,
     @InjectModel(Trip.name)
     private readonly tripModel: Model<Trip>,
-    private readonly locationService: LocationService,
+    private readonly cityService: CityService,
+    private readonly districtService: DistrictService,
     private readonly categoryService: CategoryService,
     private readonly organizationService: OrganizationService,
     private readonly tripFormatter: TripFormatter,
     private readonly userService: UserService,
     private readonly snsService: AWSSNSService,
-    private readonly dispatchService: DispatchService,
+    private readonly dispatchService: DispatchService
   ) {}
 
   @LogMe()
@@ -49,10 +50,10 @@ export class TripService {
     const { fromLocation, toLocation } = trip;
     const [fromCity, fromDistrict, toCity, toDistrict]: DisctrictDocument[] =
       await Promise.all([
-        this.locationService.getCityById(fromLocation.cityId),
-        this.locationService.getDistrictbyId(fromLocation.districtId),
-        this.locationService.getCityById(toLocation.cityId),
-        this.locationService.getDistrictbyId(toLocation.districtId),
+        this.cityService.getCityById(fromLocation.cityId),
+        this.districtService.getDistrictbyId(fromLocation.districtId),
+        this.cityService.getCityById(toLocation.cityId),
+        this.districtService.getDistrictbyId(toLocation.districtId),
       ]);
 
     if (!fromCity || !fromDistrict) {
@@ -105,7 +106,10 @@ export class TripService {
       statusChangeLog: statusChangeLog,
     }).save()) as unknown as TripDocument;
 
-    const populatedTrip: any = await this.getPopulatedTripById(createdTrip._id.toString(), createdTrip.organizationId);
+    const populatedTrip: any = await this.getPopulatedTripById(
+      createdTrip._id.toString(),
+      createdTrip.organizationId
+    );
     const dispatchData: IDispatchable = {
       OrderId: populatedTrip._id.toString(),
       OrderType: Trip.name,
@@ -165,12 +169,15 @@ export class TripService {
     if (!trip) throw new TripNotFoundException();
 
     const [populatedTrip] = await this.tripsPopulate([trip]);
-    
+
     return populatedTrip;
   }
 
   @LogMe()
-  async getTripById(tripId: string, organizationId: string): Promise<TripDocument> {
+  async getTripById(
+    tripId: string,
+    organizationId: string
+  ): Promise<TripDocument> {
     const trip: TripDocument = await this.tripModel
       .findOne({
         _id: tripId,
@@ -188,8 +195,8 @@ export class TripService {
     const result = this.tripFormatter.getPopulateIds(trips);
 
     const [cities, districts, categories, users] = await Promise.all([
-      this.locationService.getCitiesByIds(result.cityIds),
-      this.locationService.getDistrictsByIds(result.districtIds),
+      this.cityService.getCitiesByIds(result.cityIds),
+      this.districtService.getDistrictsByIds(result.districtIds),
       this.categoryService.getCategoriesByIds(result.categoryIds),
       this.userService.getUsersByIds(result.userIds),
     ]);
