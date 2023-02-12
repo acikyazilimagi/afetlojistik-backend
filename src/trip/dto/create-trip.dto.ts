@@ -15,6 +15,7 @@ import {
 } from 'class-validator';
 import { NestedObjectValidator } from 'src/common/decorators/nested-object-validator.decorator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class VehiclePlateDto {
   @ApiProperty({
