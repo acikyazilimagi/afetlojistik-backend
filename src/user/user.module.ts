@@ -12,7 +12,6 @@ import {
   OrganizationSchema,
 } from 'src/organization/schemas/organization.schema';
 import { jwtConstants } from 'src/constants';
-import { AuthModule } from 'src/auth/auth.module';
 
 @Global()
 @Module({
@@ -24,7 +23,6 @@ import { AuthModule } from 'src/auth/auth.module';
       { name: Organization.name, schema: OrganizationSchema },
     ]),
     NotificationModule,
-    AuthModule,
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '1d' },
