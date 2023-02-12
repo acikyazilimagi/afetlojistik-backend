@@ -11,6 +11,14 @@ export class FilterTripDto {
   })
   statuses: TripsStatuses[];
 
+  @IsOptional()
+  @IsArray()
+  @ApiProperty({
+    description: 'Trip numbers',
+    example: [12, 46],
+  })
+  tripNumbers: number[];
+
   @ApiProperty({
     description: 'Plate number of the vehicle',
     example: '34ABC123',

@@ -319,6 +319,14 @@ export class TripService {
         : undefined;
     }
 
+    if (
+      filterTripDto.tripNumbers &&
+      Array.isArray(filterTripDto.tripNumbers) &&
+      filterTripDto.tripNumbers.length
+    ) {
+      query.tripNumber = { $in: filterTripDto.tripNumbers };
+    }
+
     const result = {
       data: (await this.tripModel
         .find(query)
