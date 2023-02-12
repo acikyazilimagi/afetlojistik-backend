@@ -6,6 +6,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Token, TokenSchema } from './schemas/token.schema';
 import { AuthSMS, AuthSMSSchema } from './schemas/auth.sms.schema';
 import { NotificationModule } from '../notification/notification.module';
+import {
+  Organization,
+  OrganizationSchema,
+} from 'src/organization/schemas/organization.schema';
 
 @Global()
 @Module({
@@ -14,6 +18,7 @@ import { NotificationModule } from '../notification/notification.module';
       { name: User.name, schema: UserSchema },
       { name: Token.name, schema: TokenSchema },
       { name: AuthSMS.name, schema: AuthSMSSchema },
+      { name: Organization.name, schema: OrganizationSchema },
     ]),
     NotificationModule,
   ],

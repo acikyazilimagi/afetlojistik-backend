@@ -111,7 +111,9 @@ export class TripService {
 
     const messageBody = 'kvkk metni';
 
-    await this.snsService.sendSMS('+90' + phone, messageBody);
+    if (phone) {
+      await this.snsService.sendSMS('+90' + phone, messageBody);
+    }
 
     return createdTrip;
   }
@@ -233,9 +235,23 @@ export class TripService {
     userId: string,
     organizationId: string
   ): Promise<TripDocument> {
-    await this.getTripById(tripId, organizationId);
+    const trip = await this.getTripById(tripId, organizationId);
 
     await this.validateTrip(updateTripDto);
+
+    const {
+      vehicle: { phone: oldDriverPhoneNumber },
+    } = trip;
+
+    const {
+      vehicle: { phone: newDriverPhoneNumber },
+    } = updateTripDto;
+
+    if (newDriverPhoneNumber !== oldDriverPhoneNumber) {
+      const messageBody = 'kvkk metni';
+
+      await this.snsService.sendSMS('+90' + newDriverPhoneNumber, messageBody);
+    }
 
     return (await this.tripModel.findOneAndUpdate(
       {
@@ -314,6 +330,18 @@ export class TripService {
       filterTripDto.statuses.length
     ) {
       query.status = { $in: filterTripDto.statuses };
+    }
+
+    if (filterTripDto.startDate || filterTripDto.endDate) {
+      query.createdAt = {};
+
+      filterTripDto.startDate
+        ? (query.createdAt.$gte = filterTripDto.startDate)
+        : undefined;
+
+      filterTripDto.endDate
+        ? (query.createdAt.$lte = filterTripDto.endDate)
+        : undefined;
     }
 
     const result = {

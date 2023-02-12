@@ -10,9 +10,11 @@ import { TripService } from './trip.service';
 import {
   TripDriverNameNotDefinedException,
   TripStatusNotAllowedException,
+  TripDriverPhoneNotDefinedException,
+  TripVehiclePlateNotDefinedException,
 } from '../exceptions/trip.exception';
-import { UpdateStatusOnwayDto } from '../dto/update-status-onway.dto';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
+import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 
 @Injectable()
 export class TripStatusService {
@@ -20,16 +22,15 @@ export class TripStatusService {
     private readonly logger: PinoLogger,
     @InjectModel(Trip.name)
     private readonly tripModel: Model<Trip>,
-
-    private readonly tripService: TripService
+    private readonly tripService: TripService,
+    private readonly snsService: AWSSNSService
   ) {}
 
   @LogMe()
   async updateTripStatusOnway(
     tripId: string,
     userId: string,
-    organizationId: string,
-    updateStatusOnwayDto: UpdateStatusOnwayDto
+    organizationId: string
   ): Promise<TripDocument> {
     const trip = await this.tripService.getTripById(tripId, organizationId);
 
@@ -45,20 +46,25 @@ export class TripStatusService {
       throw new TripDriverNameNotDefinedException();
     }
 
+    if (!trip.vehicle.phone) {
+      throw new TripDriverPhoneNotDefinedException();
+    }
+
+    if (!trip.vehicle.plate) {
+      throw new TripVehiclePlateNotDefinedException();
+    }
+
     const statusChangeLog: StatusChangeLog = {
       status,
       createdBy: userId,
-      createdAt: new Date(updateStatusOnwayDto.departTime),
+      createdAt: new Date(),
     };
-
-    delete updateStatusOnwayDto.departTime;
 
     return (await this.tripModel.findOneAndUpdate(
       { _id: tripId },
       {
         $set: {
           status,
-          updateStatusOnwayDto,
         },
         $addToSet: { statusChangeLog },
       },

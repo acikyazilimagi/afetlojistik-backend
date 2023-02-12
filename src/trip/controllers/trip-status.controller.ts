@@ -14,7 +14,6 @@ import { User } from '../../user/decorators/user.decorator';
 import { UserDocument } from '../../user/schemas/user.schema';
 import { TripDocument } from '../schemas/trip.schema';
 import { TripStatusService } from '../services/trip-status.service';
-import { UpdateStatusOnwayDto } from '../dto/update-status-onway.dto';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
 import { UpdateTripDto } from '../dto/update-trip.dto';
 
@@ -30,15 +29,13 @@ export class TripStatusController {
   updateTripStatusToOnway(
     @Headers() tokenHeader: TokenHeader,
     @User() user: UserDocument,
-    @Param('tripId') tripId: string,
-    @Body() updateStatusOnwayDto: UpdateStatusOnwayDto
+    @Param('tripId') tripId: string
   ): Promise<TripDocument> {
     const { organizationId, _id: userId } = user;
     return this.tripStatusService.updateTripStatusOnway(
       tripId,
       userId,
-      organizationId,
-      updateStatusOnwayDto
+      organizationId
     );
   }
 

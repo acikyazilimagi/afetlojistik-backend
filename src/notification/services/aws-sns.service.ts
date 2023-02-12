@@ -5,13 +5,18 @@ import { SNS, SharedIniFileCredentials, config } from 'aws-sdk';
 @Injectable()
 export class AWSSNSService {
   constructor() {
-    const credentials = new SharedIniFileCredentials({ profile: 'moria' });
+    const credentials = new SharedIniFileCredentials({
+      profile: process.env.AWS_PROFILE,
+    });
     config.credentials = credentials;
     // Set the region
-    config.update({ region: 'eu-west-1' });
+    config.update({ region: process.env.AWS_REGION });
   }
 
   async sendSMS(phone: string, body: string): Promise<boolean> {
+    if (process.env.DEBUG_BYPASS_SMS === 'true') {
+      return true;
+    }
     // Create publish parameters
     const params = {
       Message: JSON.stringify(body) /* required */,
