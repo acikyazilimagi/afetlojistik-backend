@@ -10,7 +10,7 @@ export class User {
 
   @Prop({
     type: mSchema.Types.Boolean,
-    default: true,
+    default: false,
   })
   active?: boolean;
 
@@ -68,7 +68,7 @@ export class User {
 
   @Prop({
     type: mSchema.Types.Number,
-    default: 100,
+    default: UserStatuses.PENDING,
   })
   status?: UserStatuses;
 }

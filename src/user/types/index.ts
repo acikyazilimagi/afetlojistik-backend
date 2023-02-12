@@ -11,6 +11,5 @@ export type ValidateVerificationCodeResponse = {
 
 export enum UserStatuses {
   PENDING = 100,
-  ACTIVE = 200,
-  DISABLED = 300,
+  VERIFIED = 200,
 }

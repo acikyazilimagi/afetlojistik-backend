@@ -25,10 +25,11 @@ import {
   GetTripByTripNumberResponseDto,
 } from '../dto/response';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
 
 @ApiTags('Trip')
 @Controller('trip')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ActiveUserAuthGuard)
 export class TripController {
   constructor(private readonly tripService: TripService) {}
 
