@@ -1,4 +1,10 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateUserDto {
@@ -27,6 +33,7 @@ export class UpdateUserDto {
   })
   @IsNotEmpty()
   @IsString()
+  @Matches('^5[0-9]{9}$')
   phone: string;
 
   @ApiProperty({
