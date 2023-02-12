@@ -164,22 +164,7 @@ export class TripService {
 
     if (!trip) throw new TripNotFoundException();
 
-    const [populatedTrip]: any = await this.tripsPopulate([trip]);
-    const dispatchData: IDispatchable = {
-      OrderId: populatedTrip._id.toString(),
-      OrderType: Trip.name,
-      PlannedDate: populatedTrip.estimatedDepartTime.toISOString(),
-      RequiredVehicleProperties: populatedTrip.vehicle.plate.truck,
-      FromLocationCity: populatedTrip.fromLocation.cityName,
-      FromLocationCounty: populatedTrip.fromLocation.districtName,
-      FromLocationAddress: populatedTrip.fromLocation.address!,
-      ToLocationCity: populatedTrip.toLocation.cityName,
-      ToLocationCounty: populatedTrip.toLocation.districtName,
-      ToLocationAddress: populatedTrip.toLocation.address!,
-      Note: populatedTrip.notes,
-    };
-
-    await this.dispatchService.dispatch(dispatchData);
+    const [populatedTrip] = await this.tripsPopulate([trip]);
     
     return populatedTrip;
   }

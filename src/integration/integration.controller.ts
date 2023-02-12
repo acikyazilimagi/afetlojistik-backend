@@ -13,14 +13,14 @@ export class IntegrationController {
 
   @Get('')
   @ApiOperation({ summary: 'Get all integrators' })
-  //@UseGuards(UserAuthGuard)
+  @UseGuards(UserAuthGuard)
   getIntegrations(@Headers() tokenHeader: TokenHeader): Promise<any> {
     return this.integrationService.getIntegrations();
   }
 
   @Get(':integrationId')
   @ApiOperation({ summary: 'Get integration by integrationId' })
-  //@UseGuards(UserAuthGuard)
+  @UseGuards(UserAuthGuard)
   getIntegrationById(
     @Headers() tokenHeader: TokenHeader,
     @Param('integrationId') integrationId: string,
