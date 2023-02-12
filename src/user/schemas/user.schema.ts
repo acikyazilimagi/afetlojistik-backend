@@ -35,6 +35,7 @@ export class User {
     required: true,
     minlength: 5,
     maxlength: 50,
+    unique: true,
   })
   phone: string;
 
