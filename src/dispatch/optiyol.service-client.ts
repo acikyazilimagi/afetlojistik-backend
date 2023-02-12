@@ -29,7 +29,7 @@ export class OptiyolServiceClient extends AbstractServiceClient {
     return await this.request(
       'POST',
       `core/create-unplanned/orders/`,
-      { dispatchOrder },
+      { ...dispatchOrder },
       {},
       { ...authHeaders }) as OptiyolDispatchOrderResult;
   }
