@@ -1,36 +1,35 @@
 import { Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { RawAxiosRequestHeaders } from 'axios';
 import { PinoLogger } from 'nestjs-pino';
 import { LogMe } from 'src/common/decorators/log.decorator';
 import { DispatchOrderDto } from 'src/dispatch/dtos/dispatch.dto';
-import { AbstractServiceClient } from '../bootstrap-modules/service-client/base.service-client';
 import { OptiyolDispatchOrderResult } from './types/optiyol.types';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class OptiyolServiceClient extends AbstractServiceClient {
+export class OptiyolServiceClient {
   constructor(
-    protected readonly logger: PinoLogger
+    protected readonly logger: PinoLogger,
+    private readonly config: ConfigService,
+    private readonly httpService: HttpService,
   ){
-    super(
-      'Optiyol',
-      process.env.INTEGRATION_OPTIYOL_URL || 'https://api.optiyol.com/api/',
-      logger
-    );
     this.logger.setContext(OptiyolServiceClient.name);
   }
 
   @LogMe()
   async sendDispatchOrder(dispatchOrder: DispatchOrderDto): Promise<OptiyolDispatchOrderResult> {
     const authHeaders = {
-      Authorization: `token ${process.env.OPTIYOL_TOKEN}`,
-      'optiyol-company': process.env.OPTIYOL_COMPANY_NAME,
+      Authorization: `token ${this.config.get<string>('optiyol.token')}`,
+      'optiyol-company': this.config.get<string>('optiyol.company'),
     } as Partial<RawAxiosRequestHeaders>;
 
-    return await this.request(
-      'POST',
-      `core/create-unplanned/orders/`,
+    const { data: response}: { data: OptiyolDispatchOrderResult } = await this.httpService.axiosRef.post<OptiyolDispatchOrderResult, any>(
+      'core/create-unplanned/orders/',
       { ...dispatchOrder },
-      {},
-      { ...authHeaders }) as OptiyolDispatchOrderResult;
+      { headers: { ...authHeaders }}
+    );
+
+    return response;
   }
 }

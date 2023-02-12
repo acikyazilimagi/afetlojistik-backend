@@ -18,7 +18,7 @@ export class DispatchOrderDto {
 }
 
 export class DispatchResultDto {
-  result: (OptiyolDispatchOrderResult | Error);
+  result: (OptiyolDispatchOrderResult | unknown);
 }
 export class DispatchDto {
   integrator: string;

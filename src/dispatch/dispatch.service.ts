@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { AxiosError } from 'axios';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 import { LogMe } from 'src/common/decorators/log.decorator';
@@ -21,7 +22,7 @@ export class DispatchService {
     @InjectModel(Dispatch.name)
     private readonly dispatchModel: Model<Dispatch>,
     private readonly integrationService: IntegrationService,
-    private readonly optiyolServiceClient: OptiyolServiceClient,
+    private readonly optiyolServiceClient: OptiyolServiceClient
   ){}
 
   @LogMe()
@@ -35,11 +36,11 @@ export class DispatchService {
         throw new InvalidDispatchException({ data });
       }
 
-      let optiyolResult: (OptiyolDispatchOrderResult | Error );
+      let optiyolResult: (OptiyolDispatchOrderResult | unknown );
       try {
         optiyolResult = await this.optiyolServiceClient.sendDispatchOrder(dispatchOrder);
       } catch(error: unknown) {
-        optiyolResult = (error) as Error
+        optiyolResult = (error as AxiosError).response.data;
       } finally {
         const dispatch: DispatchDto = {
           integrator: integration.integrator,

@@ -20,4 +20,12 @@ export default () => ({
     bypassSms: process.env.DEBUG_BYPASS_SMS,
     bypassCode: process.env.DEBUG_BYPASS_CODE,
   },
+  http: {
+    timeout: process.env.SERVICE_TIMEOUT,
+  },
+  optiyol: {
+    baseUrl: process.env.INTEGRATION_OPTIYOL_URL || '',
+    company: process.env.OPTIYOL_COMPANY_NAME || '',
+    token: process.env.OPTIYOL_TOKEN || '',
+  }
 });

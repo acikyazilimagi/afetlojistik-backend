@@ -7,6 +7,7 @@ import { IntegrationService } from './integration.service';
 
 @ApiTags('Integration')
 @Controller('integration')
+@UseGuards(JwtAuthGuard, AdminAuthGuard)
 export class IntegrationController {
   constructor(
     private readonly integrationService: IntegrationService
@@ -14,14 +15,12 @@ export class IntegrationController {
 
   @Get('')
   @ApiOperation({ summary: 'Get all integrators' })
-  @UseGuards(JwtAuthGuard, AdminAuthGuard)
   getIntegrations(@Headers() tokenHeader: TokenHeader): Promise<any> {
     return this.integrationService.getIntegrations();
   }
 
   @Get(':integrationId')
   @ApiOperation({ summary: 'Get integration by integrationId' })
-  @UseGuards(JwtAuthGuard, AdminAuthGuard)
   getIntegrationById(
     @Headers() tokenHeader: TokenHeader,
     @Param('integrationId') integrationId: string,
