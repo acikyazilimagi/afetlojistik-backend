@@ -11,6 +11,8 @@ import { CategoryModule } from './category/category.module';
 import { LogModule } from './common/logger';
 import { MongoDbModule } from './bootstrap-modules';
 import { NotificationModule } from './notification/notification.module';
+import { IntegrationModule } from './integration/integration.module';
+import { DispatchModule } from './dispatch/dispatch.module';
 import { CoreModule } from './core/core.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
@@ -27,6 +29,8 @@ import configuration from './config/configuration';
     UserModule,
     LocationModule,
     OrganizationModule,
+    IntegrationModule,
+    DispatchModule,
     TripModule,
     CategoryModule,
     NotificationModule,
