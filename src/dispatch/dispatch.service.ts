@@ -7,6 +7,7 @@ import { IntegrationService } from 'src/integration/integration.service';
 import { IntegrationDocument } from 'src/integration/schemas/integration.schema';
 import { Integrators } from 'src/integration/types/integration.types';
 import { DispatchDto, DispatchOrderDto } from './dtos/dispatch.dto';
+import { InvalidDispatchException, InvalidDispatchIntegrationException } from './exceptions/dispatch.exceptions';
 import { DispatchFormatter } from './formatters/dispatch.formatter';
 import { OptiyolServiceClient } from './optiyol.service-client';
 import { Dispatch } from './schema/dispatch.schema';
@@ -31,7 +32,7 @@ export class DispatchService {
       const dispatchOrder: DispatchOrderDto = DispatchFormatter.formatDispatch(integration, data);
 
       if (!dispatchOrder) {
-        // throw new InvalidDispatchException({ data });
+        throw new InvalidDispatchException({ data });
       }
 
       let optiyolResult: (OptiyolDispatchOrderResult | Error );
@@ -49,7 +50,7 @@ export class DispatchService {
         await this.dispatchModel.create(dispatch);
       }
     } else {
-      // throw new InvalidDispatchIntegrationException({ data });
+      throw new InvalidDispatchIntegrationException({ data });
     }
   }
 }
