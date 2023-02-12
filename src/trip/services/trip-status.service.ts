@@ -15,6 +15,9 @@ import {
 } from '../exceptions/trip.exception';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
+import { DispatchableOrder, DispatchableVehicle } from 'src/dispatch/types/dispatch.types';
+import { Vehicle } from '../schemas/vehicle.schema';
+import { DispatchService } from 'src/dispatch/dispatch.service';
 
 @Injectable()
 export class TripStatusService {
@@ -23,7 +26,8 @@ export class TripStatusService {
     @InjectModel(Trip.name)
     private readonly tripModel: Model<Trip>,
     private readonly tripService: TripService,
-    private readonly snsService: AWSSNSService
+    private readonly snsService: AWSSNSService,
+    private readonly dispatchService: DispatchService,
   ) {}
 
   @LogMe()
@@ -53,6 +57,35 @@ export class TripStatusService {
     if (!trip.vehicle?.plate) {
       throw new TripVehiclePlateNotDefinedException();
     }
+
+    const populatedTrip: any = await this.tripService.getPopulatedTripById(tripId, organizationId);
+
+    const dispatchTripData: DispatchableOrder = {
+      OrderId: populatedTrip._id.toString(),
+      OrderType: Trip.name,
+      PlannedDate: populatedTrip.estimatedDepartTime.toISOString(),
+      RequiredVehicleProperties: populatedTrip.vehicle.plate.truck,
+      FromLocationCity: populatedTrip.fromLocation.cityName,
+      FromLocationCounty: populatedTrip.fromLocation.districtName,
+      FromLocationAddress: populatedTrip.fromLocation.address!,
+      ToLocationCity: populatedTrip.toLocation.cityName,
+      ToLocationCounty: populatedTrip.toLocation.districtName,
+      ToLocationAddress: populatedTrip.toLocation.address!,
+      Note: populatedTrip.notes,
+    };
+
+    const dispatchVehicleData: DispatchableVehicle = {
+      OrderType: Vehicle.name,
+      driverNameSurname: populatedTrip.vehicle.name,
+      driverPhone: populatedTrip.vehicle.phone || '',
+      vehicleProperties: populatedTrip.vehicle.plate.truck,
+      vehicleId: populatedTrip.vehicle.plate.truck,
+    };
+
+    await Promise.all([
+      this.dispatchService.dispatchVehicle(dispatchVehicleData),
+      this.dispatchService.dispatchTrip(dispatchTripData),
+    ]);
 
     const statusChangeLog: StatusChangeLog = {
       status,
