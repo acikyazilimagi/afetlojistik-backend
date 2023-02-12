@@ -6,7 +6,7 @@ import { LogMe } from 'src/common/decorators/log.decorator';
 import { IntegrationService } from 'src/integration/integration.service';
 import { IntegrationDocument } from 'src/integration/schemas/integration.schema';
 import { Integrators } from 'src/integration/types/integration.types';
-import { DispatchDto } from './dtos/dispatch.dto';
+import { DispatchDto, DispatchOrderDto, DispatchResultDto } from './dtos/dispatch.dto';
 import { DispatchFormatter } from './formatters/dispatch.formatter';
 import { Dispatch } from './schema/dispatch.schema';
 import { IDispatchable } from './types/dispatch.types';
@@ -55,12 +55,19 @@ export class DispatchService {
   @LogMe()
   async dispatch(data: IDispatchable): Promise<void> {
     const integration: IntegrationDocument = await this.integrationService.getPriorIntegration();
-    const dispatchOrder: DispatchDto = DispatchFormatter.formatDispatch(integration, data);
+    const dispatchOrder: DispatchOrderDto = DispatchFormatter.formatDispatch(integration, data);
 
     if (!dispatchOrder) {
       // throw new InvalidDispatchException({ data });
     }
-    console.log(data);
-    console.log(`${JSON.stringify(dispatchOrder)}`);
+
+    const dispatch: DispatchDto = {
+      integrator: integration.integrator,
+      order: dispatchOrder,
+      orderType: data.OrderType,
+      result: { result: true },
+    };
+
+    await this.dispatchModel.create(dispatch);
   }
 }

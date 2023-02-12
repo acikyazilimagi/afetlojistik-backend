@@ -15,6 +15,7 @@ export interface OptiyolDispach {
 
 export class IDispatchable implements OptiyolDispach {
   OrderId: string;
+  OrderType: string;
   FromLocationName?: string;
   FromLocationAddress?: string;
   FromLocationCounty: string;

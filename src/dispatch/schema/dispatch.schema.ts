@@ -19,6 +19,11 @@ export class Dispatch {
   order: DispatchOrder;
 
   @Prop({
+    type: mSchema.Types.String,
+  })
+  orderType: string;
+
+  @Prop({
     type: mSchema.Types.Mixed,
   })
   result: any;
