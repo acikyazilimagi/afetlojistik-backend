@@ -8,7 +8,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { UserAuthGuard } from '../user/guards/user.guard';
 import { User } from '../user/decorators/user.decorator';
 import { CategoryDocument } from './schemas/category.schema';
 import { UserDocument } from '../user/schemas/user.schema';
@@ -24,7 +23,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 @ApiTags('Category')
 @Controller('category')
 @UseGuards(JwtAuthGuard)
-
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) { }
 

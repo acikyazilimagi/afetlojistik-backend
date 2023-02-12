@@ -19,7 +19,7 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { TokenHeader } from '../common/headers/token.header';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDocument } from './schemas/user.schema';
-import { AdminAuthGuard } from './guards/admin.guard';
+import { AdminAuthGuard } from '../auth/admin.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SuccessResponseDto } from 'src/common/dtos';
 import { VerifyResponseDto } from './dto/response';
@@ -63,7 +63,7 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminAuthGuard)
   @ApiOperation({ summary: 'List users' })
   list() {
     return this.userService.getAll();

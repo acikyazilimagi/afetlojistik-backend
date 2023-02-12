@@ -95,19 +95,6 @@ export class UserService {
   }
 
   @LogMe()
-  async validateToken(token: string): Promise<UserDocument> {
-    const tokenInfo: TokenDocument = await this.tokenModel.findOne({
-      token,
-    });
-
-    if (!tokenInfo) {
-      throw new InvalidTokenException();
-    }
-
-    return this.getUserById(tokenInfo.userId);
-  }
-
-  @LogMe()
   async validateVerificationCode(
     verifyOtpDto: VerifyOtpDto
   ): Promise<ValidateVerificationCodeResponse> {

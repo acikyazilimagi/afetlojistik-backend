@@ -1,5 +1,4 @@
 import { Global, Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User, UserSchema } from './schemas/user.schema';
@@ -11,7 +10,6 @@ import {
   Organization,
   OrganizationSchema,
 } from 'src/organization/schemas/organization.schema';
-import { jwtConstants } from 'src/constants';
 
 @Global()
 @Module({
@@ -23,10 +21,10 @@ import { jwtConstants } from 'src/constants';
       { name: Organization.name, schema: OrganizationSchema },
     ]),
     NotificationModule,
-    JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '1d' },
-    }),
+    // JwtModule.register({
+    //   secret: jwtConstants.secret,
+    //   signOptions: { expiresIn: '1d' },
+    // }),
   ],
   controllers: [UserController],
   providers: [UserService],

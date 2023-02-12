@@ -12,7 +12,6 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { City } from './schemas/city.schema';
 import { District } from './schemas/district.schema';
 import { TokenHeader } from '../common/headers/token.header';
-import { UserAuthGuard } from '../user/guards/user.guard';
 import {
   GetAllCitiesResponseDto,
   GetAllDistrictsResponseDto,

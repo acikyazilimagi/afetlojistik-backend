@@ -14,7 +14,6 @@ import {
 import { TripService } from '../services/trip.service';
 import { CreateTripDto } from '../dto/create-trip.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UserAuthGuard } from '../../user/guards/user.guard';
 import { TokenHeader } from '../../common/headers/token.header';
 import { User } from '../../user/decorators/user.decorator';
 import { UserDocument } from '../../user/schemas/user.schema';
