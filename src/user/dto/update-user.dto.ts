@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateUserDto {
@@ -37,4 +37,22 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   email: string;
+
+  @ApiProperty({
+    type: Boolean,
+    description: 'Admin role of user',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isAdmin?: boolean;
+
+  @ApiProperty({
+    type: Boolean,
+    description: 'Activeness of user',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  active?: boolean;
 }

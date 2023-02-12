@@ -21,6 +21,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Organization } from 'src/organization/schemas/organization.schema';
 import ResendSmsCountExceededException from './exceptions/resend-sms-count-exceeded.exception';
+import UserCanNotBeActivatedException from './exceptions/user-can-not-be-activated.exception';
+import PhoneNumberAlreadyExistsException from './exceptions/phone-number-already-exists.exception';
 
 @Injectable()
 export class UserService {
@@ -105,8 +107,7 @@ export class UserService {
       throw new UserNotFoundException();
     }
 
-    const user = await this.userModel.findOne({
-      active: true,
+    let user = await this.userModel.findOne({
       phone: verifyOtpDto.phone,
     });
 
@@ -119,6 +120,18 @@ export class UserService {
     const access_token = this.jwtService.sign(payload);
 
     await authSMSDocument?.delete();
+
+    if (user.status !== UserStatuses.VERIFIED) {
+      user = await this.userModel.findOneAndUpdate(
+        { _id: user._id },
+        {
+          $set: {
+            status: UserStatuses.VERIFIED,
+          },
+        },
+        { new: true }
+      );
+    }
 
     return {
       user,
@@ -189,7 +202,11 @@ export class UserService {
     userId: string,
     updateUserDto: UpdateUserDto
   ): Promise<UserDocument> {
-    await this.getUserById(userId);
+    const user = await this.getUserById(userId);
+
+    if (user.status === UserStatuses.PENDING && updateUserDto.active) {
+      throw new UserCanNotBeActivatedException();
+    }
 
     return (await this.userModel.findOneAndUpdate(
       {
@@ -216,6 +233,14 @@ export class UserService {
     const organization = await this.organizationModel.findOne();
 
     const { phone } = createUserDto;
+
+    const userWithPhoneNumber = await this.userModel.findOne({
+      phone: createUserDto.phone,
+    });
+
+    if (userWithPhoneNumber) {
+      throw new PhoneNumberAlreadyExistsException();
+    }
 
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
 

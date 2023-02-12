@@ -18,10 +18,11 @@ import {
   GetDistrictsOfCityResponseDto,
 } from './dto/response';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
 
 @ApiTags('Location')
 @Controller('location')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ActiveUserAuthGuard)
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
 
