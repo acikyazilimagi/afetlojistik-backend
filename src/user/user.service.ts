@@ -48,6 +48,7 @@ export class UserService {
     @InjectModel(Organization.name)
     private readonly organizationModel: Model<Organization>
   ) {}
+  @LogMe()
   async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
     const { phone } = loginUserDto;
 
@@ -259,14 +260,14 @@ export class UserService {
     )) as unknown as UserDocument;
   }
 
-  validateUser(createUserDto: CreateUserDto) {
+  validateUser() {
     return;
   }
 
   @LogMe()
   async create(createUserDto: CreateUserDto): Promise<UserDocument> {
     // TODO: implement validation rules
-    this.validateUser(createUserDto);
+    // this.validateUser(createUserDto);
 
     const organization = await this.organizationModel.findOne();
 
@@ -286,12 +287,10 @@ export class UserService {
       }).save();
     }
 
-    const createdUser = (await new this.userModel({
+    return (await new this.userModel({
       ...createUserDto,
       status: UserStatuses.PENDING,
       organizationId: organization.id,
     }).save()) as unknown as UserDocument;
-
-    return createdUser;
   }
 }
