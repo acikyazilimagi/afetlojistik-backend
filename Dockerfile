@@ -16,7 +16,7 @@ RUN npm install --only=production
 RUN npm run build
 
 # Expose port
-EXPOSE 3000
+EXPOSE 80
 
 
 FROM node:18-alpine As production
