@@ -62,8 +62,52 @@
           "name": "AWS_SECRET_KEY"
         },
         {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:DEBUG_BYPASS_SMS::",
+          "name": "DEBUG_BYPASS_SMS"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:DOCDB_HOST::",
+          "name": "DOCDB_HOST"
+        },
+        {
           "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:DEBUG_BYPASS_CODE::",
           "name": "DEBUG_BYPASS_CODE"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:DOCDB_NAME::",
+          "name": "DOCDB_NAME"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:DOCDB_PASS::",
+          "name": "DOCDB_PASS"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:DOCDB_PORT::",
+          "name": "DOCDB_PORT"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:DOCDB_USER::",
+          "name": "DOCDB_USER"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:LOG_LEVEL::",
+          "name": "LOG_LEVEL"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:MONGO_URL::",
+          "name": "MONGO_URL"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:PORT::",
+          "name": "PORT"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:SERVICE_TIMEOUT::",
+          "name": "SERVICE_TIMEOUT"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:SWAGGER_ENABLED::",
+          "name": "SWAGGER_ENABLED"
         }
       ],
       "dockerSecurityOptions": null,
@@ -98,8 +142,8 @@
     "EC2",
     "FARGATE"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:eu-central-1:366354050833:task-definition/afetlojistik-api-TD:1",
-  "family": "afetlojistik-api-TD",
+  "taskDefinitionArn": "arn:aws:ecs:eu-central-1:366354050833:task-definition/afetlojistik-api:1",
+  "family": "afetlojistik-api",
   "requiresAttributes": [
     {
       "targetId": null,
