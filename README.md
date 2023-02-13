@@ -15,6 +15,12 @@ Swagger dokümantasyonu: [Swagger API](http://54.247.166.128:3000/api).
 - Jest
 - Swagger
 
+## Integrations
+- Optiyol - rota planlama ve rota optimizasyonu   -   (https://www.optiyol.com/tr/)
+  - Optiyol Web Panel                             -   (https://route.optiyol.com/)
+  - Optiyol Mobil Client                          -   (Android : https://play.google.com/store/apps/details?id=com.optiyol.prime&hl=en&gl=US&pli=1
+                                                       IOS     : https://apps.apple.com/tr/app/optiyol-driver/id1603418648?l=tr )
+
 ### Local development
 1. `.env` dosyası oluşturun ve [config](https://github.com/acikkaynak/afetlojistik-backend/blob/main/src/config/configuration.ts) dosyasındaki keyleri, değerleriyle ekleyin.
 2. `npm ci` komutuyla paketleri indirin.
@@ -26,6 +32,10 @@ Swagger dokümantasyonu: [Swagger API](http://54.247.166.128:3000/api).
 8. POST /user/verify ile telefon numaranıza gelen sms kodunu veya bypass ettiyseniz bypass kodunu girin ve dönen token'ı kopyalayın.
 9. Swagger sayfasında sağ üstteki "Authorize" alanına token'ınızı kaydedin. Diğer endpointlere gönderilen istekte bu tokenı kullanacaktır.
 
+### Integration 
+Rota planlama ve oluşturulan tedarik verilerinin takibi amacıyla Optiyol'un rota planlama çözümünü kullanıyoruz.
+Bu çözüm `.env` içerisinde bulunan bazı alanları zorunlu kılmaktadır.Bu alanlar TMS verilerinin Optiyol sistemine doğru bir şekilde yollanabilmesi için gereklidir.
+Entegrasyon içerisinde TMS tarafında oluşturulan yardım verilerini (Sürücü bilgisi, Yardım bilgisi) şeklinde 2 ayrı talep ile entegratör olan Optiyol'a gönderilmesi amaçlanmıştır.
 
 ## Reference
 [Nest](https://github.com/nestjs/nest) is an [MIT licensed](LICENSE) open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
