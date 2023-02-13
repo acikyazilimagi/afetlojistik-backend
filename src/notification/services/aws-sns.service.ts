@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { SNS, SharedIniFileCredentials, config } from 'aws-sdk';
+import { SNS, Credentials, config } from 'aws-sdk';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
@@ -10,8 +10,9 @@ export class AWSSNSService {
     private readonly logger: PinoLogger,
     private configService: ConfigService
   ) {
-    const credentials = new SharedIniFileCredentials({
-      profile: this.configService.get('aws.profile'),
+    const credentials = new Credentials({
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_KEY,
     });
     config.credentials = credentials;
     // Set the region
