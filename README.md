@@ -4,7 +4,7 @@ Bu projenin temel amacı, olağan üstü hal ve doğal afet durumlarında toplan
 ürününün geliştirilmesidir. 
 
 ## API Documentation
-Swagger dokümantasyonu: [Swagger API](1).
+Swagger dokümantasyonu: [Swagger API](http://54.247.166.128:3000/api).
 
 ## Technologies
 - Nest.js
@@ -16,7 +16,7 @@ Swagger dokümantasyonu: [Swagger API](1).
 - Swagger
 
 ### Local development
-1. `.env` dosyası oluşturun ve https://github.com/acikkaynak/afetlojistik-backend/blob/main/src/config/configuration.ts dosyasındaki keyleri, değerleriyle ekleyin.
+1. `.env` dosyası oluşturun ve [config](https://github.com/acikkaynak/afetlojistik-backend/blob/main/src/config/configuration.ts) dosyasındaki keyleri, değerleriyle ekleyin.
 2. `npm ci` komutuyla paketleri indirin.
 3. `npm run start` komutuyla servisi çalıştırın.
 4. Servis http://localhost:3000'de ayakta olmalı. (Örneğin: http://localhost:3000/health).
@@ -32,5 +32,3 @@ NOT: Bu adımda ve sms gönderen diğer adımlarda, amazon hesabınız yoksa, sm
 - Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
 - Website - [https://nestjs.com](https://nestjs.com/)
 - Twitter - [@nestframework](https://twitter.com/nestframework)
-
-[1]: http://54.247.166.128:3000/api
