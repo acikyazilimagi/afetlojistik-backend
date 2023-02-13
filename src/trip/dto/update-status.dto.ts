@@ -1,6 +1,6 @@
 import { IsNumber, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TripsStatuses } from '../types/trip.type';
+import { TripsStatuses } from '../types';
 
 export class UpdateStatusDto {
   @IsOptional()

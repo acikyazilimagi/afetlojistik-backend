@@ -1,6 +1,6 @@
 import { IsArray, IsOptional, IsString, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TripsStatuses } from '../types/trip.type';
+import { TripsStatuses, RegexEnum } from '../types';
 
 export class FilterTripDto {
   @IsOptional()
@@ -25,6 +25,7 @@ export class FilterTripDto {
   })
   @IsOptional()
   @IsString()
+  @Matches(RegexEnum.Turkish_Vehicle_Plate)
   truckPlateNumber: string;
 
   @ApiProperty({
@@ -33,6 +34,7 @@ export class FilterTripDto {
   })
   @IsOptional()
   @IsString()
+  @Matches(RegexEnum.Turkish_Vehicle_Plate)
   trailerPlateNumber: string;
 
   @IsOptional()

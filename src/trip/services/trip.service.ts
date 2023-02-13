@@ -5,7 +5,7 @@ import { LogMe } from '../../common/decorators/log.decorator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
-import { TripsStatuses } from '../types/trip.type';
+import { TripsStatuses } from '../types';
 import {
   TripInvalidLocationException,
   TripInvalidOrganizationExcetion,
