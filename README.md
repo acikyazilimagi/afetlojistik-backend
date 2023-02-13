@@ -20,8 +20,6 @@ Swagger dokümantasyonu: [Swagger API](http://54.247.166.128:3000/api).
   - Optiyol Web Panel                             -   (https://route.optiyol.com/)
   - Optiyol Mobil Client                          -   (Android : https://play.google.com/store/apps/details?id=com.optiyol.prime&hl=en&gl=US&pli=1
                                                        IOS     : https://apps.apple.com/tr/app/optiyol-driver/id1603418648?l=tr )
-
-
 ### Local development
 1. `.env` dosyası oluşturun ve [config](https://github.com/acikkaynak/afetlojistik-backend/blob/main/src/config/configuration.ts) dosyasındaki keyleri, değerleriyle ekleyin.
 2. `npm ci` komutuyla paketleri indirin.
