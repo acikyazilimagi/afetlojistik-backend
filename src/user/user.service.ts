@@ -113,7 +113,7 @@ export class UserService {
 
     if (!authSMSDocument) throw new InvalidVerificationCodeException();
 
-    const verificationCode = authSMSDocument.verificationCode.toString();
+    const verificationCode = authSMSDocument.verificationCode;
     const bypassCode = this.configService.get('debug.bypassCode');
 
     const bcryptSecret = this.configService.get('bcrypt.secret');
