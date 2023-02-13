@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { SNS, SharedIniFileCredentials, config } from 'aws-sdk';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class AWSSNSService {
-  constructor(private configService: ConfigService) {
+  constructor(
+    private readonly logger: PinoLogger,
+    private configService: ConfigService
+  ) {
     const credentials = new SharedIniFileCredentials({
       profile: this.configService.get('aws.profile'),
     });
@@ -30,6 +34,9 @@ export class AWSSNSService {
     if (publishResult.$response.error === null) {
       return true;
     }
+    this.logger.error(
+      `[AWSSNSService] sendSMS: ${publishResult.$response.error}`
+    );
     return false;
   }
 }

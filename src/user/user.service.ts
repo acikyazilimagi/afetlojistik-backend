@@ -20,9 +20,9 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Organization } from 'src/organization/schemas/organization.schema';
-import ResendSmsCountExceededException from './exceptions/resend-sms-count-exceeded.exception';
 import UserCanNotBeActivatedException from './exceptions/user-can-not-be-activated.exception';
 import PhoneNumberAlreadyExistsException from './exceptions/phone-number-already-exists.exception';
+import InvalidVerificationCodeException from './exceptions/invalid-verification-code.exception';
 
 @Injectable()
 export class UserService {
@@ -38,47 +38,53 @@ export class UserService {
     @InjectModel(Organization.name)
     private readonly organizationModel: Model<Organization>
   ) {}
+
   @LogMe()
   async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
     const { phone } = loginUserDto;
 
-    const user = await this.userModel.findOne({
-      phone,
-    });
+    const user = await this.userModel.findOne({ phone });
+    if (!user) return { success: true };
 
-    if (!user) {
-      throw new UserNotFoundException();
-    }
+    const {
+      success: isSmsSend,
+      verificationCode,
+      message,
+    } = await this.sendVerificationCode(phone);
 
+    if (!isSmsSend) return { success: false };
+
+    const authSmsDocument = await this.authSMSModel.findOne({ phone }).lean();
+    if (authSmsDocument?.smsCount >= 5) return { success: true };
+
+    await this.authSMSModel
+      .updateOne(
+        { phone },
+        {
+          $set: { verificationCode, message },
+          $inc: { smsCount: 1 },
+        },
+        { upsert: true }
+      )
+      .lean();
+
+    return { success: true };
+  }
+
+  @LogMe()
+  async sendVerificationCode(phone: string): Promise<{
+    success: boolean;
+    verificationCode: number;
+    message: string;
+  }> {
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
-
     const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
-
     const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
 
-    if (isSmsSent) {
-      await this.authSMSModel.deleteOne({
-        phone,
-      });
-      await new this.authSMSModel({
-        ...loginUserDto,
-        phone: phone,
-        message: messageBody,
-        verificationCode,
-      }).save();
-
-      await this.authSMSModel.updateOne(
-        {
-          phone,
-        },
-        {
-          $inc: { smsCount: 1 },
-        }
-      );
-    }
-
     return {
-      success: true,
+      success: isSmsSent,
+      verificationCode,
+      message: messageBody,
     };
   }
 
@@ -104,19 +110,13 @@ export class UserService {
       !authSMSDocument &&
       verifyOtpDto.code !== this.configService.get('debug.bypassCode')
     ) {
-      throw new UserNotFoundException();
+      throw new InvalidVerificationCodeException();
     }
 
-    let user = await this.userModel.findOne({
-      phone: verifyOtpDto.phone,
-    });
-
-    if (!user) {
-      throw new UserNotFoundException();
-    }
+    let user = await this.userModel.findOne({ phone: verifyOtpDto.phone });
+    if (!user) throw new InvalidVerificationCodeException();
 
     const payload = { id: user.id, organizationId: user.organizationId };
-
     const access_token = this.jwtService.sign(payload);
 
     await authSMSDocument?.delete();
@@ -149,32 +149,28 @@ export class UserService {
       phone,
     });
 
-    if (!user) {
-      throw new UserNotFoundException();
-    }
-
+    if (!user) return { success: true };
     const authSmsDocument = await this.authSMSModel.findOne({ phone });
 
-    if (authSmsDocument.smsCount >= 5) {
-      throw new ResendSmsCountExceededException();
-    }
+    if (authSmsDocument.smsCount >= 5) return { success: true };
 
-    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+    const {
+      success: isSmsSent,
+      verificationCode,
+      message,
+    } = await this.sendVerificationCode(phone);
 
-    const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
+    if (!isSmsSent) return { success: true };
 
-    const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
-
-    if (isSmsSent) {
-      await this.authSMSModel.updateOne(
-        {
-          phone,
-        },
-        {
-          $inc: { smsCount: 1 },
-        }
-      );
-    }
+    await this.authSMSModel.updateOne(
+      {
+        phone,
+      },
+      {
+        $set: { verificationCode, message },
+        $inc: { smsCount: 1 },
+      }
+    );
 
     return {
       success: true,
