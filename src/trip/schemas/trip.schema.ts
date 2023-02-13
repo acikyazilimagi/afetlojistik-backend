@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as mSchema } from 'mongoose';
-import { TripsStatuses } from '../types/trip.type';
+import { TripsStatuses } from '../types';
 import { LocationSchema, Location } from './location.schema';
 import { Product, ProductSchema } from './product.schema';
 import {

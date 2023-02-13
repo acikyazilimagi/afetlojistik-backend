@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as mSchema } from 'mongoose';
-import { TripsStatuses } from '../types/trip.type';
+import { TripsStatuses } from '../types';
 
 export type StatusChangeLogDocument = StatusChangeLog & Document;
 
