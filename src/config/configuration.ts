@@ -14,7 +14,8 @@ export default () => ({
   },
   aws: {
     region: process.env.AWS_REGION,
-    profile: process.env.AWS_PROFILE,
+    accessKey: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
   },
   swagger: {
     enabled: process.env.SWAGGER_ENABLED ?? 'true',
