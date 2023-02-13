@@ -25,7 +25,7 @@ async function bootstrap() {
   return app;
 }
 
-// eslint-disable-next-line no-console
 bootstrap().then((app) =>
+  // eslint-disable-next-line no-console
   console.log('Server is running on port:', app.get(ConfigService).get('port'))
 );

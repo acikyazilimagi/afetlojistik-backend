@@ -15,7 +15,10 @@ import {
 } from '../exceptions/trip.exception';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
-import { DispatchableOrder, DispatchableVehicle } from 'src/dispatch/types/dispatch.types';
+import {
+  DispatchableOrder,
+  DispatchableVehicle,
+} from 'src/dispatch/types/dispatch.types';
 import { Vehicle } from '../schemas/vehicle.schema';
 import { DispatchService } from 'src/dispatch/dispatch.service';
 
@@ -27,7 +30,7 @@ export class TripStatusService {
     private readonly tripModel: Model<Trip>,
     private readonly tripService: TripService,
     private readonly snsService: AWSSNSService,
-    private readonly dispatchService: DispatchService,
+    private readonly dispatchService: DispatchService
   ) {}
 
   @LogMe()
@@ -58,7 +61,10 @@ export class TripStatusService {
       throw new TripVehiclePlateNotDefinedException();
     }
 
-    const populatedTrip: any = await this.tripService.getPopulatedTripById(tripId, organizationId);
+    const populatedTrip: any = await this.tripService.getPopulatedTripById(
+      tripId,
+      organizationId
+    );
 
     const dispatchTripData: DispatchableOrder = {
       OrderId: populatedTrip._id.toString(),

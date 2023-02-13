@@ -12,7 +12,7 @@ export class DispatchOrderBody {
   FromLocationName?: string;
 
   @Prop({ type: mSchema.Types.String, required: false })
-  FromLocationAddress?: (string | undefined);
+  FromLocationAddress?: string | undefined;
 
   @Prop({ type: mSchema.Types.String })
   FromLocationCounty: string;
@@ -39,4 +39,5 @@ export class DispatchOrderBody {
   RequiredVehicleProperties: string;
 }
 
-export const DispatchOrderBodySchema = SchemaFactory.createForClass(DispatchOrderBody);
+export const DispatchOrderBodySchema =
+  SchemaFactory.createForClass(DispatchOrderBody);

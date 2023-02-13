@@ -2,7 +2,7 @@ export type OptiyolDispatchOrderResult = {
   info: string;
   created_order_count: number;
   succes: boolean;
-}
+};
 
 export type OptiyolDispatchVehicleResult = {
   id: number;
@@ -10,4 +10,4 @@ export type OptiyolDispatchVehicleResult = {
   vehicleProperties: string;
   driverNameSurname: string;
   driverPhone: string;
-}
+};

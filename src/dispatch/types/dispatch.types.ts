@@ -1,7 +1,7 @@
 export interface OptiyolOrderDispatch {
   OrderId: string;
   FromLocationName?: string;
-  FromLocationAddress?: (string | undefined);
+  FromLocationAddress?: string | undefined;
   FromLocationCounty: string;
   FromLocationCity: string;
   ToLocationName?: string;
@@ -37,7 +37,7 @@ export interface OptiyolVehicleDispatch {
 }
 
 export class DispatchableVehicle implements OptiyolVehicleDispatch {
-  OrderType: string
+  OrderType: string;
   vehicleId: string;
   vehicleProperties: string;
   driverNameSurname: string;

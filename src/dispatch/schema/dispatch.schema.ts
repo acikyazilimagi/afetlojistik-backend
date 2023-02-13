@@ -1,7 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as mSchema } from 'mongoose';
 import { DispatchOrder, DispatchOrderSchema } from './dispatch-order.schema';
-import { DispatchVehicle, DispatchVehicleSchema } from './dispatch-vehicle.schema';
+import {
+  DispatchVehicle,
+  DispatchVehicleSchema,
+} from './dispatch-vehicle.schema';
 
 export type DispatchDocument = Dispatch & Document;
 
@@ -15,12 +18,12 @@ export class Dispatch {
   integrator: string;
 
   @Prop({
-    type: DispatchOrderSchema
+    type: DispatchOrderSchema,
   })
   order?: DispatchOrder;
 
   @Prop({
-    type: DispatchVehicleSchema
+    type: DispatchVehicleSchema,
   })
   vehicle?: DispatchVehicle;
 

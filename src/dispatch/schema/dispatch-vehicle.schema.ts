@@ -21,4 +21,5 @@ export class DispatchVehicle {
   driverPhone: string;
 }
 
-export const DispatchVehicleSchema = SchemaFactory.createForClass(DispatchVehicle);
+export const DispatchVehicleSchema =
+  SchemaFactory.createForClass(DispatchVehicle);

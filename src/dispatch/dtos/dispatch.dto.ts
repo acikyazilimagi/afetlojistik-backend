@@ -1,11 +1,14 @@
-import { OptiyolDispatchOrderResult, OptiyolDispatchVehicleResult } from "../types/optiyol.types";
+import {
+  OptiyolDispatchOrderResult,
+  OptiyolDispatchVehicleResult,
+} from '../types/optiyol.types';
 
 export class DispatchOrderDto {
   OrdersPlannedDate: string;
   OrdersPlannedTime: string;
   Orders: {
     FromLocationName?: string;
-    FromLocationAddress?: (string | undefined);
+    FromLocationAddress?: string | undefined;
     FromLocationCounty: string;
     FromLocationCity: string;
     ToLocationName?: string;
@@ -25,7 +28,7 @@ export class DispatchVehicleDto {
 }
 
 export class DispatchResultDto {
-  result: (OptiyolDispatchOrderResult |  OptiyolDispatchVehicleResult | unknown);
+  result: OptiyolDispatchOrderResult | OptiyolDispatchVehicleResult | unknown;
 }
 export class DispatchDto {
   integrator: string;

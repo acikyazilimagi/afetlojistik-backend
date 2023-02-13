@@ -22,7 +22,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         timeout: parseInt(configService.get<string>('http.timeout'), 10),
         baseURL: configService.get<string>('optiyol.baseUrl'),
       }),
-    })
+    }),
   ],
   exports: [DispatchService],
   providers: [DispatchService, OptiyolServiceClient],
