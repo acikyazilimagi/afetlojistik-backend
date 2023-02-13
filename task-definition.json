@@ -34,7 +34,7 @@
       "workingDirectory": null,
       "secrets": [
         {
-          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:JWT_SECRET:::JWT_SECRET::",
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:afetlojistik-api-prod-env-SSQRJQ:JWT_SECRET::",
           "name": "JWT_SECRET"
         },
         {
