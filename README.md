@@ -21,10 +21,10 @@ Swagger dokümantasyonu: [Swagger API](http://54.247.166.128:3000/api).
 3. `npm run start` komutuyla servisi çalıştırın.
 4. Servis http://localhost:3000'de ayakta olmalı. (Örneğin: http://localhost:3000/health).
 5. POST /user ile kullanıcınızı oluşturun. Veritabanı üzerinden kullanıcınızın isAdmin ve active değerlerini "true" olarak güncelleyin.
-NOT: Bu adımda ve sms gönderen diğer adımlarda, amazon hesabınız yoksa, sms gönderme kısmını comment out ile kapatabilirsiniz.
-6. POST /user/login ile giriş yapın.
-7. POST /user/verify ile telefon numaranıza gelen sms kodunu veya bypass ettiyseniz bypass kodunu girin ve dönen token'ı kopyalayın.
-8. Swagger sayfasında sağ üstteki "Authorize" alanına token'ınızı kaydedin. Diğer endpointlere gönderilen istekte bu tokenı kullanacaktır.
+- NOT: Bu adımda ve sms gönderen diğer adımlarda, amazon hesabınız yoksa, sms gönderme kısmını comment out ile kapatabilirsiniz.
+7. POST /user/login ile giriş yapın.
+8. POST /user/verify ile telefon numaranıza gelen sms kodunu veya bypass ettiyseniz bypass kodunu girin ve dönen token'ı kopyalayın.
+9. Swagger sayfasında sağ üstteki "Authorize" alanına token'ınızı kaydedin. Diğer endpointlere gönderilen istekte bu tokenı kullanacaktır.
 
 
 ## Reference
