@@ -14,15 +14,9 @@ export class AuthSMS {
   phone: string;
 
   @Prop({
-    type: mSchema.Types.Number,
-  })
-  verificationCode: number;
-
-  @Prop({
     type: mSchema.Types.String,
-    required: true,
   })
-  message: string;
+  verificationCode: string;
 
   @Prop({
     type: mSchema.Types.Number,
