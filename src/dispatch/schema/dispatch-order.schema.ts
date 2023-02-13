@@ -1,6 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as mSchema } from 'mongoose';
-import { DispatchOrderBody, DispatchOrderBodySchema } from './dispatch-order-body.schema';
+import {
+  DispatchOrderBody,
+  DispatchOrderBodySchema,
+} from './dispatch-order-body.schema';
 
 export type DispatchOrderDocument = DispatchOrder & Document;
 

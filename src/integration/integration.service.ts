@@ -11,8 +11,8 @@ export class IntegrationService {
   constructor(
     private readonly logger: PinoLogger,
     @InjectModel(Integration.name)
-    private readonly integrationModel: Model<Integration>,
-  ){
+    private readonly integrationModel: Model<Integration>
+  ) {
     logger.setContext(IntegrationService.name);
   }
 
@@ -22,8 +22,11 @@ export class IntegrationService {
   }
 
   @LogMe()
-  async getIntegrationById(integrationId: string): Promise<IntegrationDocument> {
-    const integration: IntegrationDocument | null = await this.integrationModel.findById(integrationId);
+  async getIntegrationById(
+    integrationId: string
+  ): Promise<IntegrationDocument> {
+    const integration: IntegrationDocument | null =
+      await this.integrationModel.findById(integrationId);
 
     if (!integration) throw new IntegrationNotFoundException({ integrationId });
 
@@ -32,7 +35,8 @@ export class IntegrationService {
 
   @LogMe()
   async getPriorIntegration(): Promise<IntegrationDocument> {
-    const integration: IntegrationDocument | null = await this.integrationModel.findOne({ priority: true });
+    const integration: IntegrationDocument | null =
+      await this.integrationModel.findOne({ priority: true });
 
     if (!integration) throw new IntegrationNotFoundException({});
 
@@ -40,16 +44,22 @@ export class IntegrationService {
   }
 
   @LogMe()
-  async setPriorIntegration(integrationId: string): Promise<IntegrationDocument> {
+  async setPriorIntegration(
+    integrationId: string
+  ): Promise<IntegrationDocument> {
     let integration: IntegrationDocument | null = null;
 
     await this.integrationModel.updateMany({
-      $set: { priority: false }
+      $set: { priority: false },
     });
 
-    integration = await this.integrationModel.findByIdAndUpdate(integrationId, {
-      $set: { priority: true }
-    }, { new: true });
+    integration = await this.integrationModel.findByIdAndUpdate(
+      integrationId,
+      {
+        $set: { priority: true },
+      },
+      { new: true }
+    );
 
     if (!integration) throw new IntegrationNotFoundException({});
 

@@ -37,7 +37,7 @@ export class TripService {
     private readonly organizationService: OrganizationService,
     private readonly tripFormatter: TripFormatter,
     private readonly userService: UserService,
-    private readonly snsService: AWSSNSService,
+    private readonly snsService: AWSSNSService
   ) {}
 
   @LogMe()
@@ -144,12 +144,15 @@ export class TripService {
     if (!trip) throw new TripNotFoundException();
 
     const [populatedTrip] = await this.tripsPopulate([trip]);
-    
+
     return populatedTrip;
   }
 
   @LogMe()
-  async getTripById(tripId: string, organizationId: string): Promise<TripDocument> {
+  async getTripById(
+    tripId: string,
+    organizationId: string
+  ): Promise<TripDocument> {
     const trip: TripDocument = await this.tripModel
       .findOne({
         _id: tripId,

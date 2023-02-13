@@ -7,7 +7,7 @@ export class IntegrationNotFoundException extends TMSException {
       'Entegrasyon bulunamadı',
       HttpStatus.NOT_FOUND,
       HttpStatus.NOT_FOUND,
-      data, 
+      data
     );
   }
 }

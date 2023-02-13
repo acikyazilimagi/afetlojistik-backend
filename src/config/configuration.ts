@@ -21,11 +21,11 @@ export default () => ({
     bypassCode: process.env.DEBUG_BYPASS_CODE,
   },
   http: {
-    timeout: process.env.SERVICE_TIMEOUT || "10000",
+    timeout: process.env.SERVICE_TIMEOUT || '10000',
   },
   optiyol: {
     baseUrl: process.env.INTEGRATION_OPTIYOL_URL || '',
     company: process.env.OPTIYOL_COMPANY_NAME || '',
     token: process.env.OPTIYOL_TOKEN || '',
-  }
+  },
 });

@@ -11,11 +11,11 @@ import { Integration, IntegrationSchema } from './schemas/integration.schema';
       {
         name: Integration.name,
         schema: IntegrationSchema,
-      }
+      },
     ]),
   ],
   exports: [IntegrationService],
-  controllers:[IntegrationController],
+  controllers: [IntegrationController],
   providers: [IntegrationService],
 })
 export class IntegrationModule {}

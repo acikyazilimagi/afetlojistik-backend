@@ -1,10 +1,15 @@
-import { IntegrationDocument } from "src/integration/schemas/integration.schema";
-import { DispatchOrderDto, DispatchVehicleDto } from "../dtos/dispatch.dto";
-import { DispatchableOrder, DispatchableVehicle } from "../types/dispatch.types";
+import { DispatchOrderDto, DispatchVehicleDto } from '../dtos/dispatch.dto';
+import {
+  DispatchableOrder,
+  DispatchableVehicle,
+} from '../types/dispatch.types';
 
 export class DispatchFormatter {
   static formatDispatchOrder(data: DispatchableOrder): DispatchOrderDto {
-    const plannedDate = new Date(data.PlannedDate).toLocaleDateString('tr').split('T')[0].replace('/','.');
+    const plannedDate = new Date(data.PlannedDate)
+      .toLocaleDateString('tr')
+      .split('T')[0]
+      .replace('/', '.');
     const plannedTime = new Date(data.PlannedDate).toLocaleTimeString('tr');
     const order: DispatchableOrder = data;
     delete order['PlannedDate'];
@@ -12,9 +17,11 @@ export class DispatchFormatter {
     return {
       OrdersPlannedDate: plannedDate,
       OrdersPlannedTime: plannedTime,
-      Orders: [{
-        ...order,
-      }],
+      Orders: [
+        {
+          ...order,
+        },
+      ],
     } as DispatchOrderDto;
   }
 
