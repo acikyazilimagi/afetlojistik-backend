@@ -5,7 +5,6 @@ import { DispatchService } from './dispatch.service';
 import { OptiyolServiceClient } from './optiyol.service-client';
 import { Dispatch, DispatchSchema } from './schema/dispatch.schema';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { DispatchController } from './dispatch.controller';
 
 @Global()
 @Module({
