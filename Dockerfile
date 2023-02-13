@@ -18,7 +18,4 @@ RUN npm run build
 # Expose port
 EXPOSE 80
 
-
-FROM node:18-alpine As production
-
-CMD ["node", "/dist/main"]
+CMD ["node", "/application/dist/main"]
