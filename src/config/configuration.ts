@@ -9,6 +9,9 @@ export default () => ({
   jwt: {
     secret: process.env.JWT_SECRET,
   },
+  bcrypt: {
+    secret: process.env.BCRYPT_SECRET,
+  },
   aws: {
     region: process.env.AWS_REGION,
     profile: process.env.AWS_PROFILE,

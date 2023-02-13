@@ -23,9 +23,11 @@ import { Organization } from 'src/organization/schemas/organization.schema';
 import UserCanNotBeActivatedException from './exceptions/user-can-not-be-activated.exception';
 import PhoneNumberAlreadyExistsException from './exceptions/phone-number-already-exists.exception';
 import InvalidVerificationCodeException from './exceptions/invalid-verification-code.exception';
+import { hash, compare } from 'bcrypt';
 
 @Injectable()
 export class UserService {
+  saltRounds = 10;
   constructor(
     private readonly logger: PinoLogger,
     private readonly snsService: AWSSNSService,
@@ -78,12 +80,17 @@ export class UserService {
     message: string;
   }> {
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
+    const bcryptSecret = this.configService.get('bcrypt.secret');
+    const hashedVerificationCode = await hash(
+      verificationCode.toString() + bcryptSecret,
+      this.saltRounds
+    );
     const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
     const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
 
     return {
       success: isSmsSent,
-      verificationCode,
+      verificationCode: hashedVerificationCode,
       message: messageBody,
     };
   }
@@ -98,22 +105,27 @@ export class UserService {
   }
 
   @LogMe()
-  async validateVerificationCode(
-    verifyOtpDto: VerifyOtpDto
-  ): Promise<ValidateVerificationCodeResponse> {
-    const authSMSDocument = await this.authSMSModel.findOne({
-      phone: verifyOtpDto.phone,
-      verificationCode: verifyOtpDto.code,
-    });
+  async validateVerificationCode({
+    phone,
+    code: enteredCode,
+  }: VerifyOtpDto): Promise<ValidateVerificationCodeResponse> {
+    const authSMSDocument = await this.authSMSModel.findOne({ phone });
 
-    if (
-      !authSMSDocument &&
-      verifyOtpDto.code !== this.configService.get('debug.bypassCode')
-    ) {
+    if (!authSMSDocument) throw new InvalidVerificationCodeException();
+
+    const verificationCode = authSMSDocument.verificationCode;
+    const bypassCode = this.configService.get('debug.bypassCode');
+
+    const bcryptSecret = this.configService.get('bcrypt.secret');
+    const isCodeValid = await compare(
+      enteredCode + bcryptSecret,
+      verificationCode
+    );
+
+    if (!isCodeValid && enteredCode !== bypassCode)
       throw new InvalidVerificationCodeException();
-    }
 
-    let user = await this.userModel.findOne({ phone: verifyOtpDto.phone });
+    let user = await this.userModel.findOne({ phone });
     if (!user) throw new InvalidVerificationCodeException();
 
     const payload = { id: user.id, organizationId: user.organizationId };
