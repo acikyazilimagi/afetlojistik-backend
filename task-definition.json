@@ -32,7 +32,40 @@
       "dnsServers": null,
       "mountPoints": [],
       "workingDirectory": null,
-      "secrets": null,
+      "secrets": [
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:/projects/afetlojistik/jwt-uP8z7e:JWT_SECRET::",
+          "name": "JWT_SECRET"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:/projects/afetlojistik/optiyol-token-8Y81Ky:OPTIYOL_TOKEN::",
+          "name": "OPTIYOL_TOKEN"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:/projects/afetlojistik/integration-optiyol-url-Zgi7GB:INTEGRATION_OPTIYOL_URL::",
+          "name": "INTEGRATION_OPTIYOL_URL"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:/projects/afetlojistik/optiyol-company-name-QjZNQS:OPTIYOL_COMPANY_NAME::",
+          "name": "OPTIYOL_COMPANY_NAME"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:/projects/afetlojistik/aws-region-cMHGge:AWS_REGION::",
+          "name": "AWS_REGION"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:/projects/afetlojistik/aws-access-key-rHK1BH:AWS_ACCESS_KEY::",
+          "name": "AWS_ACCESS_KEY"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:/projects/afetlojistik/aws-secret-key-jSa526:AWS_SECRET_KEY::",
+          "name": "AWS_SECRET_KEY"
+        },
+        {
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:366354050833:secret:/projects/afetlojistik/debug-bypass-code-mGnbTf:DEBUG_BYPASS_CODE::",
+          "name": "DEBUG_BYPASS_CODE"
+        }
+      ],
       "dockerSecurityOptions": null,
       "memory": 4096,
       "memoryReservation": null,
