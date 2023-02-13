@@ -1,6 +1,5 @@
 FROM node:18-alpine As build
 
-
 # Add necessary build tools
 RUN apk update
 RUN apk add --no-cache make gcc g++
