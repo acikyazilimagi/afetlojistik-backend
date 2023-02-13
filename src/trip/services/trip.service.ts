@@ -12,7 +12,6 @@ import {
   TripInvalidProductException,
   TripNotFoundException,
 } from '../exceptions/trip.exception';
-import { LocationService } from '../../location/location.service';
 import { CategoryService } from '../../category/category.service';
 import TripFormatter from '../formatters/trip-populate.formatter';
 import { UserService } from '../../user/user.service';
@@ -25,6 +24,9 @@ import { OrganizationDocument } from 'src/organization/schemas/organization.sche
 import { FilterTripDto } from '../dto/filter-trip.dto';
 import { UpdateTripDto } from '../dto/update-trip.dto';
 import { AWSSNSService } from 'src/notification/services/aws-sns.service';
+import { CityService } from '../../location/services/city.service';
+import { DistrictService } from '../../location/services/district.service';
+import { CityDocument } from '../../location/schemas/city.schema';
 
 @Injectable()
 export class TripService {
@@ -32,7 +34,8 @@ export class TripService {
     private readonly logger: PinoLogger,
     @InjectModel(Trip.name)
     private readonly tripModel: Model<Trip>,
-    private readonly locationService: LocationService,
+    private readonly cityService: CityService,
+    private readonly districtService: DistrictService,
     private readonly categoryService: CategoryService,
     private readonly organizationService: OrganizationService,
     private readonly tripFormatter: TripFormatter,
@@ -43,13 +46,17 @@ export class TripService {
   @LogMe()
   async validateTrip(trip) {
     const { fromLocation, toLocation } = trip;
-    const [fromCity, fromDistrict, toCity, toDistrict]: DisctrictDocument[] =
-      await Promise.all([
-        this.locationService.getCityById(fromLocation.cityId),
-        this.locationService.getDistrictbyId(fromLocation.districtId),
-        this.locationService.getCityById(toLocation.cityId),
-        this.locationService.getDistrictbyId(toLocation.districtId),
-      ]);
+    const [fromCity, fromDistrict, toCity, toDistrict]: [
+      CityDocument,
+      DisctrictDocument,
+      CityDocument,
+      DisctrictDocument
+    ] = await Promise.all([
+      this.cityService.getCityById(fromLocation.cityId),
+      this.districtService.getDistrictbyId(fromLocation.districtId),
+      this.cityService.getCityById(toLocation.cityId),
+      this.districtService.getDistrictbyId(toLocation.districtId),
+    ]);
 
     if (!fromCity || !fromDistrict) {
       throw new TripInvalidLocationException({ fromLocation });
@@ -170,8 +177,8 @@ export class TripService {
     const result = this.tripFormatter.getPopulateIds(trips);
 
     const [cities, districts, categories, users] = await Promise.all([
-      this.locationService.getCitiesByIds(result.cityIds),
-      this.locationService.getDistrictsByIds(result.districtIds),
+      this.cityService.getCitiesByIds(result.cityIds),
+      this.districtService.getDistrictsByIds(result.districtIds),
       this.categoryService.getCategoriesByIds(result.categoryIds),
       this.userService.getUsersByIds(result.userIds),
     ]);
