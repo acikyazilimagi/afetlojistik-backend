@@ -13,14 +13,13 @@ export class AwsSnsStrategy implements SmsStrategy {
     private readonly configService: ConfigService
   ) {
     const config: {
-      accessKeyId: string;
+      accessKey: string;
       secretAccessKey: string;
       region: string;
     } = this.configService.get('sms.aws');
 
-    const accessKeyId = config.accessKeyId;
+    const accessKeyId = config.accessKey;
     const secretAccessKey = config.secretAccessKey;
-
     const region = config.region;
 
     const credentials = new Credentials({ accessKeyId, secretAccessKey });
