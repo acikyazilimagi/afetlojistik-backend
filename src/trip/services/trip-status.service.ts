@@ -14,7 +14,6 @@ import {
   TripVehiclePlateNotDefinedException,
 } from '../exceptions/trip.exception';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
-import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 import {
   DispatchableOrder,
   DispatchableVehicle,
@@ -29,7 +28,6 @@ export class TripStatusService {
     @InjectModel(Trip.name)
     private readonly tripModel: Model<Trip>,
     private readonly tripService: TripService,
-    private readonly snsService: AWSSNSService,
     private readonly dispatchService: DispatchService
   ) {}
 

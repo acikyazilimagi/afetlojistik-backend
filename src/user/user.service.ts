@@ -13,7 +13,6 @@ import { ConfigService } from '@nestjs/config';
 import { User, UserDocument } from './schemas/user.schema';
 import UserNotFoundException from './exceptions/user-not-found.exception';
 import { LogMe } from '../common/decorators/log.decorator';
-import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 import { AuthSMS } from './schemas/auth.sms.schema';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
@@ -24,13 +23,14 @@ import UserCanNotBeActivatedException from './exceptions/user-can-not-be-activat
 import PhoneNumberAlreadyExistsException from './exceptions/phone-number-already-exists.exception';
 import InvalidVerificationCodeException from './exceptions/invalid-verification-code.exception';
 import { hash, compare } from 'bcrypt';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class UserService {
   saltRounds = 10;
   constructor(
     private readonly logger: PinoLogger,
-    private readonly snsService: AWSSNSService,
+    private readonly notificationService: NotificationService,
     private jwtService: JwtService,
     private configService: ConfigService,
     @InjectModel(User.name)
@@ -86,7 +86,10 @@ export class UserService {
       this.saltRounds
     );
     const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
-    const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
+    const isSmsSent = await this.notificationService.sendSMS(
+      '+90' + phone,
+      messageBody
+    );
 
     return {
       success: isSmsSent,
@@ -254,7 +257,10 @@ export class UserService {
 
     const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
 
-    const isSmsSent = await this.snsService.sendSMS('+90' + phone, messageBody);
+    const isSmsSent = await this.notificationService.sendSMS(
+      '+90' + phone,
+      messageBody
+    );
 
     if (isSmsSent) {
       await new this.authSMSModel({

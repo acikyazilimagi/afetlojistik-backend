@@ -12,10 +12,19 @@ export default () => ({
   bcrypt: {
     secret: process.env.BCRYPT_SECRET,
   },
-  aws: {
-    region: process.env.AWS_REGION,
-    accessKey: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY,
+  sms: {
+    provider: process.env.SMS_PROVIDER, // 'netgsm', 'aws'
+    netGsm: {
+      username: process.env.NETGSM_USERNAME,
+      password: process.env.NETGSM_PASSWORD,
+      originator: process.env.NETGSM_ORIGINATOR,
+      url: process.env.NETGSM_URL,
+    },
+    aws: {
+      region: process.env.AWS_REGION,
+      accessKey: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_KEY,
+    },
   },
   swagger: {
     enabled: process.env.SWAGGER_ENABLED ?? 'true',
