@@ -23,10 +23,10 @@ import { OrganizationService } from 'src/organization/organization.service';
 import { OrganizationDocument } from 'src/organization/schemas/organization.schema';
 import { FilterTripDto } from '../dto/filter-trip.dto';
 import { UpdateTripDto } from '../dto/update-trip.dto';
-import { AWSSNSService } from 'src/notification/services/aws-sns.service';
 import { CityService } from '../../location/services/city.service';
 import { DistrictService } from '../../location/services/district.service';
 import { CityDocument } from '../../location/schemas/city.schema';
+import { NotificationService } from '../../notification/notification.service';
 
 @Injectable()
 export class TripService {
@@ -40,7 +40,7 @@ export class TripService {
     private readonly organizationService: OrganizationService,
     private readonly tripFormatter: TripFormatter,
     private readonly userService: UserService,
-    private readonly snsService: AWSSNSService
+    private readonly notificationService: NotificationService
   ) {}
 
   @LogMe()
@@ -115,7 +115,7 @@ export class TripService {
     const messageBody = 'kvkk metni';
 
     if (phone) {
-      await this.snsService.sendSMS('+90' + phone, messageBody);
+      await this.notificationService.sendSMS('+90' + phone, messageBody);
     }
 
     return createdTrip;
@@ -235,7 +235,10 @@ export class TripService {
     if (newDriverPhoneNumber && newDriverPhoneNumber !== oldDriverPhoneNumber) {
       const messageBody = 'kvkk metni';
 
-      await this.snsService.sendSMS('+90' + newDriverPhoneNumber, messageBody);
+      await this.notificationService.sendSMS(
+        '+90' + newDriverPhoneNumber,
+        messageBody
+      );
     }
 
     return (await this.tripModel.findOneAndUpdate(
