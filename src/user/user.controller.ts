@@ -7,10 +7,17 @@ import {
   UseGuards,
   Param,
   HttpStatus,
+  Req,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { LoginUserDto } from './dto/login-user.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { LoginResponse, ValidateVerificationCodeResponse } from './types';
 import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
@@ -22,6 +29,9 @@ import { SuccessResponseDto } from 'src/common/dtos';
 import { VerifyResponseDto } from './dto/response';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
+import { PaginationDto } from '../common/dtos/pagination.dto';
+import { FilterUsersResponseDto } from './dto/response/filter-users.response.dto';
+import { FilterUserBodyDto } from './dto/filter-user.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -81,5 +91,26 @@ export class UserController {
   @ApiOperation({ summary: 'Create user.' })
   createUser(@Body() updateUserDto: CreateUserDto): Promise<UserDocument> {
     return this.userService.create(updateUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard, ActiveUserAuthGuard)
+  @Post('filter')
+  @ApiOperation({ summary: 'Filter users.' })
+  @ApiOkResponse({
+    description: 'Filtered users',
+    type: FilterUsersResponseDto,
+  })
+  async filterUsers(
+    @Req() req,
+    @Body() filterTripDto: FilterUserBodyDto,
+    @Query() { limit, skip }: PaginationDto
+  ) {
+    const { organizationId } = req.user;
+    return this.userService.filterUsers({
+      ...filterTripDto,
+      organizationId,
+      limit,
+      skip,
+    });
   }
 }
