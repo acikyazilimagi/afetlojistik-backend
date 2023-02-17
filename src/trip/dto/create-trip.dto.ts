@@ -12,11 +12,13 @@ import {
   Matches,
   MaxLength,
   Min,
+  Validate,
 } from 'class-validator';
 import { NestedObjectValidator } from 'src/common/decorators/nested-object-validator.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { RegexEnum } from '../types';
+import { NotMoreThanMonth } from './validators/estimated-departure-date.validator';
 
 export class VehiclePlateDto {
   @ApiProperty({
@@ -192,7 +194,13 @@ export class CreateTripDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  // TODO: allow up to 30 days later
+  @Validate(NotMoreThanMonth, {
+    message: `Estimated depart time should be between ${new Date(
+      Date.now()
+    )} and ${new Date(
+      new Date(Date.now()).setMonth(new Date(Date.now()).getMonth() + 1)
+    )}`,
+  })
   estimatedDepartTime: string;
 
   @ApiProperty({
