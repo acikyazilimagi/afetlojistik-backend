@@ -1,27 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsBoolean,
-  IsObject,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
-
-class User {
-  @ApiProperty() @IsArray() roles: [];
-  @ApiProperty() @IsString() _id: string;
-  @ApiProperty() @IsBoolean() active: boolean;
-  @ApiProperty() @IsString() name: string;
-  @ApiProperty() @IsString() surname: string;
-  @ApiProperty() @IsString() phone: string;
-  @ApiProperty() @IsString() organizationId: string;
-}
+import { IsObject, IsString, ValidateNested } from 'class-validator';
+import { UserResponseDto } from './user.response.dto';
 
 class VerifyResponse {
   @ApiProperty()
   @IsObject()
   @ValidateNested({ each: true })
-  user: User;
+  user: UserResponseDto;
 
   @ApiProperty() @IsString() token: string;
 }

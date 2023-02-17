@@ -6,7 +6,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { LoginUserDto } from './dto/login-user.dto';
 import { PinoLogger } from 'nestjs-pino';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -24,6 +24,8 @@ import UserCanNotBeActivatedException from './exceptions/user-can-not-be-activat
 import PhoneNumberAlreadyExistsException from './exceptions/phone-number-already-exists.exception';
 import InvalidVerificationCodeException from './exceptions/invalid-verification-code.exception';
 import { hash, compare } from 'bcrypt';
+import { FilterUserDto } from './dto/filter-user.dto';
+import { FilterResult } from '../common/types';
 
 @Injectable()
 export class UserService {
@@ -198,6 +200,7 @@ export class UserService {
       .select('-password -organizationId')
       .lean();
   }
+
   @LogMe()
   async getAll(): Promise<UserDocument[]> {
     const users: UserDocument[] = await this.userModel.find();
@@ -274,5 +277,72 @@ export class UserService {
   @LogMe()
   async getUserByPhone(phone: string): Promise<User> {
     return this.userModel.findOne({ phone });
+  }
+
+  @LogMe()
+  async filterUsers(
+    filterUserDto: FilterUserDto
+  ): Promise<FilterResult<UserDocument>> {
+    const match = {
+      ...(filterUserDto.ids
+        ? {
+            _id: { $in: filterUserDto.ids.map((id) => new Types.ObjectId(id)) },
+          }
+        : undefined),
+      ...(filterUserDto.name
+        ? { name: new RegExp(filterUserDto.name) }
+        : undefined),
+      ...(filterUserDto.surname
+        ? { surname: new RegExp(filterUserDto.surname) }
+        : undefined),
+      ...(filterUserDto.phone
+        ? { phone: new RegExp(filterUserDto.phone) }
+        : undefined),
+      ...(filterUserDto.email
+        ? { email: new RegExp(filterUserDto.email) }
+        : undefined),
+      ...(filterUserDto.statuses
+        ? { status: { $in: filterUserDto.statuses } }
+        : undefined),
+      ...(filterUserDto.isAdmin
+        ? { isAdmin: { $in: filterUserDto.isAdmin } }
+        : undefined),
+      ...(filterUserDto.activeness
+        ? { active: { $in: filterUserDto.activeness } }
+        : undefined),
+      ...{ organizationId: filterUserDto.organizationId },
+    };
+
+    const query = this.userModel.aggregate();
+    query.match(match);
+
+    query.sort({ createdAt: -1 });
+
+    query.facet({
+      total: [{ $count: 'total' }],
+      data: [
+        { $skip: filterUserDto.skip || 0 },
+        { $limit: filterUserDto.limit || Number.MAX_SAFE_INTEGER },
+      ],
+    });
+
+    query.project({
+      total: { $arrayElemAt: ['$total.total', 0] },
+      data: 1,
+    });
+
+    const [{ data: users, total }] = await query.exec();
+
+    if (!users.length) {
+      return {
+        data: [],
+        total: 0,
+      };
+    }
+
+    return {
+      data: users,
+      total,
+    };
   }
 }
