@@ -21,6 +21,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@casl/ability": "^6.3.3",
     "@nestjs/axios": "^2.0.0",
     "@nestjs/common": "^9.3.7",
     "@nestjs/config": "^2.3.1",
