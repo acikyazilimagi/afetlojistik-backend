@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { RawAxiosRequestHeaders } from 'axios';
 import { PinoLogger } from 'nestjs-pino';
 import { LogMe } from 'src/common/decorators/log.decorator';
@@ -11,21 +12,27 @@ import {
   OptiyolDispatchOrderResult,
   OptiyolDispatchVehicleResult,
 } from './types/optiyol.types';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class OptiyolServiceClient {
-  private readonly authHeaders: Partial<RawAxiosRequestHeaders>;
+export class OptiyolServiceClient implements OnModuleInit {
+  private authHeaders: Partial<RawAxiosRequestHeaders>;
+
   constructor(
     protected readonly logger: PinoLogger,
     private readonly config: ConfigService,
     private readonly httpService: HttpService
   ) {
     this.logger.setContext(OptiyolServiceClient.name);
+  }
+
+  onModuleInit() {
+    const optiyolToken = this.config.get<string>('optiyol.token');
+    const optiyolCompany = this.config.get<string>('optiyol.company');
+
     this.authHeaders = {
-      Authorization: `token ${this.config.get<string>('optiyol.token')}`,
-      'optiyol-company': this.config.get<string>('optiyol.company'),
-    } as Partial<RawAxiosRequestHeaders>;
+      Authorization: `token ${optiyolToken}`,
+      'optiyol-company': optiyolCompany,
+    };
   }
 
   @LogMe()
