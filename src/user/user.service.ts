@@ -1,35 +1,38 @@
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
+import { compare, hash } from 'bcrypt';
+import { Model, Types } from 'mongoose';
+import { PinoLogger } from 'nestjs-pino';
+import { AWSSNSService } from 'src/notification/services/aws-sns.service';
+import { Organization } from 'src/organization/schemas/organization.schema';
+import { LogMe } from '../common/decorators/log.decorator';
+import { FilterResult } from '../common/types';
+import { CreateUserDto } from './dto/create-user.dto';
+import { FilterUserDto } from './dto/filter-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
+import InvalidVerificationCodeException from './exceptions/invalid-verification-code.exception';
+import PhoneNumberAlreadyExistsException from './exceptions/phone-number-already-exists.exception';
+import UserCanNotBeActivatedException from './exceptions/user-can-not-be-activated.exception';
+import UserNotFoundException from './exceptions/user-not-found.exception';
+import { AuthSMS } from './schemas/auth.sms.schema';
+import { User, UserDocument } from './schemas/user.schema';
 import {
   LoginResponse,
   UserStatuses,
   ValidateVerificationCodeResponse,
 } from './types';
-import { Injectable } from '@nestjs/common';
-import { LoginUserDto } from './dto/login-user.dto';
-import { PinoLogger } from 'nestjs-pino';
-import { Model, Types } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { User, UserDocument } from './schemas/user.schema';
-import UserNotFoundException from './exceptions/user-not-found.exception';
-import { LogMe } from '../common/decorators/log.decorator';
-import { AWSSNSService } from 'src/notification/services/aws-sns.service';
-import { AuthSMS } from './schemas/auth.sms.schema';
-import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
-import { VerifyOtpDto } from './dto/verify-otp.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateUserDto } from './dto/create-user.dto';
-import { Organization } from 'src/organization/schemas/organization.schema';
-import UserCanNotBeActivatedException from './exceptions/user-can-not-be-activated.exception';
-import PhoneNumberAlreadyExistsException from './exceptions/phone-number-already-exists.exception';
-import InvalidVerificationCodeException from './exceptions/invalid-verification-code.exception';
-import { hash, compare } from 'bcrypt';
-import { FilterUserDto } from './dto/filter-user.dto';
-import { FilterResult } from '../common/types';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
+  private bcryptSecret: string;
+  private bypassCode: string;
   saltRounds = 10;
+
   constructor(
     private readonly logger: PinoLogger,
     private readonly snsService: AWSSNSService,
@@ -42,6 +45,11 @@ export class UserService {
     @InjectModel(Organization.name)
     private readonly organizationModel: Model<Organization>
   ) {}
+
+  onModuleInit() {
+    this.bcryptSecret = this.configService.get('bcrypt.secret');
+    this.bypassCode = this.configService.get('debug.bypassCode');
+  }
 
   @LogMe()
   async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
@@ -82,9 +90,8 @@ export class UserService {
     message: string;
   }> {
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
-    const bcryptSecret = this.configService.get('bcrypt.secret');
     const hashedVerificationCode = await hash(
-      verificationCode.toString() + bcryptSecret,
+      verificationCode.toString() + this.bcryptSecret,
       this.saltRounds
     );
     const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
@@ -116,15 +123,12 @@ export class UserService {
     if (!authSMSDocument) throw new InvalidVerificationCodeException();
 
     const verificationCode = authSMSDocument.verificationCode;
-    const bypassCode = this.configService.get('debug.bypassCode');
-
-    const bcryptSecret = this.configService.get('bcrypt.secret');
     const isCodeValid = await compare(
-      enteredCode + bcryptSecret,
+      enteredCode + this.bcryptSecret,
       verificationCode
     );
 
-    if (!isCodeValid && enteredCode !== bypassCode)
+    if (!isCodeValid && enteredCode !== this.bypassCode)
       throw new InvalidVerificationCodeException();
 
     let user = await this.userModel.findOne({ phone });

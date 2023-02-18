@@ -1,28 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { SNS, Credentials, config } from 'aws-sdk';
+import { config, Credentials, SNS } from 'aws-sdk';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
-export class AWSSNSService {
+export class AWSSNSService implements OnModuleInit {
+  private awsRegion: string;
+  private awsAccessKey: string;
+  private awsSecretKey: string;
+  private debugBypassSms: boolean;
+
   constructor(
     private readonly logger: PinoLogger,
     private configService: ConfigService
-  ) {
+  ) {}
+
+  onModuleInit() {
+    this.awsRegion = this.configService.get('aws.region');
+    this.awsAccessKey = this.configService.get('aws.accessKey');
+    this.awsSecretKey = this.configService.get('aws.secretAccessKey');
+    this.debugBypassSms = this.configService.get('debug.bypassSms');
+
     const credentials = new Credentials({
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET_KEY,
+      accessKeyId: this.awsAccessKey,
+      secretAccessKey: this.awsSecretKey,
     });
     config.credentials = credentials;
     // Set the region
-    config.update({ region: this.configService.get('aws.region') });
+    config.update({ region: this.awsRegion });
   }
 
   async sendSMS(phone: string, body: string): Promise<boolean> {
-    if (this.configService.get<boolean>('debug.bypassSms')) {
-      return true;
-    }
+    if (this.debugBypassSms) return true;
+
     // Create publish parameters
     const params = {
       Message: JSON.stringify(body) /* required */,
