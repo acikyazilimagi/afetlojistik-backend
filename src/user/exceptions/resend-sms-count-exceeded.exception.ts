@@ -1,11 +1,12 @@
 import { HttpStatus } from '@nestjs/common';
 import { TMSException } from 'src/common/exceptions/tms.exception';
+import { ERROR_META_DATAS } from 'src/constants';
 
 export default class ResendSmsCountExceededException extends TMSException {
   constructor() {
     super(
-      'SMS limiti aşıldı. Lütfen 5 dakika sonra tekran deneyiniz.',
-      HttpStatus.BAD_REQUEST,
+      ERROR_META_DATAS.SMS.RESEND_COUNT_EXCEEDED.message,
+      ERROR_META_DATAS.SMS.RESEND_COUNT_EXCEEDED.code,
       HttpStatus.BAD_REQUEST
     );
   }

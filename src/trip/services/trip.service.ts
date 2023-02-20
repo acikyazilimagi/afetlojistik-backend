@@ -1,32 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTripDto, ProductDto } from '../dto/create-trip.dto';
-import { Trip, TripDocument } from '../schemas/trip.schema';
-import { LogMe } from '../../common/decorators/log.decorator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
-import { TripsStatuses } from '../types';
+import { CategoryDocument } from 'src/category/schemas/category.schema';
+import { TEXTS } from 'src/constants';
+import { DisctrictDocument } from 'src/location/schemas/district.schema';
+import { AWSSNSService } from 'src/notification/services/aws-sns.service';
+import { OrganizationService } from 'src/organization/organization.service';
+import { OrganizationDocument } from 'src/organization/schemas/organization.schema';
+import { CategoryService } from '../../category/category.service';
+import { LogMe } from '../../common/decorators/log.decorator';
+import { CityDocument } from '../../location/schemas/city.schema';
+import { CityService } from '../../location/services/city.service';
+import { DistrictService } from '../../location/services/district.service';
+import { UserService } from '../../user/user.service';
+import { CreateTripDto, ProductDto } from '../dto/create-trip.dto';
+import { FilterTripDto } from '../dto/filter-trip.dto';
+import { UpdateTripDto } from '../dto/update-trip.dto';
 import {
   TripInvalidLocationException,
   TripInvalidOrganizationExcetion,
   TripInvalidProductException,
   TripNotFoundException,
 } from '../exceptions/trip.exception';
-import { CategoryService } from '../../category/category.service';
 import TripFormatter from '../formatters/trip-populate.formatter';
-import { UserService } from '../../user/user.service';
-import { DisctrictDocument } from 'src/location/schemas/district.schema';
 import { TripLogic } from '../logic/trip.logic';
-import { CategoryDocument } from 'src/category/schemas/category.schema';
 import { StatusChangeLog } from '../schemas/status.change.log.schema';
-import { OrganizationService } from 'src/organization/organization.service';
-import { OrganizationDocument } from 'src/organization/schemas/organization.schema';
-import { FilterTripDto } from '../dto/filter-trip.dto';
-import { UpdateTripDto } from '../dto/update-trip.dto';
-import { AWSSNSService } from 'src/notification/services/aws-sns.service';
-import { CityService } from '../../location/services/city.service';
-import { DistrictService } from '../../location/services/district.service';
-import { CityDocument } from '../../location/schemas/city.schema';
+import { Trip, TripDocument } from '../schemas/trip.schema';
+import { TripsStatuses } from '../types';
 
 @Injectable()
 export class TripService {
@@ -112,7 +113,7 @@ export class TripService {
       vehicle: { phone },
     } = createTripDto;
 
-    const messageBody = 'kvkk metni';
+    const messageBody = TEXTS.TRIP.messageBody;
 
     if (phone) {
       await this.snsService.sendSMS('+90' + phone, messageBody);
@@ -233,7 +234,7 @@ export class TripService {
     const newDriverPhoneNumber = updateTripDto.vehicle?.phone;
 
     if (newDriverPhoneNumber && newDriverPhoneNumber !== oldDriverPhoneNumber) {
-      const messageBody = 'kvkk metni';
+      const messageBody = TEXTS.TRIP.messageBody;
 
       await this.snsService.sendSMS('+90' + newDriverPhoneNumber, messageBody);
     }

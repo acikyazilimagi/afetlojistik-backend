@@ -1,12 +1,12 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
-  HttpStatus,
+  Catch,
+  ExceptionFilter,
   HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
-import { ERROR_MESSAGES } from '../../constants';
+import { ERROR_META_DATAS } from '../../constants';
 import { TMSException } from '../exceptions/tms.exception';
 import ValidationException from '../exceptions/validation.exception';
 
@@ -24,7 +24,7 @@ const createTmsErrorResponse = (exception: TMSException) => {
 };
 
 const createValidationErrorForResponse = (exception: ValidationException) => {
-  const { code, error } = ERROR_MESSAGES.VALIDATION;
+  const { code, error } = ERROR_META_DATAS.COMMON.VALIDATION;
   const { constraints, property }: any = exception.getResponse();
 
   const rawConstraints = constraints
@@ -46,7 +46,7 @@ const createValidationErrorForResponse = (exception: ValidationException) => {
 };
 
 const createUnknownErrorResponse = (exception: HttpException) => {
-  const { code, error, message } = ERROR_MESSAGES.UNKNOWN;
+  const { code, error, message } = ERROR_META_DATAS.COMMON.UNKNOWN;
   const { message: detail, stack } = exception;
 
   return {
