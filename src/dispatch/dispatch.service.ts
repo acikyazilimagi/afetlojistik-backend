@@ -5,13 +5,8 @@ import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 import { LogMe } from 'src/common/decorators/log.decorator';
 import { IntegrationService } from 'src/integration/integration.service';
-import { IntegrationDocument } from 'src/integration/schemas/integration.schema';
 import { Integrators } from 'src/integration/types/integration.types';
-import {
-  DispatchDto,
-  DispatchOrderDto,
-  DispatchVehicleDto,
-} from './dtos/dispatch.dto';
+import { DispatchDto } from './dtos/dispatch.dto';
 import {
   InvalidDispatchException,
   InvalidDispatchIntegrationException,
@@ -37,12 +32,10 @@ export class DispatchService {
 
   @LogMe()
   async dispatchTrip(data: DispatchableOrder): Promise<void> {
-    const integration: IntegrationDocument =
-      await this.integrationService.getPriorIntegration();
+    const integration = await this.integrationService.getPriorIntegration();
 
     if (integration.integrator === Integrators.OPTIYOL) {
-      const dispatchOrder: DispatchOrderDto =
-        DispatchFormatter.formatDispatchOrder(data);
+      const dispatchOrder = DispatchFormatter.formatDispatchOrder(data);
 
       if (!dispatchOrder) {
         throw new InvalidDispatchException({ data });
@@ -71,12 +64,10 @@ export class DispatchService {
 
   @LogMe()
   async dispatchVehicle(data: DispatchableVehicle): Promise<void> {
-    const integration: IntegrationDocument =
-      await this.integrationService.getPriorIntegration();
+    const integration = await this.integrationService.getPriorIntegration();
 
     if (integration.integrator === Integrators.OPTIYOL) {
-      const dispatchVehicle: DispatchVehicleDto =
-        DispatchFormatter.formatDispatchVehicle(data);
+      const dispatchVehicle = DispatchFormatter.formatDispatchVehicle(data);
 
       if (!dispatchVehicle) {
         throw new InvalidDispatchException({ data });
