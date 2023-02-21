@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { TMSException } from 'src/common/exceptions/tms.exception';
 
-export default class UserNotFoundException extends TMSException {
+export class UserNotFoundException extends TMSException {
   constructor() {
     super(
       'Kullanıcı adı veya doğrulama kodu hatalı!',

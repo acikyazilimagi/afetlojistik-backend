@@ -6,8 +6,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AdminAuthGuard } from 'src/auth/admin.guard';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AdminAuthGuard, JwtAuthGuard } from 'src/auth/guards';
 import { TransformResponseInterceptor } from 'src/common/interceptors';
 import { IntegrationService } from './integration.service';
 import { IntegrationDocument } from './schemas/integration.schema';

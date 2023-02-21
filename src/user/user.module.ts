@@ -1,14 +1,13 @@
 import { Global, Module } from '@nestjs/common';
-import { UserService } from './user.service';
-import { UserController } from './user.controller';
-import { User, UserSchema } from './schemas/user.schema';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthSMS, AuthSMSSchema } from './schemas/auth.sms.schema';
-import { NotificationModule } from '../notification/notification.module';
 import {
   Organization,
   OrganizationSchema,
 } from 'src/organization/schemas/organization.schema';
+import { NotificationModule } from '../notification/notification.module';
+import { AuthSMS, AuthSMSSchema, User, UserSchema } from './schemas';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
 
 @Global()
 @Module({

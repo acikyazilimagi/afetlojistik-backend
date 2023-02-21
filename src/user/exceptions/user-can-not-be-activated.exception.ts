@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { TMSException } from 'src/common/exceptions/tms.exception';
 
-export default class UserCanNotBeActivatedException extends TMSException {
+export class UserCanNotBeActivatedException extends TMSException {
   constructor() {
     super(
       'Kullanıcı giriş yapmadan aktif edilemez!',

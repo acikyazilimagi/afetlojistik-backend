@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
   Param,
   Patch,
   Post,
@@ -11,27 +10,21 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import {
-  ApiOkResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { SuccessResponseDto } from 'src/common/dtos';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TransformResponseInterceptor } from 'src/common/interceptors';
-import { AdminAuthGuard } from '../auth/admin.guard';
+import {
+  ActiveUserAuthGuard,
+  AdminAuthGuard,
+  JwtAuthGuard,
+} from '../auth/guards';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { CreateUserDto } from './dto/create-user.dto';
-import { FilterUserBodyDto } from './dto/filter-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
-import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
-import { VerifyResponseDto } from './dto/response';
-import { FilterUsersResponseDto } from './dto/response/filter-users.response.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { VerifyOtpDto } from './dto/verify-otp.dto';
-import { User, UserDocument } from './schemas/user.schema';
+import {
+  CreateUserDto,
+  FilterUserBodyDto,
+  FilterUsersResponseDto,
+  UpdateUserDto,
+} from './dto';
+import { UserDocument } from './schemas';
 import { UserService } from './user.service';
 
 @UseInterceptors(TransformResponseInterceptor)
@@ -39,43 +32,6 @@ import { UserService } from './user.service';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Post('login')
-  @ApiOperation({ summary: 'Login user.' })
-  @ApiResponse({ status: HttpStatus.OK, type: SuccessResponseDto })
-  async login(
-    @Body() loginUserDto: LoginUserDto
-  ): Promise<{ success: boolean }> {
-    const { success } = await this.userService.login(loginUserDto);
-
-    return { success };
-  }
-
-  @Post('verify')
-  @ApiOperation({ summary: 'Validate verification code.' })
-  @ApiResponse({ status: HttpStatus.OK, type: VerifyResponseDto })
-  async validateVerificationCode(
-    @Body() verifyOtpDto: VerifyOtpDto
-  ): Promise<{ user: Partial<User>; token: string }> {
-    const { token, user } = await this.userService.validateVerificationCode(
-      verifyOtpDto
-    );
-
-    return { token, user };
-  }
-
-  @Post('verification/resend')
-  @ApiOperation({ summary: 'Resend verification code.' })
-  @ApiResponse({ status: HttpStatus.OK, type: SuccessResponseDto })
-  async resendVerificationCode(
-    @Body() resendVerificationCodeDto: ResendVerificationCodeDto
-  ): Promise<{ success: boolean }> {
-    const { success } = await this.userService.resendVerificationCode(
-      resendVerificationCodeDto
-    );
-
-    return { success };
-  }
 
   @Get()
   @UseGuards(JwtAuthGuard, AdminAuthGuard, ActiveUserAuthGuard)

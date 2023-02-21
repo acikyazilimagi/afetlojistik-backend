@@ -9,8 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ActiveUserAuthGuard, JwtAuthGuard } from 'src/auth/guards';
 import { TransformResponseInterceptor } from 'src/common/interceptors';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
 import { UpdateTripDto } from '../dto/update-trip.dto';

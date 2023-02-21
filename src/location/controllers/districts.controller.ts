@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TransformResponseInterceptor } from 'src/common/interceptors';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards';
 import {
   GetAllDistrictsResponseDto,
   GetDistrictByIdResponseDto,
