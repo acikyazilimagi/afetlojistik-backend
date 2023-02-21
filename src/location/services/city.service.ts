@@ -18,28 +18,40 @@ export class CityService {
   ) {}
 
   @LogMe()
-  async getAllCities(): Promise<CityDocument[]> {
+  async getAllCities(): Promise<{ cities: CityDocument[] }> {
     const cities = await this.cityModel.find({});
 
-    return LocationLogic.sortCitiesAlphabetically(cities);
+    const sortedCities = LocationLogic.sortCitiesAlphabetically(cities);
+
+    return { cities: sortedCities };
   }
 
   @LogMe()
-  async getCityById(cityId: string): Promise<CityDocument> {
-    return this.cityModel.findById(cityId);
+  async getCityById(cityId: string): Promise<{ city: CityDocument }> {
+    const city = await this.cityModel.findById(cityId);
+
+    // TODO: Check is null, if true throw exception
+
+    return { city };
   }
 
   @LogMe()
-  async getCitiesByIds(cityIds: string[]): Promise<CityDocument[]> {
+  async getCitiesByIds(cityIds: string[]): Promise<{ cities: CityDocument[] }> {
     const cities = await this.cityModel.find({
       _id: { $in: cityIds },
     });
 
-    return LocationLogic.sortCitiesAlphabetically(cities);
+    const sortedCities = LocationLogic.sortCitiesAlphabetically(cities);
+
+    return { cities: sortedCities };
   }
 
   @LogMe()
-  async getDistrictsOfCity(cityId: string): Promise<DistrictDocument[]> {
-    return this.districtService.getDistrictsOfCity(cityId);
+  async getDistrictsOfCity(
+    cityId: string
+  ): Promise<{ districts: DistrictDocument[] }> {
+    const districts = await this.districtService.getDistrictsOfCity(cityId);
+
+    return { districts };
   }
 }

@@ -14,7 +14,7 @@ import {
   GetCityByIdResponseDto,
   GetDistrictsOfCityResponseDto,
 } from '../dto/response';
-import { City } from '../schemas/city.schema';
+import { CityDocument } from '../schemas/city.schema';
 import { District } from '../schemas/district.schema';
 import { CityService } from '../services/city.service';
 
@@ -28,20 +28,25 @@ export class CityController {
   @Get()
   @ApiOperation({ summary: 'Get all cities.' })
   @ApiResponse({ status: HttpStatus.OK, type: GetAllCitiesResponseDto })
-  getAllCities(): Promise<City[]> {
-    return this.cityService.getAllCities();
+  async getAllCities(): Promise<{ cities: CityDocument[] }> {
+    return await this.cityService.getAllCities();
   }
+
   @Get(':cityId')
   @ApiOperation({ summary: 'Get city by id.' })
   @ApiResponse({ status: HttpStatus.OK, type: GetCityByIdResponseDto })
-  getCityById(@Param('cityId') cityId: string): Promise<City> {
-    return this.cityService.getCityById(cityId);
+  async getCityById(
+    @Param('cityId') cityId: string
+  ): Promise<{ city: CityDocument }> {
+    return await this.cityService.getCityById(cityId);
   }
 
   @Get(':cityId/districts')
   @ApiOperation({ summary: 'Get districts of city.' })
   @ApiResponse({ status: HttpStatus.OK, type: GetDistrictsOfCityResponseDto })
-  getDistrictsOfCity(@Param('cityId') cityId: string): Promise<District[]> {
-    return this.cityService.getDistrictsOfCity(cityId);
+  async getDistrictsOfCity(
+    @Param('cityId') cityId: string
+  ): Promise<{ districts: District[] }> {
+    return await this.cityService.getDistrictsOfCity(cityId);
   }
 }
