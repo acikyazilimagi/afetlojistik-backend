@@ -60,7 +60,7 @@ export class TripService {
     const { products } = trip;
     const distinctCategories: string[] =
       TripLogic.getDistinctCategoriesFromProducts(products);
-    const categories = await this.categoryService.getCategoriesByIds(
+    const { categories } = await this.categoryService.getCategoriesByIds(
       distinctCategories
     );
     const invalidProducts: ProductDto[] =
@@ -165,7 +165,7 @@ export class TripService {
   async tripsPopulate(trips: TripDocument[]): Promise<TripDocument[]> {
     const result = this.tripFormatter.getPopulateIds(trips);
 
-    const [cities, districts, categories, users] = await Promise.all([
+    const [cities, districts, { categories }, users] = await Promise.all([
       this.cityService.getCitiesByIds(result.cityIds),
       this.districtService.getDistrictsByIds(result.districtIds),
       this.categoryService.getCategoriesByIds(result.categoryIds),

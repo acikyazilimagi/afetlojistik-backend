@@ -11,13 +11,10 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ResponseCommonDto, ResponsePaginationDto } from 'src/common/dtos';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { TransformResponseInterceptor } from 'src/common/interceptors';
 import { CategoryService } from './category.service';
-import {
-  GetAllCategoriesResponseDto,
-  GetCategoryByCategoryIdResponseDto,
-} from './dto/response';
 import { CategoryDocument } from './schemas/category.schema';
 
 @ApiTags('Category')
@@ -29,26 +26,51 @@ export class CategoryController {
 
   @Get()
   @ApiOperation({ summary: 'Get all categories.' })
-  @ApiResponse({ status: HttpStatus.OK, type: GetAllCategoriesResponseDto })
-  getAllCategories(
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: ResponsePaginationDto<CategoryDocument[]>,
+  })
+  async getAllCategories(
     @Req() req,
     @Query() { limit, skip }: PaginationDto
-  ): Promise<{ data: CategoryDocument[]; total: number }> {
+  ): Promise<{ categories: CategoryDocument[]; total: number }> {
     const { organizationId } = req.user;
-    return this.categoryService.getAllCategories(organizationId, limit, skip);
+
+    const getAllCategoriesPromise = this.categoryService.getAllCategories(
+      organizationId,
+      limit,
+      skip
+    );
+
+    const getAllTotalPromise = this.categoryService.getTotal({
+      organizationId,
+    });
+
+    const [{ categories }, { total }] = await Promise.all([
+      getAllCategoriesPromise,
+      getAllTotalPromise,
+    ]);
+
+    return { categories, total };
   }
 
   @Get(':categoryId')
   @ApiOperation({ summary: 'Get category by category id.' })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: GetCategoryByCategoryIdResponseDto,
+    type: ResponseCommonDto<CategoryDocument>,
   })
-  getCategory(
+  async getCategory(
     @Req() req,
     @Param('categoryId') categoryId: string
-  ): Promise<CategoryDocument> {
+  ): Promise<{ category: CategoryDocument }> {
     const { organizationId } = req.user;
-    return this.categoryService.getCategory(categoryId, organizationId);
+
+    const { category } = await this.categoryService.getCategory(
+      categoryId,
+      organizationId
+    );
+
+    return { category };
   }
 }

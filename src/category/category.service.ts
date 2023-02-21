@@ -20,25 +20,28 @@ export class CategoryService {
     organizationId: string,
     limit: number,
     skip: number
-  ): Promise<{ data: CategoryDocument[]; total: number }> {
+  ): Promise<{ categories: CategoryDocument[] }> {
     const query = { organizationId };
 
-    const result = {
-      data: await this.categoryModel
-        .find(query)
-        .skip(skip || 0)
-        .limit(limit || Number.MAX_SAFE_INTEGER),
+    const categories = await this.categoryModel
+      .find(query)
+      .skip(skip || 0)
+      .limit(limit || Number.MAX_SAFE_INTEGER);
 
-      total: await this.categoryModel.countDocuments(query),
-    };
-
-    const sortedCategories = CategoryLogic.sortCategoriesAlphabetically(
-      result.data
-    );
+    const sortedCategories =
+      CategoryLogic.sortCategoriesAlphabetically(categories);
 
     return {
-      data: sortedCategories,
-      total: result.total,
+      categories: sortedCategories,
+    };
+  }
+
+  @LogMe()
+  async getTotal(query: object): Promise<{ total: number }> {
+    const total = await this.categoryModel.countDocuments(query);
+
+    return {
+      total,
     };
   }
 
@@ -46,7 +49,7 @@ export class CategoryService {
   async getCategory(
     categoryId: string,
     organizationId: string
-  ): Promise<CategoryDocument> {
+  ): Promise<{ category: CategoryDocument }> {
     const category = await this.categoryModel.findOne({
       _id: categoryId,
       organizationId,
@@ -54,13 +57,17 @@ export class CategoryService {
 
     if (!category) throw new CategoryNotFoundException();
 
-    return category;
+    return { category };
   }
 
   @LogMe()
-  async getCategoriesByIds(categoryIds: string[]): Promise<CategoryDocument[]> {
-    return this.categoryModel.find({
+  async getCategoriesByIds(
+    categoryIds: string[]
+  ): Promise<{ categories: CategoryDocument[] }> {
+    const categories = await this.categoryModel.find({
       _id: { $in: categoryIds },
     });
+
+    return { categories };
   }
 }
