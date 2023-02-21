@@ -1,20 +1,23 @@
 import {
+  Body,
   Controller,
-  UseGuards,
+  HttpStatus,
   Param,
   Patch,
-  Body,
-  HttpStatus,
   Req,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { TripDocument } from '../schemas/trip.schema';
-import { TripStatusService } from '../services/trip-status.service';
+import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { TransformResponseInterceptor } from 'src/common/interceptors';
 import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
 import { UpdateTripDto } from '../dto/update-trip.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
+import { TripDocument } from '../schemas/trip.schema';
+import { TripStatusService } from '../services/trip-status.service';
 
+@UseInterceptors(TransformResponseInterceptor)
 @ApiTags('Trip Statuses')
 @Controller('trip')
 @UseGuards(JwtAuthGuard, ActiveUserAuthGuard)

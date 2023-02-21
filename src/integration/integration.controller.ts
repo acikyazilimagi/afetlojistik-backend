@@ -1,10 +1,18 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AdminAuthGuard } from 'src/auth/admin.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { TransformResponseInterceptor } from 'src/common/interceptors';
 import { IntegrationService } from './integration.service';
 
 @ApiTags('Integration')
+@UseInterceptors(TransformResponseInterceptor)
 @Controller('integration')
 @UseGuards(JwtAuthGuard, AdminAuthGuard)
 export class IntegrationController {

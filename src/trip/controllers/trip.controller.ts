@@ -1,22 +1,23 @@
 import {
-  Controller,
-  Post,
   Body,
-  UseGuards,
+  Controller,
   Get,
-  Param,
-  Query,
-  Put,
   HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
   Req,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { TripService } from '../services/trip.service';
-import { CreateTripDto } from '../dto/create-trip.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { TripDocument } from '../schemas/trip.schema';
-import { FilterTripDto } from '../dto/filter-trip.dto';
-import { UpdateTripDto } from '../dto/update-trip.dto';
+import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { TransformResponseInterceptor } from 'src/common/interceptors';
+import { CreateTripDto } from '../dto/create-trip.dto';
+import { FilterTripDto } from '../dto/filter-trip.dto';
 import {
   CreateTripResponseDto,
   FilterTripsResponseDto,
@@ -24,9 +25,11 @@ import {
   GetPopulatedTripByTripIdResponseDto,
   GetTripByTripNumberResponseDto,
 } from '../dto/response';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
+import { UpdateTripDto } from '../dto/update-trip.dto';
+import { TripDocument } from '../schemas/trip.schema';
+import { TripService } from '../services/trip.service';
 
+@UseInterceptors(TransformResponseInterceptor)
 @ApiTags('Trip')
 @Controller('trip')
 @UseGuards(JwtAuthGuard, ActiveUserAuthGuard)

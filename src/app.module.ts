@@ -1,21 +1,20 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { HealthModule } from './health/health.module';
-import { UserModule } from './user/user.module';
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
+import { APP_PIPE } from '@nestjs/core';
+import { MongoDbModule } from './bootstrap-modules';
+import { CategoryModule } from './category/category.module';
 import { ValidationPipeConfig } from './common/config/validation-pipe.config';
+import { LogModule } from './common/logger';
+import configuration from './config/configuration';
+import { CoreModule } from './core/core.module';
+import { DispatchModule } from './dispatch/dispatch.module';
+import { HealthModule } from './health/health.module';
+import { IntegrationModule } from './integration/integration.module';
 import { LocationModule } from './location/location.module';
-import { TransformInterceptor } from './common/interceptors';
+import { NotificationModule } from './notification/notification.module';
 import { OrganizationModule } from './organization/organization.module';
 import { TripModule } from './trip/trip.module';
-import { CategoryModule } from './category/category.module';
-import { LogModule } from './common/logger';
-import { MongoDbModule } from './bootstrap-modules';
-import { NotificationModule } from './notification/notification.module';
-import { IntegrationModule } from './integration/integration.module';
-import { DispatchModule } from './dispatch/dispatch.module';
-import { CoreModule } from './core/core.module';
-import { ConfigModule } from '@nestjs/config';
-import configuration from './config/configuration';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -38,10 +37,6 @@ import configuration from './config/configuration';
   ],
   controllers: [],
   providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: TransformInterceptor,
-    },
     {
       provide: APP_PIPE,
       useFactory: () => new ValidationPipe(ValidationPipeConfig),

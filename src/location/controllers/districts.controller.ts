@@ -1,5 +1,13 @@
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Controller, Get, HttpStatus, Param, UseGuards } from '@nestjs/common';
+import { TransformResponseInterceptor } from 'src/common/interceptors';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import {
   GetAllDistrictsResponseDto,
@@ -9,6 +17,7 @@ import { District } from '../schemas/district.schema';
 import { DistrictService } from '../services/district.service';
 
 @ApiTags('District')
+@UseInterceptors(TransformResponseInterceptor)
 @Controller('location/districts')
 @UseGuards(JwtAuthGuard)
 export class DistrictController {

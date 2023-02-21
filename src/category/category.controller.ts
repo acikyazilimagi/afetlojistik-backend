@@ -1,24 +1,27 @@
 import {
   Controller,
   Get,
-  UseGuards,
+  HttpStatus,
   Param,
   Query,
-  HttpStatus,
   Req,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { CategoryService } from './category.service';
-import { CategoryDocument } from './schemas/category.schema';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { TransformResponseInterceptor } from 'src/common/interceptors';
+import { CategoryService } from './category.service';
 import {
   GetAllCategoriesResponseDto,
   GetCategoryByCategoryIdResponseDto,
 } from './dto/response';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ActiveUserAuthGuard } from 'src/auth/active-user.guard';
+import { CategoryDocument } from './schemas/category.schema';
 
 @ApiTags('Category')
+@UseInterceptors(TransformResponseInterceptor)
 @Controller('category')
 @UseGuards(JwtAuthGuard, ActiveUserAuthGuard)
 export class CategoryController {
