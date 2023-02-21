@@ -50,7 +50,7 @@ export class CityService {
   async getDistrictsOfCity(
     cityId: string
   ): Promise<{ districts: DistrictDocument[] }> {
-    const districts = await this.districtService.getDistrictsOfCity(cityId);
+    const { districts } = await this.districtService.getDistrictsOfCity(cityId);
 
     return { districts };
   }

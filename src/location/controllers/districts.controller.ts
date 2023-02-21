@@ -26,14 +26,16 @@ export class DistrictController {
   @Get()
   @ApiOperation({ summary: 'Get all districts.' })
   @ApiResponse({ status: HttpStatus.OK, type: GetAllDistrictsResponseDto })
-  getAllDiscritcts(): Promise<District[]> {
-    return this.districtService.getAllDistricts();
+  async getAllDiscritcts(): Promise<{ districts: District[] }> {
+    return await this.districtService.getAllDistricts();
   }
 
   @Get(':districtId')
   @ApiOperation({ summary: 'Get district by id.' })
   @ApiResponse({ status: HttpStatus.OK, type: GetDistrictByIdResponseDto })
-  getDistrictById(@Param('districtId') districtId: string): Promise<District> {
-    return this.districtService.getDistrictbyId(districtId);
+  async getDistrictById(
+    @Param('districtId') districtId: string
+  ): Promise<{ district: District }> {
+    return await this.districtService.getDistrictbyId(districtId);
   }
 }

@@ -42,7 +42,12 @@ export class TripService {
   @LogMe()
   async validateTrip(trip) {
     const { fromLocation, toLocation } = trip;
-    const [fromCity, fromDistrict, toCity, toDistrict] = await Promise.all([
+    const [
+      fromCity,
+      { district: fromDistrict },
+      toCity,
+      { district: toDistrict },
+    ] = await Promise.all([
       this.cityService.getCityById(fromLocation.cityId),
       this.districtService.getDistrictbyId(fromLocation.districtId),
       this.cityService.getCityById(toLocation.cityId),
@@ -165,7 +170,7 @@ export class TripService {
   async tripsPopulate(trips: TripDocument[]): Promise<TripDocument[]> {
     const result = this.tripFormatter.getPopulateIds(trips);
 
-    const [cities, districts, { categories }, users] = await Promise.all([
+    const [cities, { districts }, { categories }, users] = await Promise.all([
       this.cityService.getCitiesByIds(result.cityIds),
       this.districtService.getDistrictsByIds(result.districtIds),
       this.categoryService.getCategoriesByIds(result.categoryIds),

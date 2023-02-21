@@ -15,28 +15,44 @@ export class DistrictService {
   ) {}
 
   @LogMe()
-  async getAllDistricts(): Promise<DistrictDocument[]> {
+  async getAllDistricts(): Promise<{ districts: DistrictDocument[] }> {
     const districts = await this.districtModel.find({});
 
-    return LocationLogic.sortDistrictsAlphabetically(districts);
+    const sortedDistricts =
+      LocationLogic.sortDistrictsAlphabetically(districts);
+
+    return { districts: sortedDistricts };
   }
 
   @LogMe()
-  async getDistrictsOfCity(cityId: string): Promise<DistrictDocument[]> {
-    return this.districtModel.find({ cityId });
+  async getDistrictsOfCity(
+    cityId: string
+  ): Promise<{ districts: DistrictDocument[] }> {
+    const districts = await this.districtModel.find({ cityId });
+
+    return { districts };
   }
 
   @LogMe()
-  async getDistrictbyId(districtId: string): Promise<DistrictDocument> {
-    return this.districtModel.findById(districtId);
+  async getDistrictbyId(
+    districtId: string
+  ): Promise<{ district: DistrictDocument }> {
+    const district = await this.districtModel.findById(districtId);
+
+    return { district };
   }
 
   @LogMe()
-  async getDistrictsByIds(districtIds: string[]): Promise<DistrictDocument[]> {
+  async getDistrictsByIds(
+    districtIds: string[]
+  ): Promise<{ districts: DistrictDocument[] }> {
     const districts = await this.districtModel.find({
       _id: { $in: districtIds },
     });
 
-    return LocationLogic.sortDistrictsAlphabetically(districts);
+    const sortedDistricts =
+      LocationLogic.sortDistrictsAlphabetically(districts);
+
+    return { districts: sortedDistricts };
   }
 }
