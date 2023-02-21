@@ -17,14 +17,22 @@ export class OrganizationService {
   ) {}
 
   @LogMe()
-  async getAllOrganizations(): Promise<OrganizationDocument[]> {
-    return await this.organizationModel.find({});
+  async getAllOrganizations(): Promise<{
+    organizations: OrganizationDocument[];
+  }> {
+    const organizations = await this.organizationModel.find({});
+
+    return { organizations };
   }
 
   @LogMe()
   async getOrganizationById(
     organizationId: string
-  ): Promise<OrganizationDocument> {
-    return this.organizationModel.findById(organizationId);
+  ): Promise<{ organization: OrganizationDocument }> {
+    const organization = await this.organizationModel.findById(organizationId);
+
+    // TODO: check is null, if true throw exception
+
+    return { organization };
   }
 }

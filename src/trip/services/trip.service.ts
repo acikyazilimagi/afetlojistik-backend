@@ -81,7 +81,7 @@ export class TripService {
     userId: string,
     organizationId: string
   ): Promise<TripDocument> {
-    const organization = await this.organizationService.getOrganizationById(
+    const { organization } = await this.organizationService.getOrganizationById(
       organizationId
     );
 
