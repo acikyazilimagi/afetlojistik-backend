@@ -17,34 +17,36 @@ export class IntegrationService {
   }
 
   @LogMe()
-  async getIntegrations(): Promise<IntegrationDocument[]> {
-    return await this.integrationModel.find({});
+  async getIntegrations(): Promise<{ integrations: IntegrationDocument[] }> {
+    const integrations = await this.integrationModel.find({});
+
+    return { integrations };
   }
 
   @LogMe()
   async getIntegrationById(
     integrationId: string
-  ): Promise<IntegrationDocument> {
+  ): Promise<{ integration: IntegrationDocument }> {
     const integration = await this.integrationModel.findById(integrationId);
 
     if (!integration) throw new IntegrationNotFoundException({ integrationId });
 
-    return integration;
+    return { integration };
   }
 
   @LogMe()
-  async getPriorIntegration(): Promise<IntegrationDocument> {
+  async getPriorIntegration(): Promise<{ integration: IntegrationDocument }> {
     const integration = await this.integrationModel.findOne({ priority: true });
 
     if (!integration) throw new IntegrationNotFoundException({});
 
-    return integration;
+    return { integration };
   }
 
   @LogMe()
   async setPriorIntegration(
     integrationId: string
-  ): Promise<IntegrationDocument> {
+  ): Promise<{ integration: IntegrationDocument }> {
     await this.integrationModel.updateMany({
       $set: { priority: false },
     });
@@ -59,6 +61,6 @@ export class IntegrationService {
 
     if (!integration) throw new IntegrationNotFoundException({});
 
-    return integration;
+    return { integration };
   }
 }

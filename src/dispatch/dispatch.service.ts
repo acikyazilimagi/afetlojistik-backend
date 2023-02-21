@@ -32,7 +32,7 @@ export class DispatchService {
 
   @LogMe()
   async dispatchTrip(data: DispatchableOrder): Promise<void> {
-    const integration = await this.integrationService.getPriorIntegration();
+    const { integration } = await this.integrationService.getPriorIntegration();
 
     if (integration.integrator === Integrators.OPTIYOL) {
       const dispatchOrder = DispatchFormatter.formatDispatchOrder(data);
@@ -64,7 +64,7 @@ export class DispatchService {
 
   @LogMe()
   async dispatchVehicle(data: DispatchableVehicle): Promise<void> {
-    const integration = await this.integrationService.getPriorIntegration();
+    const { integration } = await this.integrationService.getPriorIntegration();
 
     if (integration.integrator === Integrators.OPTIYOL) {
       const dispatchVehicle = DispatchFormatter.formatDispatchVehicle(data);

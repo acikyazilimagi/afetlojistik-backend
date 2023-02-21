@@ -10,6 +10,7 @@ import { AdminAuthGuard } from 'src/auth/admin.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TransformResponseInterceptor } from 'src/common/interceptors';
 import { IntegrationService } from './integration.service';
+import { IntegrationDocument } from './schemas/integration.schema';
 
 @ApiTags('Integration')
 @UseInterceptors(TransformResponseInterceptor)
@@ -20,7 +21,7 @@ export class IntegrationController {
 
   @Get()
   @ApiOperation({ summary: 'Get all integrators' })
-  getIntegrations(): Promise<any> {
+  getIntegrations(): Promise<{ integrations: IntegrationDocument[] }> {
     return this.integrationService.getIntegrations();
   }
 
@@ -28,7 +29,7 @@ export class IntegrationController {
   @ApiOperation({ summary: 'Get integration by integrationId' })
   getIntegrationById(
     @Param('integrationId') integrationId: string
-  ): Promise<any> {
+  ): Promise<{ integration: IntegrationDocument }> {
     return this.integrationService.getIntegrationById(integrationId);
   }
 }
