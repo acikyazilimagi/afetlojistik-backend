@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { Category, CategoryDocument } from './schemas/category.schema';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
-import { InjectModel } from '@nestjs/mongoose';
 import { LogMe } from '../common/decorators/log.decorator';
 import CategoryNotFoundException from './exceptions/category-not-found.exception';
 import { CategoryLogic } from './logic/category.logic';
+import { Category, CategoryDocument } from './schemas/category.schema';
 
 @Injectable()
 export class CategoryService {
   constructor(
     private readonly logger: PinoLogger,
     @InjectModel(Category.name)
-    private readonly categoryModel: Model<Category>
+    private readonly categoryModel: Model<CategoryDocument>
   ) {}
 
   @LogMe()
@@ -24,20 +24,17 @@ export class CategoryService {
     const query = { organizationId };
 
     const result = {
-      data: (await this.categoryModel
+      data: await this.categoryModel
         .find(query)
         .skip(skip || 0)
-        .limit(
-          limit || Number.MAX_SAFE_INTEGER
-        )) as unknown as CategoryDocument[],
+        .limit(limit || Number.MAX_SAFE_INTEGER),
 
-      total: (await this.categoryModel.countDocuments(
-        query
-      )) as unknown as number,
+      total: await this.categoryModel.countDocuments(query),
     };
 
-    const sortedCategories: CategoryDocument[] =
-      CategoryLogic.sortCategoriesAlphabetically(result.data);
+    const sortedCategories = CategoryLogic.sortCategoriesAlphabetically(
+      result.data
+    );
 
     return {
       data: sortedCategories,
@@ -50,7 +47,7 @@ export class CategoryService {
     categoryId: string,
     organizationId: string
   ): Promise<CategoryDocument> {
-    const category: CategoryDocument = await this.categoryModel.findOne({
+    const category = await this.categoryModel.findOne({
       _id: categoryId,
       organizationId,
     });

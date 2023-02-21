@@ -1,31 +1,34 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
+import { compare, hash } from 'bcrypt';
+import { Model, Types } from 'mongoose';
+import { PinoLogger } from 'nestjs-pino';
+import { AWSSNSService } from 'src/notification/services/aws-sns.service';
+import {
+  Organization,
+  OrganizationDocument,
+} from 'src/organization/schemas/organization.schema';
+import { LogMe } from '../common/decorators/log.decorator';
+import { FilterResult } from '../common/types';
+import { CreateUserDto } from './dto/create-user.dto';
+import { FilterUserDto } from './dto/filter-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
+import InvalidVerificationCodeException from './exceptions/invalid-verification-code.exception';
+import PhoneNumberAlreadyExistsException from './exceptions/phone-number-already-exists.exception';
+import UserCanNotBeActivatedException from './exceptions/user-can-not-be-activated.exception';
+import UserNotFoundException from './exceptions/user-not-found.exception';
+import { AuthSMS, AuthSMSDocument } from './schemas/auth.sms.schema';
+import { User, UserDocument } from './schemas/user.schema';
 import {
   LoginResponse,
   UserStatuses,
   ValidateVerificationCodeResponse,
 } from './types';
-import { Injectable } from '@nestjs/common';
-import { LoginUserDto } from './dto/login-user.dto';
-import { PinoLogger } from 'nestjs-pino';
-import { Model, Types } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { User, UserDocument } from './schemas/user.schema';
-import UserNotFoundException from './exceptions/user-not-found.exception';
-import { LogMe } from '../common/decorators/log.decorator';
-import { AWSSNSService } from 'src/notification/services/aws-sns.service';
-import { AuthSMS } from './schemas/auth.sms.schema';
-import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
-import { VerifyOtpDto } from './dto/verify-otp.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateUserDto } from './dto/create-user.dto';
-import { Organization } from 'src/organization/schemas/organization.schema';
-import UserCanNotBeActivatedException from './exceptions/user-can-not-be-activated.exception';
-import PhoneNumberAlreadyExistsException from './exceptions/phone-number-already-exists.exception';
-import InvalidVerificationCodeException from './exceptions/invalid-verification-code.exception';
-import { hash, compare } from 'bcrypt';
-import { FilterUserDto } from './dto/filter-user.dto';
-import { FilterResult } from '../common/types';
 
 @Injectable()
 export class UserService {
@@ -36,11 +39,11 @@ export class UserService {
     private jwtService: JwtService,
     private configService: ConfigService,
     @InjectModel(User.name)
-    private readonly userModel: Model<User>,
+    private readonly userModel: Model<UserDocument>,
     @InjectModel(AuthSMS.name)
-    private readonly authSMSModel: Model<AuthSMS>,
+    private readonly authSMSModel: Model<AuthSMSDocument>,
     @InjectModel(Organization.name)
-    private readonly organizationModel: Model<Organization>
+    private readonly organizationModel: Model<OrganizationDocument>
   ) {}
 
   @LogMe()
@@ -99,11 +102,11 @@ export class UserService {
 
   @LogMe()
   async getUserById(id: string): Promise<UserDocument> {
-    const user: UserDocument = await this.userModel.findById(id);
+    const user = await this.userModel.findById(id);
 
     if (!user) throw new UserNotFoundException();
 
-    return user as unknown as UserDocument;
+    return user;
   }
 
   @LogMe()
@@ -203,9 +206,9 @@ export class UserService {
 
   @LogMe()
   async getAll(): Promise<UserDocument[]> {
-    const users: UserDocument[] = await this.userModel.find();
+    const users = await this.userModel.find();
 
-    return users as unknown as UserDocument[];
+    return users;
   }
 
   @LogMe()
@@ -219,7 +222,7 @@ export class UserService {
       throw new UserCanNotBeActivatedException();
     }
 
-    return (await this.userModel.findOneAndUpdate(
+    return await this.userModel.findOneAndUpdate(
       {
         _id: userId,
       },
@@ -229,7 +232,7 @@ export class UserService {
         },
       },
       { new: true }
-    )) as unknown as UserDocument;
+    );
   }
 
   validateUser() {
@@ -267,11 +270,11 @@ export class UserService {
       }).save();
     }
 
-    return (await new this.userModel({
+    return await new this.userModel({
       ...createUserDto,
       status: UserStatuses.PENDING,
       organizationId: organization.id,
-    }).save()) as unknown as UserDocument;
+    }).save();
   }
 
   @LogMe()

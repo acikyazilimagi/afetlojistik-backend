@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as mSchema } from 'mongoose';
 
-export type DisctrictDocument = District & Document;
+export type DistrictDocument = District & Document;
 
 @Schema({ versionKey: false, timestamps: true })
 export class District {

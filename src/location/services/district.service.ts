@@ -2,38 +2,38 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
-import { DisctrictDocument, District } from '../schemas/district.schema';
-import { LocationLogic } from '../logic/location.logic';
 import { LogMe } from '../../common/decorators/log.decorator';
+import { LocationLogic } from '../logic/location.logic';
+import { District, DistrictDocument } from '../schemas/district.schema';
 
 @Injectable()
 export class DistrictService {
   constructor(
     private readonly logger: PinoLogger,
     @InjectModel(District.name)
-    private readonly districtModel: Model<District>
+    private readonly districtModel: Model<DistrictDocument>
   ) {}
 
   @LogMe()
-  async getAllDistricts(): Promise<DisctrictDocument[]> {
-    const districts: DisctrictDocument[] = await this.districtModel.find({});
+  async getAllDistricts(): Promise<DistrictDocument[]> {
+    const districts = await this.districtModel.find({});
 
     return LocationLogic.sortDistrictsAlphabetically(districts);
   }
 
   @LogMe()
-  async getDistrictsOfCity(cityId: string): Promise<DisctrictDocument[]> {
+  async getDistrictsOfCity(cityId: string): Promise<DistrictDocument[]> {
     return this.districtModel.find({ cityId });
   }
 
   @LogMe()
-  async getDistrictbyId(districtId: string): Promise<DisctrictDocument> {
+  async getDistrictbyId(districtId: string): Promise<DistrictDocument> {
     return this.districtModel.findById(districtId);
   }
 
   @LogMe()
-  async getDistrictsByIds(districtIds: string[]): Promise<DisctrictDocument[]> {
-    const districts: DisctrictDocument[] = await this.districtModel.find({
+  async getDistrictsByIds(districtIds: string[]): Promise<DistrictDocument[]> {
+    const districts = await this.districtModel.find({
       _id: { $in: districtIds },
     });
 

@@ -1,33 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { Trip, TripDocument } from '../schemas/trip.schema';
-import { LogMe } from '../../common/decorators/log.decorator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
-import { TripsStatuses } from '../types';
-import { StatusChangeLog } from '../schemas/status.change.log.schema';
-import { TripService } from './trip.service';
-import {
-  TripDriverNameNotDefinedException,
-  TripStatusNotAllowedException,
-  TripDriverPhoneNotDefinedException,
-  TripVehiclePlateNotDefinedException,
-} from '../exceptions/trip.exception';
-import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
-import { AWSSNSService } from 'src/notification/services/aws-sns.service';
+import { DispatchService } from 'src/dispatch/dispatch.service';
 import {
   DispatchableOrder,
   DispatchableVehicle,
 } from 'src/dispatch/types/dispatch.types';
+import { AWSSNSService } from 'src/notification/services/aws-sns.service';
+import { LogMe } from '../../common/decorators/log.decorator';
+import { UpdateStatusArrivedDto } from '../dto/update-status-arrived.dto';
+import {
+  TripDriverNameNotDefinedException,
+  TripDriverPhoneNotDefinedException,
+  TripStatusNotAllowedException,
+  TripVehiclePlateNotDefinedException,
+} from '../exceptions/trip.exception';
+import { StatusChangeLog } from '../schemas/status.change.log.schema';
+import { Trip, TripDocument } from '../schemas/trip.schema';
 import { Vehicle } from '../schemas/vehicle.schema';
-import { DispatchService } from 'src/dispatch/dispatch.service';
+import { TripsStatuses } from '../types';
+import { TripService } from './trip.service';
 
 @Injectable()
 export class TripStatusService {
   constructor(
     private readonly logger: PinoLogger,
     @InjectModel(Trip.name)
-    private readonly tripModel: Model<Trip>,
+    private readonly tripModel: Model<TripDocument>,
     private readonly tripService: TripService,
     private readonly snsService: AWSSNSService,
     private readonly dispatchService: DispatchService
@@ -99,7 +99,7 @@ export class TripStatusService {
       createdAt: new Date(),
     };
 
-    return (await this.tripModel.findOneAndUpdate(
+    return await this.tripModel.findOneAndUpdate(
       { _id: tripId },
       {
         $set: {
@@ -108,7 +108,7 @@ export class TripStatusService {
         $addToSet: { statusChangeLog },
       },
       { new: true }
-    )) as unknown as TripDocument;
+    );
   }
 
   @LogMe()
@@ -134,14 +134,14 @@ export class TripStatusService {
       createdAt: new Date(updateStatusArrivedDto.arrivedTime),
     };
 
-    return (await this.tripModel.findOneAndUpdate(
+    return await this.tripModel.findOneAndUpdate(
       { _id: tripId },
       {
         $set: { status },
         $addToSet: { statusChangeLog },
       },
       { new: true }
-    )) as unknown as TripDocument;
+    );
   }
 
   @LogMe()
@@ -170,12 +170,12 @@ export class TripStatusService {
       createdAt: new Date(),
     };
 
-    return (await this.tripModel.findOneAndUpdate(
+    return await this.tripModel.findOneAndUpdate(
       { _id: tripId },
       {
         $set: { status },
         $addToSet: { statusChangeLog },
       }
-    )) as unknown as TripDocument;
+    );
   }
 }

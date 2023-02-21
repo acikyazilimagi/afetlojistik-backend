@@ -1,39 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTripDto, ProductDto } from '../dto/create-trip.dto';
-import { Trip, TripDocument } from '../schemas/trip.schema';
-import { LogMe } from '../../common/decorators/log.decorator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
-import { TripsStatuses } from '../types';
+import { AWSSNSService } from 'src/notification/services/aws-sns.service';
+import { OrganizationService } from 'src/organization/organization.service';
+import { CategoryService } from '../../category/category.service';
+import { LogMe } from '../../common/decorators/log.decorator';
+import { CityService } from '../../location/services/city.service';
+import { DistrictService } from '../../location/services/district.service';
+import { UserService } from '../../user/user.service';
+import { CreateTripDto, ProductDto } from '../dto/create-trip.dto';
+import { FilterTripDto } from '../dto/filter-trip.dto';
+import { UpdateTripDto } from '../dto/update-trip.dto';
 import {
   TripInvalidLocationException,
   TripInvalidOrganizationExcetion,
   TripInvalidProductException,
   TripNotFoundException,
 } from '../exceptions/trip.exception';
-import { CategoryService } from '../../category/category.service';
 import TripFormatter from '../formatters/trip-populate.formatter';
-import { UserService } from '../../user/user.service';
-import { DisctrictDocument } from 'src/location/schemas/district.schema';
 import { TripLogic } from '../logic/trip.logic';
-import { CategoryDocument } from 'src/category/schemas/category.schema';
 import { StatusChangeLog } from '../schemas/status.change.log.schema';
-import { OrganizationService } from 'src/organization/organization.service';
-import { OrganizationDocument } from 'src/organization/schemas/organization.schema';
-import { FilterTripDto } from '../dto/filter-trip.dto';
-import { UpdateTripDto } from '../dto/update-trip.dto';
-import { AWSSNSService } from 'src/notification/services/aws-sns.service';
-import { CityService } from '../../location/services/city.service';
-import { DistrictService } from '../../location/services/district.service';
-import { CityDocument } from '../../location/schemas/city.schema';
+import { Trip, TripDocument } from '../schemas/trip.schema';
+import { TripsStatuses } from '../types';
 
 @Injectable()
 export class TripService {
   constructor(
     private readonly logger: PinoLogger,
     @InjectModel(Trip.name)
-    private readonly tripModel: Model<Trip>,
+    private readonly tripModel: Model<TripDocument>,
     private readonly cityService: CityService,
     private readonly districtService: DistrictService,
     private readonly categoryService: CategoryService,
@@ -46,12 +42,7 @@ export class TripService {
   @LogMe()
   async validateTrip(trip) {
     const { fromLocation, toLocation } = trip;
-    const [fromCity, fromDistrict, toCity, toDistrict]: [
-      CityDocument,
-      DisctrictDocument,
-      CityDocument,
-      DisctrictDocument
-    ] = await Promise.all([
+    const [fromCity, fromDistrict, toCity, toDistrict] = await Promise.all([
       this.cityService.getCityById(fromLocation.cityId),
       this.districtService.getDistrictbyId(fromLocation.districtId),
       this.cityService.getCityById(toLocation.cityId),
@@ -69,8 +60,9 @@ export class TripService {
     const { products } = trip;
     const distinctCategories: string[] =
       TripLogic.getDistinctCategoriesFromProducts(products);
-    const categories: CategoryDocument[] =
-      await this.categoryService.getCategoriesByIds(distinctCategories);
+    const categories = await this.categoryService.getCategoriesByIds(
+      distinctCategories
+    );
     const invalidProducts: ProductDto[] =
       TripLogic.getInvalidProductsByCategories(products, categories);
     if (invalidProducts && invalidProducts.length > 0) {
@@ -84,8 +76,9 @@ export class TripService {
     userId: string,
     organizationId: string
   ): Promise<TripDocument> {
-    const organization: OrganizationDocument =
-      await this.organizationService.getOrganizationById(organizationId);
+    const organization = await this.organizationService.getOrganizationById(
+      organizationId
+    );
 
     if (!organization) {
       throw new TripInvalidOrganizationExcetion({ organizationId });
@@ -101,12 +94,12 @@ export class TripService {
       },
     ];
 
-    const createdTrip = (await new this.tripModel({
+    const createdTrip = await new this.tripModel({
       ...createTripDto,
       organizationId,
       createdBy: userId,
       statusChangeLog: statusChangeLog,
-    }).save()) as unknown as TripDocument;
+    }).save();
 
     const {
       vehicle: { phone },
@@ -126,7 +119,7 @@ export class TripService {
     tripNumber: string,
     organizationId: string
   ): Promise<TripDocument> {
-    const trip: TripDocument = await this.tripModel.findOne({
+    const trip = await this.tripModel.findOne({
       tripNumber: +tripNumber,
       organizationId,
     });
@@ -141,12 +134,10 @@ export class TripService {
     tripId: string,
     organizationId
   ): Promise<TripDocument> {
-    const trip: TripDocument = await this.tripModel
-      .findOne({
-        _id: tripId,
-        organizationId,
-      })
-      .lean();
+    const trip = await this.tripModel.findOne({
+      _id: tripId,
+      organizationId,
+    });
 
     if (!trip) throw new TripNotFoundException();
 
@@ -160,12 +151,10 @@ export class TripService {
     tripId: string,
     organizationId: string
   ): Promise<TripDocument> {
-    const trip: TripDocument = await this.tripModel
-      .findOne({
-        _id: tripId,
-        organizationId,
-      })
-      .lean();
+    const trip = await this.tripModel.findOne({
+      _id: tripId,
+      organizationId,
+    });
 
     if (!trip) throw new TripNotFoundException();
 
@@ -202,14 +191,13 @@ export class TripService {
   ): Promise<{ data: TripDocument[]; total: number }> {
     const query = { organizationId };
     const result = {
-      data: (await this.tripModel
+      data: await this.tripModel
         .find(query)
         .skip(skip || 0)
         .limit(limit || Number.MAX_SAFE_INTEGER)
-        .lean()
         .sort({ createdAt: -1 })
-        .exec()) as unknown as TripDocument[],
-      total: (await this.tripModel.countDocuments(query)) as unknown as number,
+        .exec(),
+      total: await this.tripModel.countDocuments(query),
     };
 
     return {
@@ -238,7 +226,7 @@ export class TripService {
       await this.snsService.sendSMS('+90' + newDriverPhoneNumber, messageBody);
     }
 
-    return (await this.tripModel.findOneAndUpdate(
+    return await this.tripModel.findOneAndUpdate(
       {
         _id: tripId,
       },
@@ -248,7 +236,7 @@ export class TripService {
         },
       },
       { new: true }
-    )) as unknown as TripDocument;
+    );
   }
 
   @LogMe()
@@ -338,14 +326,13 @@ export class TripService {
     }
 
     const result = {
-      data: (await this.tripModel
+      data: await this.tripModel
         .find(query)
         .skip(skip || 0)
         .limit(limit || Number.MAX_SAFE_INTEGER)
-        .lean()
         .sort({ createdAt: -1 })
-        .exec()) as unknown as TripDocument[],
-      total: (await this.tripModel.countDocuments(query)) as unknown as number,
+        .exec(),
+      total: await this.tripModel.countDocuments(query),
     };
 
     return {

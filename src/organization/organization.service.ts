@@ -1,32 +1,30 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 import { LogMe } from '../common/decorators/log.decorator';
-import { InjectModel } from '@nestjs/mongoose';
 import {
   Organization,
   OrganizationDocument,
 } from './schemas/organization.schema';
-import { Model } from 'mongoose';
 
 @Injectable()
 export class OrganizationService {
   constructor(
     public readonly logger: PinoLogger,
     @InjectModel(Organization.name)
-    private readonly organizationModel: Model<Organization>
+    private readonly organizationModel: Model<OrganizationDocument>
   ) {}
 
   @LogMe()
-  getAllOrganizations(): OrganizationDocument[] {
-    return this.organizationModel.find({}) as unknown as OrganizationDocument[];
+  async getAllOrganizations(): Promise<OrganizationDocument[]> {
+    return await this.organizationModel.find({});
   }
 
   @LogMe()
   async getOrganizationById(
     organizationId: string
   ): Promise<OrganizationDocument> {
-    return this.organizationModel.findById(
-      organizationId
-    ) as unknown as OrganizationDocument;
+    return this.organizationModel.findById(organizationId);
   }
 }

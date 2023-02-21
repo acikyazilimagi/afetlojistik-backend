@@ -1,5 +1,5 @@
 import { CityDocument } from '../schemas/city.schema';
-import { DisctrictDocument } from '../schemas/district.schema';
+import { DistrictDocument } from '../schemas/district.schema';
 
 export class LocationLogic {
   static sortCitiesAlphabetically(cities: CityDocument[]): CityDocument[] {
@@ -9,8 +9,8 @@ export class LocationLogic {
   }
 
   static sortDistrictsAlphabetically(
-    districts: DisctrictDocument[]
-  ): DisctrictDocument[] {
+    districts: DistrictDocument[]
+  ): DistrictDocument[] {
     return districts.sort(function (a, b) {
       return a.name.localeCompare(b.name, 'tr');
     });

@@ -11,7 +11,7 @@ export class IntegrationService {
   constructor(
     private readonly logger: PinoLogger,
     @InjectModel(Integration.name)
-    private readonly integrationModel: Model<Integration>
+    private readonly integrationModel: Model<IntegrationDocument>
   ) {
     logger.setContext(IntegrationService.name);
   }
@@ -25,8 +25,7 @@ export class IntegrationService {
   async getIntegrationById(
     integrationId: string
   ): Promise<IntegrationDocument> {
-    const integration: IntegrationDocument | null =
-      await this.integrationModel.findById(integrationId);
+    const integration = await this.integrationModel.findById(integrationId);
 
     if (!integration) throw new IntegrationNotFoundException({ integrationId });
 
@@ -35,8 +34,7 @@ export class IntegrationService {
 
   @LogMe()
   async getPriorIntegration(): Promise<IntegrationDocument> {
-    const integration: IntegrationDocument | null =
-      await this.integrationModel.findOne({ priority: true });
+    const integration = await this.integrationModel.findOne({ priority: true });
 
     if (!integration) throw new IntegrationNotFoundException({});
 
@@ -47,13 +45,11 @@ export class IntegrationService {
   async setPriorIntegration(
     integrationId: string
   ): Promise<IntegrationDocument> {
-    let integration: IntegrationDocument | null = null;
-
     await this.integrationModel.updateMany({
       $set: { priority: false },
     });
 
-    integration = await this.integrationModel.findByIdAndUpdate(
+    const integration = await this.integrationModel.findByIdAndUpdate(
       integrationId,
       {
         $set: { priority: true },

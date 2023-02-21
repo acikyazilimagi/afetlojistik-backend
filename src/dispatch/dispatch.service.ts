@@ -18,7 +18,7 @@ import {
 } from './exceptions/dispatch.exceptions';
 import { DispatchFormatter } from './formatters/dispatch.formatter';
 import { OptiyolServiceClient } from './optiyol.service-client';
-import { Dispatch } from './schema/dispatch.schema';
+import { Dispatch, DispatchDocument } from './schema/dispatch.schema';
 import { DispatchableOrder, DispatchableVehicle } from './types/dispatch.types';
 import {
   OptiyolDispatchOrderResult,
@@ -30,7 +30,7 @@ export class DispatchService {
   constructor(
     private readonly logger: PinoLogger,
     @InjectModel(Dispatch.name)
-    private readonly dispatchModel: Model<Dispatch>,
+    private readonly dispatchModel: Model<DispatchDocument>,
     private readonly integrationService: IntegrationService,
     private readonly optiyolServiceClient: OptiyolServiceClient
   ) {}
