@@ -31,8 +31,7 @@ import { VerifyResponseDto } from './dto/response';
 import { FilterUsersResponseDto } from './dto/response/filter-users.response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
-import { UserDocument } from './schemas/user.schema';
-import { LoginResponse, ValidateVerificationCodeResponse } from './types';
+import { User, UserDocument } from './schemas/user.schema';
 import { UserService } from './user.service';
 
 @UseInterceptors(TransformResponseInterceptor)
@@ -44,56 +43,80 @@ export class UserController {
   @Post('login')
   @ApiOperation({ summary: 'Login user.' })
   @ApiResponse({ status: HttpStatus.OK, type: SuccessResponseDto })
-  login(@Body() loginUserDto: LoginUserDto): Promise<LoginResponse> {
-    return this.userService.login(loginUserDto);
+  async login(
+    @Body() loginUserDto: LoginUserDto
+  ): Promise<{ success: boolean }> {
+    const { success } = await this.userService.login(loginUserDto);
+
+    return { success };
   }
 
   @Post('verify')
   @ApiOperation({ summary: 'Validate verification code.' })
   @ApiResponse({ status: HttpStatus.OK, type: VerifyResponseDto })
-  validateVerificationCode(
+  async validateVerificationCode(
     @Body() verifyOtpDto: VerifyOtpDto
-  ): Promise<ValidateVerificationCodeResponse> {
-    return this.userService.validateVerificationCode(verifyOtpDto);
+  ): Promise<{ user: Partial<User>; token: string }> {
+    const { token, user } = await this.userService.validateVerificationCode(
+      verifyOtpDto
+    );
+
+    return { token, user };
   }
 
   @Post('verification/resend')
   @ApiOperation({ summary: 'Resend verification code.' })
   @ApiResponse({ status: HttpStatus.OK, type: SuccessResponseDto })
-  resendVerificationCode(
+  async resendVerificationCode(
     @Body() resendVerificationCodeDto: ResendVerificationCodeDto
-  ): Promise<LoginResponse> {
-    return this.userService.resendVerificationCode(resendVerificationCodeDto);
+  ): Promise<{ success: boolean }> {
+    const { success } = await this.userService.resendVerificationCode(
+      resendVerificationCodeDto
+    );
+
+    return { success };
   }
 
   @Get()
   @UseGuards(JwtAuthGuard, AdminAuthGuard, ActiveUserAuthGuard)
   @ApiOperation({ summary: 'List users' })
-  list() {
-    return this.userService.getAll();
+  async list(): Promise<{ users: UserDocument[] }> {
+    const { users } = await this.userService.getAll();
+
+    return { users };
   }
 
   @Get(':userId')
   @ApiOperation({ summary: 'Get user.' })
   @UseGuards(JwtAuthGuard, AdminAuthGuard, ActiveUserAuthGuard)
-  getUser(@Param('userId') userId: string): Promise<UserDocument> {
-    return this.userService.getUserById(userId);
+  async getUser(
+    @Param('userId') userId: string
+  ): Promise<{ user: UserDocument }> {
+    const { user } = await this.userService.getUserById(userId);
+
+    return { user };
   }
 
   @Patch(':userId')
   @ApiOperation({ summary: 'Update user.' })
   @UseGuards(JwtAuthGuard, AdminAuthGuard, ActiveUserAuthGuard)
-  updateUser(
+  async updateUser(
     @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto
-  ): Promise<UserDocument> {
-    return this.userService.update(userId, updateUserDto);
+  ): Promise<{ user: UserDocument }> {
+    const { user } = await this.userService.update(userId, updateUserDto);
+
+    return { user };
   }
 
   @Post()
   @ApiOperation({ summary: 'Create user.' })
-  createUser(@Body() updateUserDto: CreateUserDto): Promise<UserDocument> {
-    return this.userService.create(updateUserDto);
+  async createUser(
+    @Body() updateUserDto: CreateUserDto
+  ): Promise<{ user: UserDocument }> {
+    const { user } = await this.userService.create(updateUserDto);
+
+    return { user };
   }
 
   @UseGuards(JwtAuthGuard, ActiveUserAuthGuard)
@@ -107,13 +130,15 @@ export class UserController {
     @Req() req,
     @Body() filterTripDto: FilterUserBodyDto,
     @Query() { limit, skip }: PaginationDto
-  ) {
+  ): Promise<{ data: UserDocument[]; total: number }> {
     const { organizationId } = req.user;
-    return this.userService.filterUsers({
+    const { data, total } = await this.userService.filterUsers({
       ...filterTripDto,
       organizationId,
       limit,
       skip,
     });
+
+    return { data, total };
   }
 }

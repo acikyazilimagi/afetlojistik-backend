@@ -11,11 +11,9 @@ import {
   OrganizationDocument,
 } from 'src/organization/schemas/organization.schema';
 import { LogMe } from '../common/decorators/log.decorator';
-import { FilterResult } from '../common/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import InvalidVerificationCodeException from './exceptions/invalid-verification-code.exception';
@@ -24,11 +22,7 @@ import UserCanNotBeActivatedException from './exceptions/user-can-not-be-activat
 import UserNotFoundException from './exceptions/user-not-found.exception';
 import { AuthSMS, AuthSMSDocument } from './schemas/auth.sms.schema';
 import { User, UserDocument } from './schemas/user.schema';
-import {
-  LoginResponse,
-  UserStatuses,
-  ValidateVerificationCodeResponse,
-} from './types';
+import { UserStatuses } from './types';
 
 @Injectable()
 export class UserService {
@@ -47,39 +41,7 @@ export class UserService {
   ) {}
 
   @LogMe()
-  async login(loginUserDto: LoginUserDto): Promise<LoginResponse> {
-    const { phone } = loginUserDto;
-
-    const user = await this.userModel.findOne({ phone });
-    if (!user) return { success: true };
-
-    const {
-      success: isSmsSend,
-      verificationCode,
-      message,
-    } = await this.sendVerificationCode(phone);
-
-    if (!isSmsSend) return { success: false };
-
-    const authSmsDocument = await this.authSMSModel.findOne({ phone }).lean();
-    if (authSmsDocument?.smsCount >= 5) return { success: true };
-
-    await this.authSMSModel
-      .updateOne(
-        { phone },
-        {
-          $set: { verificationCode, message },
-          $inc: { smsCount: 1 },
-        },
-        { upsert: true }
-      )
-      .lean();
-
-    return { success: true };
-  }
-
-  @LogMe()
-  async sendVerificationCode(phone: string): Promise<{
+  private async sendVerificationCode(phone: string): Promise<{
     success: boolean;
     verificationCode: number;
     message: string;
@@ -101,27 +63,58 @@ export class UserService {
   }
 
   @LogMe()
-  async getUserById(id: string): Promise<UserDocument> {
+  async login(loginUserDto: LoginUserDto): Promise<{ success: boolean }> {
+    const { phone } = loginUserDto;
+
+    const user = await this.userModel.findOne({ phone });
+    if (!user) return { success: true };
+
+    const {
+      success: isSmsSent,
+      verificationCode,
+      message,
+    } = await this.sendVerificationCode(phone);
+
+    if (!isSmsSent) return { success: false };
+
+    const authSmsDocument = await this.authSMSModel.findOne({ phone }).lean();
+    if (authSmsDocument?.smsCount >= 5) return { success: true };
+
+    await this.authSMSModel
+      .updateOne(
+        { phone },
+        {
+          $set: { verificationCode, message },
+          $inc: { smsCount: 1 },
+        },
+        { upsert: true }
+      )
+      .lean();
+
+    return { success: true };
+  }
+
+  @LogMe()
+  async getUserById(id: string): Promise<{ user: UserDocument }> {
     const user = await this.userModel.findById(id);
 
     if (!user) throw new UserNotFoundException();
 
-    return user;
+    return { user };
   }
 
   @LogMe()
   async validateVerificationCode({
     phone,
     code: enteredCode,
-  }: VerifyOtpDto): Promise<ValidateVerificationCodeResponse> {
-    const authSMSDocument = await this.authSMSModel.findOne({ phone });
+  }: VerifyOtpDto): Promise<{ user: Partial<User>; token: string }> {
+    const bypassCode = this.configService.get('debug.bypassCode');
+    const bcryptSecret = this.configService.get('bcrypt.secret');
 
+    const authSMSDocument = await this.authSMSModel.findOne({ phone });
     if (!authSMSDocument) throw new InvalidVerificationCodeException();
 
     const verificationCode = authSMSDocument.verificationCode;
-    const bypassCode = this.configService.get('debug.bypassCode');
-
-    const bcryptSecret = this.configService.get('bcrypt.secret');
     const isCodeValid = await compare(
       enteredCode + bcryptSecret,
       verificationCode
@@ -130,16 +123,13 @@ export class UserService {
     if (!isCodeValid && enteredCode !== bypassCode)
       throw new InvalidVerificationCodeException();
 
-    let user = await this.userModel.findOne({ phone });
+    const user = await this.userModel.findOne({ phone });
     if (!user) throw new InvalidVerificationCodeException();
 
-    const payload = { id: user.id, organizationId: user.organizationId };
-    const access_token = this.jwtService.sign(payload);
-
-    await authSMSDocument?.delete();
+    await authSMSDocument.delete();
 
     if (user.status !== UserStatuses.VERIFIED) {
-      user = await this.userModel.findOneAndUpdate(
+      const userVerified = await this.userModel.findOneAndUpdate(
         { _id: user._id },
         {
           $set: {
@@ -148,25 +138,41 @@ export class UserService {
         },
         { new: true }
       );
-    }
 
-    return {
-      user,
-      token: access_token,
-    };
+      const payload = {
+        id: userVerified.id,
+        organizationId: userVerified.organizationId,
+      };
+      const access_token = this.jwtService.sign(payload);
+
+      return {
+        user: userVerified,
+        token: access_token,
+      };
+    } else {
+      const payload = { id: user.id, organizationId: user.organizationId };
+      const access_token = this.jwtService.sign(payload);
+
+      return {
+        user,
+        token: access_token,
+      };
+    }
   }
 
   @LogMe()
-  async resendVerificationCode(
-    resendVerificationCodeDto: ResendVerificationCodeDto
-  ): Promise<LoginResponse> {
-    const { phone } = resendVerificationCodeDto;
-
+  async resendVerificationCode({
+    phone,
+  }: {
+    phone: string;
+  }): Promise<{ success: boolean }> {
+    // TODO: check is null or not
     const user = await this.userModel.findOne({
       phone,
     });
 
     if (!user) return { success: true };
+
     const authSmsDocument = await this.authSMSModel.findOne({ phone });
 
     if (authSmsDocument.smsCount >= 5) return { success: true };
@@ -195,34 +201,35 @@ export class UserService {
   }
 
   @LogMe()
-  async getUsersByIds(userIds: string[]): Promise<UserDocument[]> {
-    return this.userModel
+  async getUsersByIds(userIds: string[]): Promise<{ users: UserDocument[] }> {
+    const users = await this.userModel
       .find({
         _id: { $in: userIds },
       })
-      .select('-password -organizationId')
-      .lean();
+      .select('-password -organizationId');
+
+    return { users };
   }
 
   @LogMe()
-  async getAll(): Promise<UserDocument[]> {
+  async getAll(): Promise<{ users: UserDocument[] }> {
     const users = await this.userModel.find();
 
-    return users;
+    return { users };
   }
 
   @LogMe()
   async update(
     userId: string,
     updateUserDto: UpdateUserDto
-  ): Promise<UserDocument> {
-    const user = await this.getUserById(userId);
+  ): Promise<{ user: UserDocument }> {
+    const { user } = await this.getUserById(userId);
 
     if (user.status === UserStatuses.PENDING && updateUserDto.active) {
       throw new UserCanNotBeActivatedException();
     }
 
-    return await this.userModel.findOneAndUpdate(
+    const userUpdated = await this.userModel.findOneAndUpdate(
       {
         _id: userId,
       },
@@ -233,6 +240,8 @@ export class UserService {
       },
       { new: true }
     );
+
+    return { user: userUpdated };
   }
 
   validateUser() {
@@ -240,9 +249,10 @@ export class UserService {
   }
 
   @LogMe()
-  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
+  async create(createUserDto: CreateUserDto): Promise<{ user: UserDocument }> {
     // TODO: implement validation rules
     // this.validateUser(createUserDto);
+    // TODO: check is null or not
 
     const organization = await this.organizationModel.findOne();
 
@@ -256,6 +266,7 @@ export class UserService {
       throw new PhoneNumberAlreadyExistsException();
     }
 
+    // TODO: seperate verificationCode generation as utility
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
 
     const messageBody = `Doğrulama kodunuz: ${verificationCode}`;
@@ -270,22 +281,27 @@ export class UserService {
       }).save();
     }
 
-    return await new this.userModel({
+    const newUser = await new this.userModel({
       ...createUserDto,
       status: UserStatuses.PENDING,
       organizationId: organization.id,
     }).save();
+
+    return { user: newUser };
   }
 
   @LogMe()
-  async getUserByPhone(phone: string): Promise<User> {
-    return this.userModel.findOne({ phone });
+  async getUserByPhone(phone: string): Promise<{ user: UserDocument }> {
+    const user = await this.userModel.findOne({ phone });
+
+    return { user };
   }
 
   @LogMe()
-  async filterUsers(
-    filterUserDto: FilterUserDto
-  ): Promise<FilterResult<UserDocument>> {
+  async filterUsers(filterUserDto: FilterUserDto): Promise<{
+    total: number;
+    data: UserDocument[];
+  }> {
     const match = {
       ...(filterUserDto.ids
         ? {

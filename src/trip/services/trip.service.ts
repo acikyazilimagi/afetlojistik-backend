@@ -9,7 +9,7 @@ import { LogMe } from '../../common/decorators/log.decorator';
 import { CityService } from '../../location/services/city.service';
 import { DistrictService } from '../../location/services/district.service';
 import { UserService } from '../../user/user.service';
-import { CreateTripDto, ProductDto } from '../dto/create-trip.dto';
+import { CreateTripDto } from '../dto/create-trip.dto';
 import { FilterTripDto } from '../dto/filter-trip.dto';
 import { UpdateTripDto } from '../dto/update-trip.dto';
 import {
@@ -40,12 +40,14 @@ export class TripService {
   ) {}
 
   @LogMe()
-  async validateTrip(trip) {
-    const { fromLocation, toLocation } = trip;
+  private async validateTrip(
+    trip: CreateTripDto | UpdateTripDto
+  ): Promise<void> {
+    const { fromLocation, toLocation, products } = trip;
     const [
-      fromCity,
+      { city: fromCity },
       { district: fromDistrict },
-      toCity,
+      { city: toCity },
       { district: toDistrict },
     ] = await Promise.all([
       this.cityService.getCityById(fromLocation.cityId),
@@ -54,25 +56,25 @@ export class TripService {
       this.districtService.getDistrictbyId(toLocation.districtId),
     ]);
 
-    if (!fromCity || !fromDistrict) {
+    if (!fromCity || !fromDistrict)
       throw new TripInvalidLocationException({ fromLocation });
-    }
 
-    if (!toCity || !toDistrict) {
+    if (!toCity || !toDistrict)
       throw new TripInvalidLocationException({ toLocation });
-    }
 
-    const { products } = trip;
-    const distinctCategories: string[] =
+    const distinctCategories =
       TripLogic.getDistinctCategoriesFromProducts(products);
+
     const { categories } = await this.categoryService.getCategoriesByIds(
       distinctCategories
     );
-    const invalidProducts: ProductDto[] =
-      TripLogic.getInvalidProductsByCategories(products, categories);
-    if (invalidProducts && invalidProducts.length > 0) {
+    const invalidProducts = TripLogic.getInvalidProductsByCategories(
+      products,
+      categories
+    );
+
+    if (invalidProducts && invalidProducts.length > 0)
       throw new TripInvalidProductException({ invalidProducts });
-    }
   }
 
   @LogMe()
@@ -80,14 +82,13 @@ export class TripService {
     createTripDto: CreateTripDto,
     userId: string,
     organizationId: string
-  ): Promise<TripDocument> {
+  ): Promise<{ trip: TripDocument }> {
     const { organization } = await this.organizationService.getOrganizationById(
       organizationId
     );
 
-    if (!organization) {
+    if (!organization)
       throw new TripInvalidOrganizationExcetion({ organizationId });
-    }
 
     await this.validateTrip(createTripDto);
 
@@ -95,6 +96,7 @@ export class TripService {
       {
         status: TripsStatuses.CREATED,
         createdBy: userId,
+        // TODO: convert date zone to UTC, GMT+00:00
         createdAt: new Date(),
       },
     ];
@@ -112,18 +114,16 @@ export class TripService {
 
     const messageBody = 'kvkk metni';
 
-    if (phone) {
-      await this.snsService.sendSMS('+90' + phone, messageBody);
-    }
+    if (phone) await this.snsService.sendSMS('+90' + phone, messageBody);
 
-    return createdTrip;
+    return { trip: createdTrip };
   }
 
   @LogMe()
   async getTripByNumber(
     tripNumber: string,
     organizationId: string
-  ): Promise<TripDocument> {
+  ): Promise<{ trip: TripDocument }> {
     const trip = await this.tripModel.findOne({
       tripNumber: +tripNumber,
       organizationId,
@@ -131,14 +131,14 @@ export class TripService {
 
     if (!trip) throw new TripNotFoundException();
 
-    return trip;
+    return { trip };
   }
 
   @LogMe()
   async getPopulatedTripById(
     tripId: string,
     organizationId
-  ): Promise<TripDocument> {
+  ): Promise<{ trip: TripDocument }> {
     const trip = await this.tripModel.findOne({
       _id: tripId,
       organizationId,
@@ -148,14 +148,14 @@ export class TripService {
 
     const [populatedTrip] = await this.tripsPopulate([trip]);
 
-    return populatedTrip;
+    return { trip: populatedTrip };
   }
 
   @LogMe()
   async getTripById(
     tripId: string,
     organizationId: string
-  ): Promise<TripDocument> {
+  ): Promise<{ trip: TripDocument }> {
     const trip = await this.tripModel.findOne({
       _id: tripId,
       organizationId,
@@ -163,19 +163,20 @@ export class TripService {
 
     if (!trip) throw new TripNotFoundException();
 
-    return trip;
+    return { trip };
   }
 
   @LogMe()
-  async tripsPopulate(trips: TripDocument[]): Promise<TripDocument[]> {
+  private async tripsPopulate(trips: TripDocument[]): Promise<TripDocument[]> {
     const result = this.tripFormatter.getPopulateIds(trips);
 
-    const [cities, { districts }, { categories }, users] = await Promise.all([
-      this.cityService.getCitiesByIds(result.cityIds),
-      this.districtService.getDistrictsByIds(result.districtIds),
-      this.categoryService.getCategoriesByIds(result.categoryIds),
-      this.userService.getUsersByIds(result.userIds),
-    ]);
+    const [{ cities }, { districts }, { categories }, { users }] =
+      await Promise.all([
+        this.cityService.getCitiesByIds(result.cityIds),
+        this.districtService.getDistrictsByIds(result.districtIds),
+        this.categoryService.getCategoriesByIds(result.categoryIds),
+        this.userService.getUsersByIds(result.userIds),
+      ]);
 
     return trips.map((trip) =>
       this.tripFormatter.populateTrip(
@@ -217,8 +218,8 @@ export class TripService {
     updateTripDto: UpdateTripDto,
     userId: string,
     organizationId: string
-  ): Promise<TripDocument> {
-    const trip = await this.getTripById(tripId, organizationId);
+  ): Promise<{ trip: TripDocument }> {
+    const { trip } = await this.getTripById(tripId, organizationId);
 
     await this.validateTrip(updateTripDto);
 

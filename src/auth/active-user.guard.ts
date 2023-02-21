@@ -10,7 +10,7 @@ export class ActiveUserAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    const user = await this.userService.getUserById(request.user.id);
+    const { user } = await this.userService.getUserById(request.user.id);
 
     request.user = user;
 
