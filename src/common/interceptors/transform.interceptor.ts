@@ -1,35 +1,32 @@
 import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
   CallHandler,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  NestInterceptor,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-export interface Response<T> {
-  data: T;
-}
+import { Response } from 'express';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 @Injectable()
-export class TransformInterceptor<T>
-  implements NestInterceptor<T, Response<T>>
-{
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler
-  ): Observable<Response<T>> {
-    const request = context.switchToHttp().getRequest();
-    const excludePaths = ['/health'];
+export class TransformResponseInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(TransformResponseInterceptor.name);
 
-    if (excludePaths.includes(request.path)) {
-      return next.handle();
-    }
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const request = context.switchToHttp().getRequest();
 
     return next.handle().pipe(
-      map((data) => ({
-        ...(data?.total !== undefined ? { ...data } : { data }),
-      }))
+      map((response: Response) => ({
+        data: response,
+        timestamp: Math.floor(new Date().getTime() / 1000),
+        path: request.path,
+        statusCode: response.statusCode,
+      })),
+      catchError((err) => {
+        this.logger.error(err);
+        return throwError(() => err);
+      })
     );
   }
 }
